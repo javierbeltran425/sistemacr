@@ -16,6 +16,7 @@ import "/node_modules/primeflex/primeflex.css";
 //views
 import Login from "./views/Login";
 import HomePage from "./views/HomePage";
+import TeacherView from "./views/TeacherView";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/home-teacher" element={<TeacherView />} />
       </Routes>
     </Router>
   );

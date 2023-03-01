@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 //custom components
-import Header from '../components/Header';
+import Layout from '../components/layout/Layout';
 import Calendar from '../components/Calendar';
 import History from '../components/History';
 
@@ -22,9 +22,7 @@ const HomePage = () => {
     const [selectedTramite, setSelectedTramite] = useState('Consulta');
 
     return (
-        <div>
-            <Header />
-
+        <Layout>
             <div className='w-full px-6 py-3'>
                 <div className='flex w-full flex-row justify-content-between'>
                     <div className='flex'>
@@ -54,7 +52,7 @@ const HomePage = () => {
                 </div>
 
             </div>
-        </div>
+        </Layout>
     )
 }
 
