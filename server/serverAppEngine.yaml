@@ -1,0 +1,11 @@
+runtime: nodejs18
+service: server
+entrypoint: node server.js
+
+env_variables:
+  DB_USER: "postgres"
+  DB_PASS: "uca"
+  DB_NAME: "postgres"
+  DB_HOST: "34.134.8.64"
+  DB_PORT: "5432"
+  DB_ADDRESS: "/cloudsql/sistemacr:us-central1:sistemacr-db"
