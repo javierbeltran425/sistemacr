@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie'
 
 //components
 import { Avatar } from 'primereact/avatar';
@@ -11,6 +12,14 @@ const Header = () => {
     const [visible, setVisible] = useState(false);
     const [materiasLista, setmateriasLista] = useState([ 'Calculo 1', 'Algebra vectorial y matrices', 'Fundamentos de programación' ]);
     const navigate = useNavigate();
+    const [cookies, setCookie, removeCookie] = useCookies(null)
+
+    const signOut = () => {
+        console.log('signout')
+        removeCookie('Email')
+        removeCookie('AuthToken')
+        window.location.reload()
+    }
 
     const materiasRender = () => {
         return materiasLista.map((materia) => {
@@ -29,7 +38,7 @@ const Header = () => {
                         <div className='flex flex-column justify-content-end'>
                             <h4 className='p-0 pl-1 m-0'>Nobre del usuario</h4>
                             <p className='p-0 pl-1 m-0'>00000000@uca.edu.sv</p>
-                            <p className='p-0 pl-1 m-0 text-blue-300 hover:text-blue-500 cursor-pointer' onClick={() => navigate('/')} >Cerrar sesión</p>
+                            <p className='p-0 pl-1 m-0 text-blue-300 hover:text-blue-500 cursor-pointer' onClick={signOut}>Cerrar sesión</p>
                         </div>
                     </div>
 

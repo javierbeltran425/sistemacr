@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie'
 
 //components
 import { Card } from 'primereact/card';
@@ -10,8 +11,41 @@ import { Button } from 'primereact/button';
 const Login = () => {
     const navigate = useNavigate();
 
-    const [username, setUsername] = useState("");
+    const [error, setError] = useState(null);
+    const [isLogin, setIsLogin] = useState(true)
+    const [cookies, setCookie, removeCookie] = useCookies(null)
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
+    const viewLogin = (status) => {
+        setError(null)
+        setIsLogin(status)
+    }
+
+    const handleSubmit = async (e, endpoint) => {
+        e.preventDefault()
+        /*
+        if (!isLogin && password !== confirmPassword) {
+            setError('Make sure passwords match!')
+            return
+        }
+        */
+        const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({email, password})
+        })
+
+        const data = await response.json()
+
+        if (data.detail) {
+            setError(data.detail)
+        } else {
+            setCookie('Email', data.email)
+            setCookie('AuthToken', data.token)
+            window.location.reload()
+        }
+  }
 
     return (
         <div className='flex w-full h-screen justify-content-center align-items-center surface-ground'>
@@ -21,12 +55,25 @@ const Login = () => {
                         <img src='https://www.uca.edu.sv/realidad.empresarial/wp-content/uploads/2018/09/logo-uca2.png' className='w-8' />
                     </div>
                     <div className='flex flex-column justify-content-center align-items-center gap-4'>
-                        <InputText value={username} onChange={(e) => setUsername(e.target.value)} />
+                        <InputText value={email} onChange={(e) => setEmail(e.target.value)} />
                         <Password value={password} onChange={(e) => setPassword(e.target.value)} feedback={false} placeholder="Contraseña" />
-                        <Button label="Iniciar sesión" onClick={(e) => {
+                        <Button label={isLogin ? "Iniciar sesión" : "Registrarse"} onClick={(e) => {
                             e.preventDefault();
-                            navigate('/home')
+                            handleSubmit(e, isLogin ? 'login' : 'signup')
                         }} />
+
+                        {error && <p>{error}</p>}
+                        <div className='auth-options'>
+                            <button 
+                                onClick={() => viewLogin(false)}
+                                style={{backgroundColor : !isLogin ? 'rgb(255, 255, 255)' : 'rgb(188, 188, 188)', marginRight: '1rem'}}
+                            >Sign Up</button>
+                            <button 
+                                onClick={() => viewLogin(true)}
+                                style={{backgroundColor : isLogin ? 'rgb(255, 255, 255)' : 'rgb(188, 188, 188)'}}
+                            >Login</button>
+                        </div>
+
                     </div>
                 </div>
             </Card>
