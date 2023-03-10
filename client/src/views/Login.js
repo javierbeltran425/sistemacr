@@ -59,7 +59,7 @@ const Login = () => {
                         <Password value={password} onChange={(e) => setPassword(e.target.value)} feedback={false} placeholder="Contraseña" />
                         <Button label={isLogin ? "Iniciar sesión" : "Registrarse"} onClick={(e) => {
                             e.preventDefault();
-                            handleSubmit(e, isLogin ? 'login' : 'signup')
+                            handleSubmit(e, isLogin ? 'auth/login' : 'auth/signup')
                         }} />
 
                         {error && <p>{error}</p>}
