@@ -1,15 +1,15 @@
-import React from 'react'
+import React from "react";
 
 // header import
-import Header from './Header';
+import Header from "./Header";
 
 const Layout = ({ children }) => {
   return (
-    <div className='min-h-screen'>
-        <Header />
-        {children}
+    <div className="min-h-screen">
+      <Header />
+      {children}
     </div>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie'
+import { UserContext } from '../../utils/Context';
 
 //components
 import { Avatar } from 'primereact/avatar';
@@ -13,9 +14,9 @@ const Header = () => {
     const [materiasLista, setmateriasLista] = useState([ 'Calculo 1', 'Algebra vectorial y matrices', 'Fundamentos de programación' ]);
     const navigate = useNavigate();
     const [cookies, setCookie, removeCookie] = useCookies(null)
+    const userEmail = useContext(UserContext)
 
     const signOut = () => {
-        console.log('signout')
         removeCookie('Email')
         removeCookie('AuthToken')
         window.location.reload()
@@ -36,7 +37,7 @@ const Header = () => {
                     <div className='flex flex-column md:flex-row'>
                         <Avatar label="P" size="xlarge" />
                         <div className='flex flex-column justify-content-end'>
-                            <h4 className='p-0 pl-1 m-0'>Nobre del usuario</h4>
+                            <h4 className='p-0 pl-1 m-0'>{userEmail}</h4>
                             <p className='p-0 pl-1 m-0'>00000000@uca.edu.sv</p>
                             <p className='p-0 pl-1 m-0 text-blue-300 hover:text-blue-500 cursor-pointer' onClick={signOut}>Cerrar sesión</p>
                         </div>
@@ -55,7 +56,7 @@ const Header = () => {
                 </Sidebar>
             </div>
             <div className='flex gap-2 p-2 align-items-center'>
-                <h5>Nombre del usuario</h5>
+                <h5>{userEmail}</h5>
                 <Avatar label="N" size="large" />
             </div>
         </div>

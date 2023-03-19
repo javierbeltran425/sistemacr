@@ -8,7 +8,7 @@ const signup = async function (req, res) {
     const hashedPassword = bcrypt.hashSync(password, salt)
     
     try {
-        const signUp = await knex('users').insert({email: email, hashed_password: hashedPassword})
+        await knex('usuarios').insert({email: email, hashed_password: hashedPassword})
         
         const token = jwt.sign({ email }, 'secret', { expiresIn: '1hr' })
         
@@ -24,7 +24,7 @@ const signup = async function (req, res) {
 const login = async function (req, res) {
     const { email, password } = req.body
     try {
-        const users = await knex.select('email', 'hashed_password').from('users').where({email: email})
+        const users = await knex.select('email', 'hashed_password').from('usuarios').where({email: email})
         
         if (Object.keys(users).length === 0) return res.json({ detail: 'User does not exist!' })
         

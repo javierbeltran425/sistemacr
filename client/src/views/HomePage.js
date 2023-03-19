@@ -1,29 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 //custom components
-import Layout from '../components/layout/Layout';
-import Calendar from '../components/Calendar';
-import History from '../components/History';
+import Layout from "../components/layout/Layout";
+import Calendar from "../components/Calendar";
+import History from "../components/History";
+import CalendarAlt from "../components/CalendarAlt";
 
 //prime components
-import { Dropdown } from 'primereact/dropdown';
+import { Dropdown } from "primereact/dropdown";
 
 const HomePage = () => {
-    const [selectedTeacher, setSelectedTeacher] = useState(null);
-    const [teachers, setTeachers] = useState([
-        {
-            name: 'Ronaldo Canizales'
-        },
-        {
-            name: 'Mauricio Grande'
-        }
-    ])
-    const tramites = ['Consulta', 'Revision']
-    const [selectedTramite, setSelectedTramite] = useState('Consulta');
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [teachers, setTeachers] = useState([
+    {
+      name: "Ronaldo Canizales",
+    },
+    {
+      name: "Mauricio Grande",
+    },
+  ]);
+  const tramites = ["Consulta", "Revision"];
+  const [selectedTramite, setSelectedTramite] = useState("Consulta");
 
-    return (
-        <Layout>
-            <div className='w-full px-6 py-3'>
+  return (
+    <Layout>
+      <div className="w-full px-6 py-3">
+        {/*
                 <div className='flex w-full flex-row justify-content-between'>
                     <div className='flex'>
                         <p>Seleccione el trámite que desea hacer: </p>
@@ -46,14 +48,14 @@ const HomePage = () => {
                 <div className='w-full mt-4'>
                     <History />
                 </div>
+                */}
 
-                <div className='mt-4'>
-                    <Calendar />
-                </div>
+        <div className="mt-4">
+          <CalendarAlt />
+        </div>
+      </div>
+    </Layout>
+  );
+};
 
-            </div>
-        </Layout>
-    )
-}
-
-export default HomePage
+export default HomePage;

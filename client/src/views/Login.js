@@ -24,12 +24,7 @@ const Login = () => {
 
     const handleSubmit = async (e, endpoint) => {
         e.preventDefault()
-        /*
-        if (!isLogin && password !== confirmPassword) {
-            setError('Make sure passwords match!')
-            return
-        }
-        */
+
         const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/${endpoint}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -40,7 +35,7 @@ const Login = () => {
 
         if (data.detail) {
             setError(data.detail)
-        } else {
+        } else if (data.token) {
             setCookie('Email', data.email)
             setCookie('AuthToken', data.token)
             window.location.reload()
