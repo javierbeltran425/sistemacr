@@ -1,8 +1,9 @@
-import React, { useState, Component } from "react";
+import React from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
-import events from "../utils/events";
-import backgroundEvents from "../utils/backgroundEvents";
+import "moment-timezone";
+import events from "../data/events";
+import backgroundEvents from "../data/backgroundEvents";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -13,9 +14,14 @@ import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
 
+import { UserContext } from "../context/usuario";
+
+moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
 
-class CalendarAlt extends Component {
+class CalendarAlt extends React.Component {
+  static contextType = UserContext;
+
   constructor() {
     super();
     this.state = {
@@ -33,18 +39,27 @@ class CalendarAlt extends Component {
   }
 
   componentDidMount() {
-    this.setState({ events: events });
-    this.setState({ backgroundEvents: backgroundEvents });
+    //this.setState({ events: events, backgroundEvents: backgroundEvents });
+    this.getSolicitudes();
   }
 
-  // getCachedEvents(){
-  //   const cachedEvents = localStorage.getItem("cachedEvents");
-  //   console.log("Cached Events", JSON.parse(cachedEvents));
-  //   if(cachedEvents){
-  //       this.setState({events: JSON.parse(cachedEvents)})
-  //   }
-  //   return;
-  // }
+  getSolicitudes = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudes/${this.context.email}`
+      );
+      const json = await response.json();
+
+      json.forEach((element) => {
+        element.start = new Date(element.start);
+        element.end = new Date(element.end);
+      });
+
+      this.setState({ events: json });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   //closes modals
   handleClose() {
@@ -92,8 +107,35 @@ class CalendarAlt extends Component {
   }
 
   // Onclick callback function that pushes new appointment into events array.
-  setNewAppointment() {
+  async setNewAppointment() {
     const { start, end, title, desc } = this.state;
+    const user = this.context.email;
+
+    const data = {
+      email: user,
+      title: title,
+      description: desc,
+      type: "",
+      start: start,
+      end: end,
+    };
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/solicitudes/createsolicitud`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
+      if (response.status === 200) {
+        console.log("WORKED");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    console.log(start);
     let appointment = { title, start, end, desc };
     let events = this.state.events.slice();
     events.push(appointment);
@@ -152,8 +194,8 @@ class CalendarAlt extends Component {
           timeslots={2}
           localizer={localizer}
           slotPropGetter={customSlotPropGetter}
-          min={new Date(0, 0, 0, 6, 0, 0)}
-          max={new Date(0, 0, 0, 23, 0, 0)}
+          /*min={new Date(0, 0, 0, 6, 0, 0)}
+          max={new Date(0, 0, 0, 23, 0, 0)}*/
           onSelectEvent={(event) => this.handleEventSelected(event)}
           onSelectSlot={(slotInfo) => this.handleSlotSelected(slotInfo)}
         />
