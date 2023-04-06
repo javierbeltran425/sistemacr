@@ -21,6 +21,7 @@ import "/node_modules/primeflex/primeflex.css";
 import Login from "./views/Login";
 import HomePage from "./views/HomePage";
 import TeacherView from "./views/TeacherView";
+import AdminView from "./views/AdminView";
 
 //constants
 
@@ -56,6 +57,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/teacher" element={<TeacherView />} />
+            <Route path="/admin" element={<AdminView />} />
           </Routes>
         </UserContext.Provider>
       )}

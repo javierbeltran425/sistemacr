@@ -37,7 +37,7 @@ const Header = () => {
   };
 
   return (
-    <div className="flex flex-column md:flex-row w-full h-2 px-6 justify-content-between align-items-center bg-gray-100 shadow-1">
+    <div className="flex md:flex-row w-full h-2 px-6 justify-content-between align-items-center bg-gray-100 shadow-1">
       <div>
         <Button
           icon="pi pi-bars"

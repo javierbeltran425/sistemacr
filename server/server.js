@@ -27,8 +27,16 @@ app.post('/auth/login', (req, res) => {
 
 // USUARIOS
 
+app.get('/usuarios/getusuarios', (req, res) => {
+    usuarios.getUsuarios(req, res)
+})
+
 app.get('/usuarios/getrol/:email', (req, res) => {
     usuarios.getRol(req, res)
+})
+
+app.post('/usuarios/createusuario', (req, res) => {
+    usuarios.createUsuario(req, res)
 })
 
 // SOLICITUDES
