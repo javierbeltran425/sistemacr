@@ -10,35 +10,30 @@ import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import Chip from "@mui/material/Chip";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import "../constants/usuario";
-import { USUARIO_ROLES, USUARIO_ROLES_ARRAY } from "../constants/usuario";
 
-const ModalUsuarios = ({
+const ModalCarreras = ({
   mode,
   showModal,
   setShowModal,
   handleOpen,
   handleClose,
   getData,
-  usuario,
+  materia,
   carreras,
-  materias,
 }) => {
   const editMode = mode === "edit" ? true : false;
-
   const [data, setData] = useState({
-    email: editMode ? usuario.email : "",
-    password: "",
-    role: editMode ? usuario.role : "",
-    major: editMode ? usuario.major : "",
-    subjects: [],
+    id: editMode ? materia.id : "",
+    name: editMode ? materia.name : "",
+    uv: editMode ? materia.uv : "",
+    majors: [],
   });
 
   const postData = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/createusuario`,
+        `${process.env.REACT_APP_SERVER_URL}/materias/createmateria`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -59,7 +54,9 @@ const ModalUsuarios = ({
     e.preventDefault();
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/editusuario/${usuario.email}`,
+        `${process.env.REACT_APP_SERVER_URL}/materias/editmateria/${String(
+          materia.id
+        )}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -100,7 +97,7 @@ const ModalUsuarios = ({
 
   const findSelected = async () => {
     fetch(
-      `${process.env.REACT_APP_SERVER_URL}/usuarios/getmaterias/${usuario.email}`
+      `${process.env.REACT_APP_SERVER_URL}/materias/getcarreras/${materia.id}`
     )
       .then((res) => {
         return res.json();
@@ -108,11 +105,11 @@ const ModalUsuarios = ({
       .then((resp) => {
         var arr = [];
         resp.forEach((element) => {
-          arr.push(element.id_materia);
+          arr.push(element.id_carrera);
         });
         setData({
           ...data,
-          subjects: arr,
+          majors: arr,
         });
       })
       .catch((err) => {
@@ -143,78 +140,34 @@ const ModalUsuarios = ({
           <form>
             <TextField
               id="filled-basic"
-              label="Email"
+              label="Nombre"
               variant="filled"
-              name="email"
-              value={data.email}
+              name="name"
+              value={data.name}
               onChange={handleChange}
             />
             <br />
-            {!editMode && (
-              <TextField
-                id="filled-basic"
-                label="Contraseña"
-                variant="filled"
-                name="password"
-                value={data.password}
-                onChange={handleChange}
-              />
-            )}
-            <br />
-            <br />
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Rol</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                name="role"
-                value={data.role}
-                label="Role"
-                onChange={handleChange}
-              >
-                {USUARIO_ROLES_ARRAY.map((role) => (
-                  <MenuItem key={role} value={role} style={null}>
-                    {role}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <br />
-            <br />
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Carrera</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                name="major"
-                value={data.major}
-                label="Carrera"
-                onChange={handleChange}
-              >
-                {carreras.map((carrera) => (
-                  <MenuItem
-                    key={carrera.id_carrera}
-                    value={carrera.id_carrera}
-                    style={null}
-                  >
-                    {carrera.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TextField
+              id="filled-basic"
+              label="UVs"
+              variant="filled"
+              name="uv"
+              value={data.uv}
+              onChange={handleChange}
+            />
             <br />
             <br />
             <FormControl sx={{ m: 1, width: 300 }}>
-              <InputLabel id="demo-multiple-chip-label">Materias</InputLabel>
+              <InputLabel id="demo-multiple-chip-label">Carreras</InputLabel>
               <Select
                 labelId="demo-multiple-chip-label"
                 id="demo-multiple-chip"
                 multiple
-                name="subjects"
-                value={data.subjects}
+                name="majors"
+                value={data.majors}
                 onChange={handleChange}
                 input={
-                  <OutlinedInput id="select-multiple-chip" label="Materias" />
+                  <OutlinedInput id="select-multiple-chip" label="Carreras" />
                 }
                 renderValue={(selected) => (
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
@@ -222,8 +175,8 @@ const ModalUsuarios = ({
                       <Chip
                         key={value}
                         label={
-                          materias.find((materia) => {
-                            return materia.id_materia == value;
+                          carreras.find((carrera) => {
+                            return carrera.id_carrera == value;
                           }).nombre
                         }
                       />
@@ -239,13 +192,13 @@ const ModalUsuarios = ({
                   },
                 }}
               >
-                {materias.map((materia) => (
+                {carreras.map((carrera) => (
                   <MenuItem
-                    key={materia.id_materia}
-                    value={materia.id_materia}
+                    key={carrera.id_carrera}
+                    value={carrera.id_carrera}
                     style={null}
                   >
-                    {materia.nombre}
+                    {carrera.nombre}
                   </MenuItem>
                 ))}
               </Select>
@@ -254,11 +207,6 @@ const ModalUsuarios = ({
                 submit
               </Button>{" "}
             </FormControl>
-            <br />
-            <br />
-            <Button type="submit" onClick={editMode ? editData : postData}>
-              submit
-            </Button>
           </form>
         </Box>
       </Modal>
@@ -266,4 +214,4 @@ const ModalUsuarios = ({
   );
 };
 
-export default ModalUsuarios;
+export default ModalCarreras;

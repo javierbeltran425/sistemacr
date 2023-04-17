@@ -12,13 +12,16 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import ModalUsuarios from "./ModalUsuarios";
+import ModalMaterias from "./ModalMaterias";
 
-const CRUDusuarios = () => {
-  const [usuarios, setUsuarios] = useState([]);
-  const [usuario, setUsuario] = useState({ email: "", role: "", major: null });
-  const [carreras, setCarreras] = useState([]);
+const CRUDmaterias = () => {
   const [materias, setMaterias] = useState([]);
+  const [materia, setMateria] = useState({
+    id: "",
+    name: "",
+    uv: "",
+  });
+  const [carreras, setCarreras] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [mode, setMode] = useState(null);
   const [page, setPage] = React.useState(0);
@@ -27,10 +30,10 @@ const CRUDusuarios = () => {
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
-  const RemoveFunction = (email) => {
+  const RemoveFunction = (id) => {
     if (window.confirm("Do you want to remove?")) {
       fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/removeusuario/${email}`,
+        `${process.env.REACT_APP_SERVER_URL}/materias/removemateria/${id}`,
         {
           method: "DELETE",
         }
@@ -46,12 +49,12 @@ const CRUDusuarios = () => {
   };
 
   const getData = async () => {
-    fetch(`${process.env.REACT_APP_SERVER_URL}/usuarios/getusuarios`)
+    fetch(`${process.env.REACT_APP_SERVER_URL}/materias/getmaterias`)
       .then((res) => {
         return res.json();
       })
       .then((resp) => {
-        setUsuarios(resp);
+        setMaterias(resp);
       })
       .catch((err) => {
         console.log(err.message);
@@ -71,31 +74,15 @@ const CRUDusuarios = () => {
       });
   };
 
-  const getMaterias = async () => {
-    fetch(`${process.env.REACT_APP_SERVER_URL}/materias/getmaterias`)
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        setMaterias(resp);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-  };
-
   useEffect(() => {
     getData();
     getCarreras();
-    getMaterias();
-    console.log(carreras);
   }, []);
 
   const columns = [
-    { id: "email", label: "Email", minWidth: 170, align: "left" },
-    { id: "rol", label: "Rol", minWidth: 100, align: "left" },
-    { id: "carrera", label: "Carrera", minWidth: 100, align: "left" },
-    { id: "materias", label: "Materias", minWidth: 100, align: "left" },
+    { id: "nombre", label: "Nombre", minWidth: 170, align: "left" },
+    { id: "uv", label: "UVs", minWidth: 100, align: "left" },
+    { id: "carreras", label: "Carreras", minWidth: 100, align: "left" },
   ];
 
   const handleChangePage = (event, newPage) => {
@@ -110,16 +97,15 @@ const CRUDusuarios = () => {
   return (
     <Box>
       {showModal && (
-        <ModalUsuarios
+        <ModalMaterias
           mode={mode}
           showModal={showModal}
           setShowModal={setShowModal}
           handleOpen={handleOpen}
           handleClose={handleClose}
           getData={getData}
-          usuario={usuario}
+          materia={materia}
           carreras={carreras}
-          materias={materias}
         />
       )}
       <Card sx={{ minWidth: 275 }}>
@@ -143,7 +129,9 @@ const CRUDusuarios = () => {
                       <TableCell
                         key={column.id}
                         align={column.align}
-                        style={{ minWidth: column.minWidth }}
+                        style={{
+                          minWidth: column.minWidth,
+                        }}
                       >
                         {column.label}
                       </TableCell>
@@ -151,8 +139,8 @@ const CRUDusuarios = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {usuarios &&
-                    usuarios
+                  {materias &&
+                    materias
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
@@ -163,7 +151,7 @@ const CRUDusuarios = () => {
                             hover
                             role="checkbox"
                             tabIndex={-1}
-                            key={row.email}
+                            key={row.id_materia}
                           >
                             {columns.map((column) => {
                               const value = row[column.id];
@@ -183,11 +171,11 @@ const CRUDusuarios = () => {
                               <Button
                                 variant="contained"
                                 onClick={() => {
-                                  setUsuario({
-                                    ...usuario,
-                                    email: row.email,
-                                    role: row.rol,
-                                    major: row.id_carrera,
+                                  setMateria({
+                                    ...materia,
+                                    id: row.id_materia,
+                                    name: row.nombre,
+                                    uv: row.uv,
                                   });
                                   setMode("edit");
                                   setShowModal(true);
@@ -200,7 +188,7 @@ const CRUDusuarios = () => {
                               <Button
                                 variant="contained"
                                 onClick={() => {
-                                  RemoveFunction(row.email);
+                                  RemoveFunction(row.id_materia);
                                 }}
                               >
                                 DELETE
@@ -215,7 +203,7 @@ const CRUDusuarios = () => {
             <TablePagination
               rowsPerPageOptions={[10, 25, 100]}
               component="div"
-              count={usuarios.length}
+              count={materias.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
@@ -228,4 +216,4 @@ const CRUDusuarios = () => {
   );
 };
 
-export default CRUDusuarios;
+export default CRUDmaterias;

@@ -5,6 +5,8 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import CRUDusuarios from "../admin/CRUDusuarios";
+import CRUDCarreras from "../admin/CRUDCarreras";
+import CRUDMaterias from "../admin/CRUDMaterias";
 import Layout from "../components/layout/Layout";
 
 function TabPanel(props) {
@@ -65,10 +67,10 @@ export default function AdminView() {
           <CRUDusuarios />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          Item Two
+          <CRUDCarreras />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          Item Three
+          <CRUDMaterias />
         </TabPanel>
       </Box>
     </Layout>
