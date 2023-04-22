@@ -16,7 +16,12 @@ import ModalUsuarios from "./ModalUsuarios";
 
 const CRUDusuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
-  const [usuario, setUsuario] = useState({ email: "", role: "", major: null });
+  const [usuario, setUsuario] = useState({
+    email: "",
+    name: "",
+    role: "",
+    major: null,
+  });
   const [carreras, setCarreras] = useState([]);
   const [materias, setMaterias] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -93,6 +98,7 @@ const CRUDusuarios = () => {
 
   const columns = [
     { id: "email", label: "Email", minWidth: 170, align: "left" },
+    { id: "nombre", label: "Nombre", minWidth: 170, align: "left" },
     { id: "rol", label: "Rol", minWidth: 100, align: "left" },
     { id: "carrera", label: "Carrera", minWidth: 100, align: "left" },
     { id: "materias", label: "Materias", minWidth: 100, align: "left" },
@@ -186,6 +192,7 @@ const CRUDusuarios = () => {
                                   setUsuario({
                                     ...usuario,
                                     email: row.email,
+                                    name: row.nombre,
                                     role: row.rol,
                                     major: row.id_carrera,
                                   });

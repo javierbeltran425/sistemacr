@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { UserContext } from "../../context/usuario";
@@ -11,11 +11,7 @@ import { Divider } from "primereact/divider";
 
 const Header = () => {
   const [visible, setVisible] = useState(false);
-  const [materiasLista, setmateriasLista] = useState([
-    "Calculo 1",
-    "Algebra vectorial y matrices",
-    "Fundamentos de programación",
-  ]);
+  const [materias, setMaterias] = useState([]);
   const navigate = useNavigate();
   const [cookies, setCookie, removeCookie] = useCookies(null);
   const user = useContext(UserContext);
@@ -26,15 +22,35 @@ const Header = () => {
     window.location.reload();
   };
 
+  const getMaterias = async () => {
+    fetch(
+      `${process.env.REACT_APP_SERVER_URL}/usuarios/getmaterias/${user.email}`
+    )
+      .then((res) => {
+        return res.json();
+      })
+      .then((resp) => {
+        setMaterias(resp);
+        console.log(materias);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  };
+
   const materiasRender = () => {
-    return materiasLista.map((materia) => {
+    return materias.map((materia) => {
       return (
         <li className="list-none pl-1 py-2 hover:bg-gray-200 cursor-pointer border-round">
-          {materia}
+          {materia.nombre}
         </li>
       );
     });
   };
+
+  useEffect(() => {
+    getMaterias();
+  }, []);
 
   return (
     <div className="flex md:flex-row w-full h-2 px-6 justify-content-between align-items-center bg-gray-100 shadow-1">
@@ -50,7 +66,7 @@ const Header = () => {
             <Avatar label="P" size="xlarge" />
             <div className="flex flex-column justify-content-end">
               <h4 className="p-0 pl-1 m-0">{user.email}</h4>
-              <p className="p-0 pl-1 m-0">00000000@uca.edu.sv</p>
+              <p className="p-0 pl-1 m-0">{user.role}</p>
               <p
                 className="p-0 pl-1 m-0 text-blue-300 hover:text-blue-500 cursor-pointer"
                 onClick={signOut}
@@ -63,7 +79,7 @@ const Header = () => {
           <Divider />
 
           <h2>Tus materias inscritas</h2>
-          {materiasLista.length === 0 ? (
+          {materias.length === 0 ? (
             <p>Tus materias apareceran aquí cuando tengas materias inscritas</p>
           ) : (
             <ul>{materiasRender()}</ul>

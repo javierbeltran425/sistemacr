@@ -28,6 +28,7 @@ const ModalUsuarios = ({
 
   const [data, setData] = useState({
     email: editMode ? usuario.email : "",
+    name: editMode ? usuario.name : "",
     password: "",
     role: editMode ? usuario.role : "",
     major: editMode ? usuario.major : "",
@@ -141,12 +142,22 @@ const ModalUsuarios = ({
           </Typography>
           <br />
           <form>
+            {!editMode && (
+              <TextField
+                id="filled-basic"
+                label="Email"
+                variant="filled"
+                name="email"
+                value={data.email}
+                onChange={handleChange}
+              />
+            )}
             <TextField
               id="filled-basic"
-              label="Email"
+              label="Nombre"
               variant="filled"
-              name="email"
-              value={data.email}
+              name="name"
+              value={data.name}
               onChange={handleChange}
             />
             <br />
@@ -254,11 +265,6 @@ const ModalUsuarios = ({
                 submit
               </Button>{" "}
             </FormControl>
-            <br />
-            <br />
-            <Button type="submit" onClick={editMode ? editData : postData}>
-              submit
-            </Button>
           </form>
         </Box>
       </Modal>

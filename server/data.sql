@@ -9,6 +9,7 @@ CREATE TABLE carreras (
 CREATE TABLE usuarios (
   email VARCHAR(255) PRIMARY KEY,
   id_carrera INT,
+  nombre VARCHAR(255),
   hashed_password VARCHAR(255) NOT NULL,
   rol VARCHAR(255),
   CONSTRAINT fk_carrera FOREIGN KEY(id_carrera) REFERENCES carreras(id_carrera)
@@ -22,7 +23,7 @@ CREATE TABLE solicitudes (
   tipo VARCHAR(255),
   hora_inicio VARCHAR(255),
   hora_final VARCHAR(255),
-  CONSTRAINT fk_usuario FOREIGN KEY(email_usuario) REFERENCES usuarios(email)
+  CONSTRAINT fk_usuario FOREIGN KEY(email_usuario) REFERENCES usuarios(email) ON DELETE CASCADE
 );
 
 CREATE TABLE materias (

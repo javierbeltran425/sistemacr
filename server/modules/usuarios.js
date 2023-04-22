@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 
 const getUsuarios = async function (req, res) {
   try {
-    const usuarios = await knex.select('usuarios.email', 'usuarios.rol', 'usuarios.id_carrera', knex.raw('STRING_AGG(DISTINCT carreras.nombre, \'\n\') as carrera'), knex.raw('STRING_AGG(materias.nombre, \'\n\') as materias'))
+    const usuarios = await knex.select('usuarios.email', 'usuarios.nombre', 'usuarios.rol', 'usuarios.id_carrera', knex.raw('STRING_AGG(DISTINCT carreras.nombre, \'\n\') as carrera'), knex.raw('STRING_AGG(materias.nombre, \'\n\') as materias'))
       .from('usuarios')
       .leftJoin('carreras', 'usuarios.id_carrera', 'carreras.id_carrera')
       .leftJoin('usuariosxmaterias', 'usuarios.email', 'usuariosxmaterias.email')
@@ -19,9 +19,10 @@ const getMaterias = async function (req, res) {
   const { email } = req.params
 
   try {
-    const materias = await knex.select('usuariosxmaterias.id_materia')
+    const materias = await knex.select('usuariosxmaterias.id_materia', 'materias.nombre')
       .from('usuariosxmaterias')
       .where({email: email})
+      .join('materias', 'materias.id_materia', 'usuariosxmaterias.id_materia')
     res.json(materias)
   } catch (err) {
     console.error(err)
@@ -39,12 +40,12 @@ const getRol = async function (req, res) {
 }
 
 const createUsuario = async function (req, res) {
-    const { email, password, role, major, subjects } = req.body
+    const { email, name, password, role, major, subjects } = req.body
     const salt = bcrypt.genSaltSync(10)
     const hashedPassword = bcrypt.hashSync(password, salt)
     
     try {
-      const newUsuario = await knex('usuarios').insert({email: email, hashed_password: hashedPassword, rol: role, id_carrera: major})
+      const newUsuario = await knex('usuarios').insert({ email: email, nombre: name, hashed_password: hashedPassword, rol: role, id_carrera: major})
       .then ( async () => {
       const fieldsToInsert = subjects.map(subject => 
         ({ email: email, id_materia: subject })); 
@@ -63,10 +64,10 @@ const createUsuario = async function (req, res) {
 
 const editUsuario = async function (req, res) {
   const { id } = req.params
-  const { email, password, role, major, subjects } = req.body
+  const { email, name, password, role, major, subjects } = req.body
 
   try {
-    const editUsuario = await knex('usuarios').where({email: id}).update({email: email, rol: role, id_carrera: major})
+    const editUsuario = await knex('usuarios').where({email: id}).update({nombre: name, rol: role, id_carrera: major})
     .then( async () => {
       const materias = await knex.select('usuariosxmaterias.id_materia').from('usuariosxmaterias').where({email: id})
       var arr = []

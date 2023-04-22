@@ -171,13 +171,19 @@ class CalendarAlt extends React.Component {
     console.log("render()");
 
     const customSlotPropGetter = (date) => {
-      if (date.getDay() === 2 || (date.getDay() === 4 && date.getHours() < 10))
+      if (date.getDay() === 4 && date.getHours() < 10 && date.getHours() > 4)
         return {
           style: {
-            "background-color": "#fec",
+            "background-color": "#C2F5DA",
           },
         };
-      else return {};
+      if (date.getDay() === 2)
+        return {
+          style: {
+            "background-color": "#C2F5DA",
+          },
+        };
+      return {};
     };
 
     return (
