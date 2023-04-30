@@ -4,76 +4,75 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
+import FormControl from "@mui/material/FormControl";
 
 const ModalCarreras = ({
   mode,
   showModal,
-  setShowModal,
   handleOpen,
   handleClose,
-  getData,
-  carrera,
+  getAllCarreras,
+  carreraToEdit,
 }) => {
   const editMode = mode === "edit" ? true : false;
 
-  const [data, setData] = useState({
-    id: editMode ? carrera.id : "",
-    name: editMode ? carrera.name : "",
-    faculty: editMode ? carrera.faculty : "",
+  const [newCarrera, setNewCarrera] = useState({
+    id_carrera: editMode ? carreraToEdit.id_carrera : "",
+    nombre: editMode ? carreraToEdit.nombre : "",
+    facultad: editMode ? carreraToEdit.facultad : "",
   });
 
-  const postData = async (e) => {
+  const createCarrera = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(
+      const resp = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/carreras/createcarrera`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(newCarrera),
         }
       );
-      if (response.status === 200) {
-        console.log("WORKED");
-        setShowModal(false);
-        getData();
+      if (resp.status === 200) {
+        console.log("Ok!");
+        getAllCarreras();
+        handleClose();
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const editData = async (e) => {
+  const editCarrera = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/editcarrera/${String(
-          carrera.id
-        )}`,
+        `${process.env.REACT_APP_SERVER_URL}/carreras/editcarrera`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(newCarrera),
         }
       );
       if (response.status === 200) {
-        setShowModal(false);
-        getData();
+        console.log("Ok!");
+        getAllCarreras();
+        handleClose();
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setData((data) => ({
-      ...data,
+    setNewCarrera((newCarrera) => ({
+      ...newCarrera,
       [name]: value,
     }));
 
-    console.log(data);
+    console.log(newCarrera);
   };
 
   const style = {
@@ -99,7 +98,7 @@ const ModalCarreras = ({
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h4" component="h2">
-            {mode.toUpperCase()} mode
+            {mode == "edit" ? "Editando carrera..." : "Nueva carrera"}
           </Typography>
           <br />
           <form>
@@ -107,24 +106,31 @@ const ModalCarreras = ({
               id="filled-basic"
               label="Nombre"
               variant="filled"
-              name="name"
-              value={data.name}
+              name="nombre"
+              value={newCarrera.nombre}
               onChange={handleChange}
+              sx={{ m: 2 }}
             />
             <br />
             <TextField
               id="filled-basic"
               label="Facultad"
               variant="filled"
-              name="faculty"
-              value={data.faculty}
+              name="facultad"
+              value={newCarrera.facultad}
               onChange={handleChange}
+              sx={{ m: 2 }}
             />
             <br />
             <br />
-            <Button type="submit" onClick={editMode ? editData : postData}>
-              submit
-            </Button>
+            <FormControl sx={{ m: 1, width: 300 }}>
+              <Button
+                type="submit"
+                onClick={editMode ? editCarrera : createCarrera}
+              >
+                Guardar
+              </Button>
+            </FormControl>
           </form>
         </Box>
       </Modal>

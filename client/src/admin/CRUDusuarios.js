@@ -16,11 +16,12 @@ import ModalUsuarios from "./ModalUsuarios";
 
 const CRUDusuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
-  const [usuario, setUsuario] = useState({
+  const [usuarioToEdit, setUsuarioToEdit] = useState({
+    id_usuario: null,
+    id_carrera: null,
     email: "",
-    name: "",
-    role: "",
-    major: null,
+    nombre: "",
+    rol: "",
   });
   const [carreras, setCarreras] = useState([]);
   const [materias, setMaterias] = useState([]);
@@ -32,76 +33,75 @@ const CRUDusuarios = () => {
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
-  const RemoveFunction = (email) => {
-    if (window.confirm("Do you want to remove?")) {
-      fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/removeusuario/${email}`,
-        {
-          method: "DELETE",
+  const removeUsuarioById = async (id_usuario) => {
+    if (window.confirm("Estás seguro que quieres eliminar este usuario?")) {
+      try {
+        const resp = await fetch(
+          `${process.env.REACT_APP_SERVER_URL}/usuarios/removeusuariobyid/${id_usuario}`,
+          {
+            method: "DELETE",
+          }
+        );
+        const json = await resp.json();
+        if (resp.status == 200) {
+          console.log("Ok!");
+          getAllUsuarios();
         }
-      )
-        .then((res) => {
-          alert("Removed successfully.");
-          getData();
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
-  const getData = async () => {
-    fetch(`${process.env.REACT_APP_SERVER_URL}/usuarios/getusuarios`)
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        setUsuarios(resp);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+  const getAllUsuarios = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/usuarios/getallusuarios`
+      );
+      const json = await resp.json();
+      setUsuarios(json);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const getCarreras = async () => {
-    fetch(`${process.env.REACT_APP_SERVER_URL}/carreras/getcarreras`)
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        setCarreras(resp);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+  const getAllCarreras = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
+      );
+      const json = await resp.json();
+      setCarreras(json);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const getMaterias = async () => {
-    fetch(`${process.env.REACT_APP_SERVER_URL}/materias/getmaterias`)
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        setMaterias(resp);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+  const getAllMaterias = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/materias/getallmaterias`
+      );
+      const json = await resp.json();
+      setMaterias(json);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
-    getData();
-    getCarreras();
-    getMaterias();
-    console.log(carreras);
+    getAllUsuarios();
+    getAllCarreras();
+    getAllMaterias();
   }, []);
 
   const columns = [
+    { id: "id_usuario", label: "ID", minWidth: 10, align: "left" },
     { id: "email", label: "Email", minWidth: 170, align: "left" },
     { id: "nombre", label: "Nombre", minWidth: 170, align: "left" },
-    { id: "rol", label: "Rol", minWidth: 100, align: "left" },
-    { id: "carrera", label: "Carrera", minWidth: 100, align: "left" },
-    { id: "materias", label: "Materias", minWidth: 100, align: "left" },
+    { id: "rol", label: "Rol", minWidth: 170, align: "left" },
+    { id: "carrera", label: "Carrera", minWidth: 170, align: "left" },
+    { id: "materias", label: "Materias", minWidth: 170, align: "left" },
   ];
 
   const handleChangePage = (event, newPage) => {
@@ -119,11 +119,10 @@ const CRUDusuarios = () => {
         <ModalUsuarios
           mode={mode}
           showModal={showModal}
-          setShowModal={setShowModal}
           handleOpen={handleOpen}
           handleClose={handleClose}
-          getData={getData}
-          usuario={usuario}
+          getAllUsuarios={getAllUsuarios}
+          usuarioToEdit={usuarioToEdit}
           carreras={carreras}
           materias={materias}
         />
@@ -136,7 +135,7 @@ const CRUDusuarios = () => {
               setShowModal(true);
             }}
           >
-            Create
+            Agregar usuario
           </Button>
         </CardActions>
         <CardContent>
@@ -189,28 +188,28 @@ const CRUDusuarios = () => {
                               <Button
                                 variant="contained"
                                 onClick={() => {
-                                  setUsuario({
-                                    ...usuario,
+                                  setUsuarioToEdit({
+                                    ...usuarioToEdit,
+                                    id_usuario: row.id_usuario,
+                                    id_carrera: row.id_carrera,
                                     email: row.email,
-                                    name: row.nombre,
-                                    role: row.rol,
-                                    major: row.id_carrera,
+                                    nombre: row.nombre,
+                                    rol: row.rol,
                                   });
                                   setMode("edit");
                                   setShowModal(true);
                                 }}
+                                sx={{ mr: 2 }}
                               >
-                                Edit
+                                Editar
                               </Button>
-                            </TableCell>
-                            <TableCell align="left">
                               <Button
                                 variant="contained"
                                 onClick={() => {
-                                  RemoveFunction(row.email);
+                                  removeUsuarioById(row.id_usuario);
                                 }}
                               >
-                                DELETE
+                                Eliminar
                               </Button>
                             </TableCell>
                           </TableRow>

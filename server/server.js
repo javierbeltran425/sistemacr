@@ -29,28 +29,24 @@ app.post('/auth/login', (req, res) => {
 
 // USUARIOS
 
-app.get('/usuarios/getusuarios', (req, res) => {
-    usuarios.getUsuarios(req, res)
+app.get('/usuarios/getallusuarios', (req, res) => {
+    usuarios.getAllUsuarios(req, res)
 })
 
-app.get('/usuarios/getmaterias/:email', (req, res) => {
-    usuarios.getMaterias(req, res)
-})
-
-app.get('/usuarios/getrol/:email', (req, res) => {
-    usuarios.getRol(req, res)
+app.get('/usuarios/getrolbyid/:id_usuario', (req, res) => {
+    usuarios.getRolById(req, res)
 })
 
 app.post('/usuarios/createusuario', (req, res) => {
     usuarios.createUsuario(req, res)
 })
 
-app.put('/usuarios/editusuario/:id',(req, res) => {
+app.put('/usuarios/editusuario',(req, res) => {
     usuarios.editUsuario(req, res)
 })
 
-app.delete('/usuarios/removeusuario/:email',(req, res) => {
-    usuarios.removeUsuario(req, res)
+app.delete('/usuarios/removeusuariobyid/:id_usuario',(req, res) => {
+    usuarios.removeUsuarioById(req, res)
 })
 
 // SOLICITUDES
@@ -59,48 +55,52 @@ app.post('/solicitudes/createsolicitud', (req, res) => {
     solicitudes.createSolicitud(req, res)
 })
 
-app.get('/solicitudes/getsolicitudes/:email', (req, res) => {
-    solicitudes.getSolicitudes(req, res)
+app.get('/solicitudes/getsolicitudesbyidusuario/:id_usuario', (req, res) => {
+    solicitudes.getSolicitudesByIdUsuario(req, res)
 })
 
 // CARRERAS
 
-app.get('/carreras/getcarreras', (req, res) => {
-    carreras.getCarreras(req, res)
+app.get('/carreras/getallcarreras', (req, res) => {
+    carreras.getAllCarreras(req, res)
+})
+
+app.get('/carreras/getcarrerasbyidmateria/:id_materia', (req, res) => {
+    carreras.getCarrerasByIdMateria(req, res)
 })
 
 app.post('/carreras/createcarrera', (req, res) => {
     carreras.createCarrera(req, res)
 })
 
-app.delete('/carreras/removecarrera/:id',(req, res) => {
-    carreras.removeCarrera(req, res)
+app.delete('/carreras/removecarrerabyid/:id_carrera',(req, res) => {
+    carreras.removeCarreraById(req, res)
 })
 
-app.put('/carreras/editcarrera/:ID',(req, res) => {
+app.put('/carreras/editcarrera',(req, res) => {
     carreras.editCarrera(req, res)
 })
 
 // MATERIAS
 
-app.get('/materias/getmaterias', (req, res) => {
-    materias.getMaterias(req, res)
+app.get('/materias/getallmaterias', (req, res) => {
+    materias.getAllMaterias(req, res)
 })
 
-app.get('/materias/getcarreras/:id', (req, res) => {
-    materias.getCarreras(req, res)
+app.get('/materias/getmateriasbyidusuario/:id_usuario', (req, res) => {
+    materias.getMateriasByIdUsuario(req, res)
 })
 
 app.post('/materias/createmateria', (req, res) => {
     materias.createMateria(req, res)
 })
 
-app.delete('/materias/removemateria/:id',(req, res) => {
-    materias.removeMateria(req, res)
+app.put('/materias/editmateria',(req, res) => {
+    materias.editMateria(req, res)
 })
 
-app.put('/materias/editmateria/:ID',(req, res) => {
-    materias.editMateria(req, res)
+app.delete('/materias/removemateriabyid/:id_materia',(req, res) => {
+    materias.removeMateriaById(req, res)
 })
 
 

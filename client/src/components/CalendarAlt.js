@@ -14,13 +14,13 @@ import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
 
-import { UserContext } from "../context/usuario";
+import { ContextUsuario } from "../context/usuario";
 
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
 
 class CalendarAlt extends React.Component {
-  static contextType = UserContext;
+  static contextType = ContextUsuario;
 
   constructor() {
     super();
@@ -40,13 +40,13 @@ class CalendarAlt extends React.Component {
 
   componentDidMount() {
     //this.setState({ events: events, backgroundEvents: backgroundEvents });
-    this.getSolicitudes();
+    this.getSolicitudesByIdUsuario();
   }
 
-  getSolicitudes = async () => {
+  getSolicitudesByIdUsuario = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudes/${this.context.email}`
+        `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesbyidusuario/${this.context.id_usuario}`
       );
       const json = await response.json();
 
@@ -56,8 +56,8 @@ class CalendarAlt extends React.Component {
       });
 
       this.setState({ events: json });
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -109,10 +109,10 @@ class CalendarAlt extends React.Component {
   // Onclick callback function that pushes new appointment into events array.
   async setNewAppointment() {
     const { start, end, title, desc } = this.state;
-    const user = this.context.email;
+    const id_usuario = this.context.id_usuario;
 
     const data = {
-      email: user,
+      id_usuario: id_usuario,
       title: title,
       description: desc,
       type: "",
@@ -130,10 +130,10 @@ class CalendarAlt extends React.Component {
         }
       );
       if (response.status === 200) {
-        console.log("WORKED");
+        console.log("Ok!");
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
     console.log(start);
     let appointment = { title, start, end, desc };
@@ -174,13 +174,13 @@ class CalendarAlt extends React.Component {
       if (date.getDay() === 4 && date.getHours() < 10 && date.getHours() > 4)
         return {
           style: {
-            "background-color": "#C2F5DA",
+            backgroundColor: "#C2F5DA",
           },
         };
       if (date.getDay() === 2)
         return {
           style: {
-            "background-color": "#C2F5DA",
+            backgroundColor: "#C2F5DA",
           },
         };
       return {};

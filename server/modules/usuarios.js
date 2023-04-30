@@ -1,112 +1,91 @@
 const knex = require('../db')
 const bcrypt = require('bcrypt')
 
-const getUsuarios = async function (req, res) {
+const getAllUsuarios = async function (req, res) {
   try {
-    const usuarios = await knex.select('usuarios.email', 'usuarios.nombre', 'usuarios.rol', 'usuarios.id_carrera', knex.raw('STRING_AGG(DISTINCT carreras.nombre, \'\n\') as carrera'), knex.raw('STRING_AGG(materias.nombre, \'\n\') as materias'))
+    const usuarios = await knex.select('usuarios.id_usuario', 'usuarios.id_carrera', 'usuarios.email', 'usuarios.nombre', 'usuarios.rol', knex.raw('STRING_AGG(DISTINCT carreras.nombre, \'\n\') as carrera'), knex.raw('STRING_AGG(materias.nombre, \'\n\') as materias'))
       .from('usuarios')
       .leftJoin('carreras', 'usuarios.id_carrera', 'carreras.id_carrera')
-      .leftJoin('usuariosxmaterias', 'usuarios.email', 'usuariosxmaterias.email')
+      .leftJoin('usuariosxmaterias', 'usuarios.id_usuario', 'usuariosxmaterias.id_usuario')
       .leftJoin('materias', 'materias.id_materia', 'usuariosxmaterias.id_materia')
-      .groupBy('usuarios.email')
+      .groupBy('usuarios.id_usuario')
     res.json(usuarios)
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+    res.status(400).send(error)
+    console.error(error)
   }
 }
 
-const getMaterias = async function (req, res) {
-  const { email } = req.params
-
+const getRolById = async function (req, res) {
+  const { id_usuario } = req.params
   try {
-    const materias = await knex.select('usuariosxmaterias.id_materia', 'materias.nombre')
-      .from('usuariosxmaterias')
-      .where({email: email})
-      .join('materias', 'materias.id_materia', 'usuariosxmaterias.id_materia')
-    res.json(materias)
-  } catch (err) {
-    console.error(err)
-  }
-}
-
-const getRol = async function (req, res) {
-  const { email } = req.params
-  try {
-    const rol = await knex.select('rol').from('usuarios').where({email: email})
+    const rol = await knex.select('rol').from('usuarios').where({id_usuario: id_usuario})
     res.json(rol)
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+    res.status(400).send(error)
+    console.error(error)
   }
 }
 
 const createUsuario = async function (req, res) {
-    const { email, name, password, role, major, subjects } = req.body
+    const { id_usuario, id_carrera, email, nombre, rol, password, materias } = req.body
     const salt = bcrypt.genSaltSync(10)
     const hashedPassword = bcrypt.hashSync(password, salt)
     
     try {
-      const newUsuario = await knex('usuarios').insert({ email: email, nombre: name, hashed_password: hashedPassword, rol: role, id_carrera: major})
-      .then ( async () => {
-      const fieldsToInsert = subjects.map(subject => 
-        ({ email: email, id_materia: subject })); 
+      const newUsuario = await knex('usuarios').returning('id_usuario').insert({ email: email, nombre: nombre, hashed_password: hashedPassword, rol: rol, id_carrera: id_carrera})
+      const fieldsToInsert = materias.map(materia => 
+        ({ id_usuario: newUsuario[0].id_usuario, id_materia: materia })); 
 
-        await knex('usuariosxmaterias').insert(fieldsToInsert)
-      })
-        
-        res.json(newUsuario)
-    } catch (err) {
-        console.error(err)
-        if (err) {
-            res.json({ detail: err.detail})
-        }
+      await knex('usuariosxmaterias').insert(fieldsToInsert)
+      
+      res.json(newUsuario)
+    } catch (error) {
+      res.status(400).send(error)
+      console.error(error)
     }
 }
 
 const editUsuario = async function (req, res) {
-  const { id } = req.params
-  const { email, name, password, role, major, subjects } = req.body
+  const { id_usuario, id_carrera, email, nombre, rol, password, materias } = req.body
 
   try {
-    const editUsuario = await knex('usuarios').where({email: id}).update({nombre: name, rol: role, id_carrera: major})
-    .then( async () => {
-      const materias = await knex.select('usuariosxmaterias.id_materia').from('usuariosxmaterias').where({email: id})
-      var arr = []
-      materias.forEach((element) => {
-        arr.push(element.id_materia);
-      });
-      return arr
-    }).then( async (materias) => {
-      const remove = materias.filter(element => !subjects.includes(element));
-      const insert = subjects.filter(element => !materias.includes(element));
+    const editedUsuario = await knex('usuarios').where({id_usuario: id_usuario}).update({nombre: nombre, rol: rol, id_carrera: id_carrera})
+    const currentMaterias = await knex.select('usuariosxmaterias.id_materia').from('usuariosxmaterias').where({id_usuario: id_usuario})
 
-      if (insert.length != 0) {
-        const fieldsToInsert = insert.map(element => 
-          ({ email: email, id_materia: element })); 
-        await knex('usuariosxmaterias').insert(fieldsToInsert)
-      }
-      if (remove.length != 0) {
-        await knex('usuariosxmaterias').del().where({email: id}).whereIn('id_materia', remove)
-      }
-    })
-    res.json(editUsuario)
-  } catch (err) {
-    console.error(err)
+    var arr = []
+    currentMaterias.forEach((element) => {
+      arr.push(element.id_materia);
+    });
+
+    const remove = arr.filter(element => !materias.includes(element));
+    const insert = materias.filter(element => !arr.includes(element));
+
+    if (insert.length != 0) {
+      const fieldsToInsert = insert.map(element => 
+        ({ id_usuario: id_usuario, id_materia: element })); 
+      await knex('usuariosxmaterias').insert(fieldsToInsert)
+    }
+    if (remove.length != 0) {
+      await knex('usuariosxmaterias').del().where({id_usuario: id_usuario}).whereIn('id_materia', remove)
+    }
+    res.json(editedUsuario)
+  } catch (error) {
+      res.status(400).send(error)
+      console.error(error)
   }
 }
 
-const removeUsuario = async function (req, res) {
-  const { email } = req.params
+const removeUsuarioById = async function (req, res) {
+  const { id_usuario } = req.params
   try {
-    await knex('usuariosxmaterias').del().where({email: email})
-    .then( async (resp) => {
-      await knex('usuarios').where({email: email}).del()
-
-      res.json(resp)
-    })
-
-  } catch (err) {
-    console.error(err)
+    const removedUsuario = await knex('usuarios').where({id_usuario: id_usuario}).del()
+    res.json(removedUsuario)
+  }
+  catch (error) {
+    res.status(400).send(error)
+    console.error(error)
   }
 }
 
-module.exports = { getRol , getUsuarios , getMaterias , createUsuario , editUsuario, removeUsuario };
+module.exports = { getAllUsuarios, getRolById  , createUsuario , editUsuario, removeUsuarioById };

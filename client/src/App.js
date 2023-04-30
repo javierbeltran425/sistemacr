@@ -2,8 +2,8 @@ import { React, useState, useEffect } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
-//context: user email
-import { UserContext } from "./context/usuario";
+//context: id_usuario email rol
+import { ContextUsuario } from "./context/usuario";
 
 //theme
 import "primereact/resources/themes/lara-light-indigo/theme.css";
@@ -27,19 +27,20 @@ import AdminView from "./views/AdminView";
 
 function App() {
   const [cookies, setCookie, removeCookie] = useCookies(null);
-  const authToken = cookies.AuthToken;
-  const userEmail = cookies.Email;
-  const [userRole, setUserRole] = useState(null);
+  const idUsuario = cookies.id_usuario;
+  const emailUsuario = cookies.email;
+  const authToken = cookies.authToken;
+  const [rolUsuario, setRolUsuario] = useState(null);
 
   const getRol = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrol/${userEmail}`
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${idUsuario}`
       );
-      const json = await response.json();
-      setUserRole(json[0].rol);
-    } catch (err) {
-      console.error(err);
+      const json = await resp.json();
+      setRolUsuario(json[0].rol);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -51,15 +52,22 @@ function App() {
 
   return (
     <Router>
-      {!authToken && <Login />}
-      {authToken && (
-        <UserContext.Provider value={{ email: userEmail, role: userRole }}>
+      {authToken ? (
+        <ContextUsuario.Provider
+          value={{
+            id_usuario: idUsuario,
+            email: emailUsuario,
+            rol: rolUsuario,
+          }}
+        >
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/teacher" element={<TeacherView />} />
             <Route path="/admin" element={<AdminView />} />
           </Routes>
-        </UserContext.Provider>
+        </ContextUsuario.Provider>
+      ) : (
+        <Login />
       )}
     </Router>
   );

@@ -1,49 +1,62 @@
 const knex = require('../db')
 
-const getCarreras = async function (req, res) {
+const getAllCarreras = async function (req, res) {
   try {
     const carreras = await knex.select('id_carrera', 'nombre', 'facultad').from('carreras')
     res.json(carreras)
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+    res.status(400).send(error)
+    console.error(error)
+  }
+}
+
+const getCarrerasByIdMateria = async function (req, res) {
+  const { id_materia } = req.params
+
+  try {
+    const carreras = await knex.select('materiasxcarreras.id_carrera')
+      .from('materiasxcarreras')
+      .where({id_materia: id_materia})
+    res.json(carreras)
+  } catch (error) {
+    res.status(400).send(error)
+    console.error(error)
   }
 }
 
 const createCarrera = async function (req, res) {
-    const { name, faculty } = req.body
+    const { nombre, facultad } = req.body
     
     try {
-        const newCarrera = await knex('carreras').insert({nombre: name, facultad: faculty})
+        const newCarrera = await knex('carreras').insert({nombre: nombre, facultad: facultad})
         
         res.json(newCarrera)
-    } catch (err) {
-        console.error(err)
-        if (err) {
-            res.json({ detail: err.detail})
-        }
+    } catch (error) { 
+      res.status(400).send(error)
+      console.error(error)
     }
 }
 
-const removeCarrera = async function (req, res) {
-  const { id } = req.params
-  console.log(id)
+const removeCarreraById = async function (req, res) {
+  const { id_carrera } = req.params
   try {
-    const deleteCarrera = await knex('carreras').where({id_carrera: id}).del()
-    res.json(deleteCarrera)
-  } catch (err) {
-    console.error(err)
+    const removedCarrera = await knex('carreras').where({id_carrera: id_carrera}).del()
+    res.json(removedCarrera)
+  } catch (error) {
+    res.status(400).send(error)
+    console.error(error)
   }
 }
 
 const editCarrera = async function (req, res) {
-  const { ID } = req.params
-  const { id, name, faculty } = req.body
+  const { id_carrera, nombre, facultad } = req.body
   try {
-      const editCarrera = await knex('carreras').where({id_carrera: ID}).update({nombre: name, facultad: faculty})
-    res.json(editCarrera)
-  } catch (err) {
-    console.error(err)
+      const updatedCarrera = await knex('carreras').where({id_carrera: id_carrera}).update({nombre: nombre, facultad: facultad})
+    res.json(updatedCarrera)
+  } catch (error) {
+    res.status(400).send(error)
+    console.error(error)
   }
 }
 
-module.exports = { getCarreras, createCarrera, removeCarrera, editCarrera }
+module.exports = { getAllCarreras, getCarrerasByIdMateria, createCarrera, removeCarreraById, editCarrera }
