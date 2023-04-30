@@ -1,6 +1,6 @@
 const knex = require('../db')
 
-const getMaterias = async function (req, res) {
+const getAllMaterias = async function (req, res) {
   try {
     const materias = await knex.select('materias.id_materia', 'materias.nombre', 'materias.uv', knex.raw('STRING_AGG(carreras.nombre, \'\n\') as carreras'))
       .from('materias')
@@ -8,89 +8,90 @@ const getMaterias = async function (req, res) {
       .leftJoin('carreras', 'carreras.id_carrera', 'materiasxcarreras.id_carrera')
       .groupBy('materias.id_materia')
     res.json(materias)
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+    res.status(400).send(error)
+    console.error(error)
   }
 }
 
-const getCarreras = async function (req, res) {
-  const { id } = req.params
+const getMateriasByIdUsuario = async function (req, res) {
+  const { id_usuario } = req.params
 
   try {
-    const carreras = await knex.select('materiasxcarreras.id_carrera')
-      .from('materiasxcarreras')
-      .where({id_materia: id})
-    res.json(carreras)
-  } catch (err) {
-    console.error(err)
+    const materias = await knex.select('usuariosxmaterias.id_materia', 'materias.nombre', 'materias.uv')
+      .from('usuariosxmaterias')
+      .where({id_usuario: id_usuario})
+      .join('materias', 'materias.id_materia', 'usuariosxmaterias.id_materia')
+    res.json(materias)
+  } catch (error) {
+    res.status(400).send(error)
+    console.error(error)
   }
 }
 
 const createMateria = async function (req, res) {
-    const { id, name, uv, majors } = req.body
+    const { id_materia, nombre, uv, carreras } = req.body
 
     try {
-      const newMateria = await knex('materias').returning('id_materia').insert({nombre: name, uv: uv})
-      .then ( async (resp) => {
-      const fieldsToInsert = majors.map(major => 
-        ({ id_materia: resp[0].id_materia, id_carrera: major })); 
-
+      const newMateria = await knex('materias').returning('id_materia').insert({nombre: nombre, uv: uv})
+      if (carreras.length > 0) {
+        const fieldsToInsert = carreras.map(carrera => 
+          ({ id_materia: newMateria[0].id_materia, id_carrera: carrera })); 
         await knex('materiasxcarreras').insert(fieldsToInsert)
-    })
-        
-        res.json(newMateria)
-    } catch (err) {
-        console.error(err)
-        if (err) {
-            res.json({ detail: err.detail})
-        }
+      }
+      
+      res.json(newMateria)
+
+    } catch (error) {
+      res.status(400).send(error)
+      console.error(error)
     }
 }
 
-const removeMateria = async function (req, res) {
-  const { id } = req.params
+const removeMateriaById = async function (req, res) {
+  const { id_materia } = req.params
   try {
-    await knex('materiasxcarreras').del().where({id_materia: id})
+    await knex('materiasxcarreras').del().where({id_materia: id_materia})
     .then( async (resp) => {
-      await knex('materias').where({id_materia: id}).del()
+      await knex('materias').where({id_materia: id_materia}).del()
 
       res.json(resp)
     })
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+      res.status(400).send(error)
+      console.error(error)
   }
 }
 
 const editMateria = async function (req, res) {
-  const { ID } = req.params
-  const { id, name, uv, majors } = req.body
-
+  const { id_materia, nombre, uv, carreras } = req.body
   try {
-    const editCarrera = await knex('materias').where({id_materia: ID}).update({nombre: name, uv: uv})
-    .then( async () => {
-      const carreras = await knex.select('id_carrera').from('materiasxcarreras').where({id_materia: ID})
-      var arr = []
-      carreras.forEach((element) => {
-        arr.push(element.id_carrera);
-      });
-      return arr
-    }).then( async (carreras) => {
-      const remove = carreras.filter(element => !majors.includes(element));
-      const insert = majors.filter(element => !carreras.includes(element));
+    const editCarrera = await knex('materias').where({id_materia: id_materia}).update({nombre: nombre, uv: uv})
+    const currentCarreras = await knex.select('id_carrera').from('materiasxcarreras').where({id_materia: id_materia})
 
-      if (insert.length != 0) {
-        const fieldsToInsert = insert.map(element => 
-          ({ id_materia: ID, id_carrera: element })); 
-        await knex('materiasxcarreras').insert(fieldsToInsert)
-      }
-      if (remove.length != 0) {
-        await knex('materiasxcarreras').del().where({id_materia: ID}).whereIn('id_carrera', remove)
-      }
-    })
+    var arr = []
+    currentCarreras.forEach((element) => {
+      arr.push(element.id_carrera);
+    });
+
+    const remove = arr.filter(element => !carreras.includes(element));
+    const insert = carreras.filter(element => !arr.includes(element));
+
+    if (insert.length != 0) {
+      const fieldsToInsert = insert.map(element => 
+        ({ id_materia: id_materia, id_carrera: element })); 
+      await knex('materiasxcarreras').insert(fieldsToInsert)
+    }
+
+    if (remove.length != 0) {
+      await knex('materiasxcarreras').del().where({id_materia: id_materia}).whereIn('id_carrera', remove)
+    }
+
     res.json(editCarrera)
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+      res.status(400).send(error)
+      console.error(error)
   }
 }
 
-module.exports = { getMaterias, createMateria, removeMateria, editMateria, getCarreras }
+module.exports = { getAllMaterias, getMateriasByIdUsuario, createMateria, removeMateriaById, editMateria }

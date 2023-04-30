@@ -1,7 +1,7 @@
 import React, { useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { UserContext } from "../../context/usuario";
+import { ContextUsuario } from "../../context/usuario";
 
 //components
 import { Avatar } from "primereact/avatar";
@@ -14,28 +14,25 @@ const Header = () => {
   const [materias, setMaterias] = useState([]);
   const navigate = useNavigate();
   const [cookies, setCookie, removeCookie] = useCookies(null);
-  const user = useContext(UserContext);
+  const usuario = useContext(ContextUsuario);
 
   const signOut = () => {
-    removeCookie("Email");
-    removeCookie("AuthToken");
+    removeCookie("id_usuario");
+    removeCookie("email");
+    removeCookie("authToken");
     window.location.reload();
   };
 
-  const getMaterias = async () => {
-    fetch(
-      `${process.env.REACT_APP_SERVER_URL}/usuarios/getmaterias/${user.email}`
-    )
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        setMaterias(resp);
-        console.log(materias);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+  const getMateriasByIdUsuario = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/materias/getmateriasbyidusuario/${usuario.id_usuario}`
+      );
+      const json = await resp.json();
+      setMaterias(json);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const materiasRender = () => {
@@ -49,7 +46,7 @@ const Header = () => {
   };
 
   useEffect(() => {
-    getMaterias();
+    getMateriasByIdUsuario();
   }, []);
 
   return (
@@ -65,8 +62,8 @@ const Header = () => {
           <div className="flex flex-column md:flex-row">
             <Avatar label="P" size="xlarge" />
             <div className="flex flex-column justify-content-end">
-              <h4 className="p-0 pl-1 m-0">{user.email}</h4>
-              <p className="p-0 pl-1 m-0">{user.role}</p>
+              <h4 className="p-0 pl-1 m-0">{usuario.email}</h4>
+              <p className="p-0 pl-1 m-0">{usuario.rol}</p>
               <p
                 className="p-0 pl-1 m-0 text-blue-300 hover:text-blue-500 cursor-pointer"
                 onClick={signOut}
@@ -87,7 +84,7 @@ const Header = () => {
         </Sidebar>
       </div>
       <div className="flex gap-2 p-2 align-items-center">
-        <h5>{user.email}</h5>
+        <h5>{usuario.email}</h5>
         <Avatar label="N" size="large" />
       </div>
     </div>

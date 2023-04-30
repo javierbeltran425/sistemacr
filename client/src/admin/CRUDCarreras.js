@@ -16,7 +16,11 @@ import ModalCarreras from "./ModalCarreras";
 
 const CRUDcarreras = () => {
   const [carreras, setCarreras] = useState([]);
-  const [carrera, setCarrera] = useState({ id: "", name: "", faculty: "" });
+  const [carreraToEdit, setCarreraToEdit] = useState({
+    id_carrera: "",
+    nombre: "",
+    facultad: "",
+  });
   const [showModal, setShowModal] = useState(false);
   const [mode, setMode] = useState(null);
   const [page, setPage] = React.useState(0);
@@ -25,44 +29,46 @@ const CRUDcarreras = () => {
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
-  const RemoveFunction = (id) => {
-    if (window.confirm("Do you want to remove?")) {
-      fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/removecarrera/${id}`,
-        {
-          method: "DELETE",
+  const removeCarreraById = async (id_carrera) => {
+    if (window.confirm("Estás seguro que quieres eliminar esta carrera?")) {
+      try {
+        const resp = await fetch(
+          `${process.env.REACT_APP_SERVER_URL}/carreras/removecarrerabyid/${id_carrera}`,
+          {
+            method: "DELETE",
+          }
+        );
+        const json = await resp.json();
+        if (resp.status == 200) {
+          console.log("Ok!");
+          getAllCarreras();
         }
-      )
-        .then((res) => {
-          alert("Removed successfully.");
-          getData();
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
-  const getData = async () => {
-    fetch(`${process.env.REACT_APP_SERVER_URL}/carreras/getcarreras`)
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        setCarreras(resp);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+  const getAllCarreras = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
+      );
+      const json = await resp.json();
+      setCarreras(json);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
-    getData();
+    getAllCarreras();
   }, []);
 
   const columns = [
+    { id: "id_carrera", label: "ID", minWidth: 10, align: "left" },
     { id: "nombre", label: "Nombre", minWidth: 170, align: "left" },
-    { id: "facultad", label: "Facultad", minWidth: 100, align: "left" },
+    { id: "facultad", label: "Facultad", minWidth: 170, align: "left" },
   ];
 
   const handleChangePage = (event, newPage) => {
@@ -80,11 +86,10 @@ const CRUDcarreras = () => {
         <ModalCarreras
           mode={mode}
           showModal={showModal}
-          setShowModal={setShowModal}
           handleOpen={handleOpen}
           handleClose={handleClose}
-          getData={getData}
-          carrera={carrera}
+          getAllCarreras={getAllCarreras}
+          carreraToEdit={carreraToEdit}
         />
       )}
       <Card sx={{ minWidth: 275 }}>
@@ -95,7 +100,7 @@ const CRUDcarreras = () => {
               setShowModal(true);
             }}
           >
-            Create
+            Agregar carrera
           </Button>
         </CardActions>
         <CardContent>
@@ -144,24 +149,23 @@ const CRUDcarreras = () => {
                               <Button
                                 variant="contained"
                                 onClick={() => {
-                                  setCarrera({
-                                    ...carrera,
-                                    id: row.id_carrera,
-                                    name: row.nombre,
-                                    faculty: row.facultad,
+                                  setCarreraToEdit({
+                                    ...carreraToEdit,
+                                    id_carrera: row.id_carrera,
+                                    nombre: row.nombre,
+                                    facultad: row.facultad,
                                   });
                                   setMode("edit");
                                   setShowModal(true);
                                 }}
+                                sx={{ mr: 2 }}
                               >
                                 Edit
                               </Button>
-                            </TableCell>
-                            <TableCell align="left">
                               <Button
                                 variant="contained"
                                 onClick={() => {
-                                  RemoveFunction(row.id_carrera);
+                                  removeCarreraById(row.id_carrera);
                                 }}
                               >
                                 DELETE

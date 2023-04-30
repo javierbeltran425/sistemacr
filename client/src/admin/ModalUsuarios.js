@@ -16,75 +16,76 @@ import { USUARIO_ROLES, USUARIO_ROLES_ARRAY } from "../constants/usuario";
 const ModalUsuarios = ({
   mode,
   showModal,
-  setShowModal,
   handleOpen,
   handleClose,
-  getData,
-  usuario,
+  getAllUsuarios,
+  usuarioToEdit,
   carreras,
   materias,
 }) => {
   const editMode = mode === "edit" ? true : false;
 
-  const [data, setData] = useState({
-    email: editMode ? usuario.email : "",
-    name: editMode ? usuario.name : "",
+  const [newUsuario, setNewUsuario] = useState({
+    id_usuario: editMode ? usuarioToEdit.id_usuario : null,
+    id_carrera: editMode ? usuarioToEdit.id_carrera : null,
+    email: editMode ? usuarioToEdit.email : "",
+    nombre: editMode ? usuarioToEdit.nombre : "",
+    rol: editMode ? usuarioToEdit.rol : "",
     password: "",
-    role: editMode ? usuario.role : "",
-    major: editMode ? usuario.major : "",
-    subjects: [],
+    materias: [],
   });
 
-  const postData = async (e) => {
+  const createUsuario = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(
+      const resp = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/usuarios/createusuario`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(newUsuario),
         }
       );
-      if (response.status === 200) {
-        console.log("WORKED");
-        setShowModal(false);
-        getData();
+      if (resp.status === 200) {
+        console.log("Ok!");
+        getAllUsuarios();
+        handleClose();
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const editData = async (e) => {
+  const editUsuario = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/editusuario/${usuario.email}`,
+        `${process.env.REACT_APP_SERVER_URL}/usuarios/editusuario`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(newUsuario),
         }
       );
       if (response.status === 200) {
-        setShowModal(false);
-        getData();
+        console.log("Ok!");
+        getAllUsuarios();
+        handleClose();
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setData((data) => ({
-      ...data,
+    setNewUsuario((newUsuario) => ({
+      ...newUsuario,
       [name]: value,
     }));
 
-    console.log(data);
+    console.log(newUsuario);
   };
 
   const style = {
@@ -99,31 +100,28 @@ const ModalUsuarios = ({
     p: 4,
   };
 
-  const findSelected = async () => {
-    fetch(
-      `${process.env.REACT_APP_SERVER_URL}/usuarios/getmaterias/${usuario.email}`
-    )
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        var arr = [];
-        resp.forEach((element) => {
-          arr.push(element.id_materia);
-        });
-        setData({
-          ...data,
-          subjects: arr,
-        });
-      })
-      .catch((err) => {
-        console.log(err.message);
+  const getMateriasByIdUsuario = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/materias/getmateriasbyidusuario/${newUsuario.id_usuario}`
+      );
+      const json = await resp.json();
+      var arr = [];
+      json.forEach((element) => {
+        arr.push(element.id_materia);
       });
+      setNewUsuario({
+        ...newUsuario,
+        materias: arr,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
     if (editMode) {
-      findSelected();
+      getMateriasByIdUsuario();
     }
   }, []);
 
@@ -138,7 +136,7 @@ const ModalUsuarios = ({
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h4" component="h2">
-            {mode.toUpperCase()} mode
+            {editMode ? "Editando usuario..." : "Nuevo usuario"}
           </Typography>
           <br />
           <form>
@@ -148,17 +146,19 @@ const ModalUsuarios = ({
                 label="Email"
                 variant="filled"
                 name="email"
-                value={data.email}
+                value={newUsuario.email}
                 onChange={handleChange}
+                sx={{ m: 2 }}
               />
             )}
             <TextField
               id="filled-basic"
               label="Nombre"
               variant="filled"
-              name="name"
-              value={data.name}
+              name="nombre"
+              value={newUsuario.nombre}
               onChange={handleChange}
+              sx={{ m: 2 }}
             />
             <br />
             {!editMode && (
@@ -167,8 +167,9 @@ const ModalUsuarios = ({
                 label="Contraseña"
                 variant="filled"
                 name="password"
-                value={data.password}
+                value={newUsuario.password}
                 onChange={handleChange}
+                sx={{ m: 2 }}
               />
             )}
             <br />
@@ -178,14 +179,14 @@ const ModalUsuarios = ({
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                name="role"
-                value={data.role}
-                label="Role"
+                name="rol"
+                value={newUsuario.rol}
+                label="Rol"
                 onChange={handleChange}
               >
-                {USUARIO_ROLES_ARRAY.map((role) => (
-                  <MenuItem key={role} value={role} style={null}>
-                    {role}
+                {USUARIO_ROLES_ARRAY.map((rol) => (
+                  <MenuItem key={rol} value={rol} style={null}>
+                    {rol}
                   </MenuItem>
                 ))}
               </Select>
@@ -197,8 +198,8 @@ const ModalUsuarios = ({
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                name="major"
-                value={data.major}
+                name="id_carrera"
+                value={newUsuario.id_carrera}
                 label="Carrera"
                 onChange={handleChange}
               >
@@ -221,8 +222,8 @@ const ModalUsuarios = ({
                 labelId="demo-multiple-chip-label"
                 id="demo-multiple-chip"
                 multiple
-                name="subjects"
-                value={data.subjects}
+                name="materias"
+                value={newUsuario.materias}
                 onChange={handleChange}
                 input={
                   <OutlinedInput id="select-multiple-chip" label="Materias" />
@@ -261,9 +262,12 @@ const ModalUsuarios = ({
                 ))}
               </Select>
               <br />
-              <Button type="submit" onClick={editMode ? editData : postData}>
-                submit
-              </Button>{" "}
+              <Button
+                type="submit"
+                onClick={editMode ? editUsuario : createUsuario}
+              >
+                Guardar
+              </Button>
             </FormControl>
           </form>
         </Box>

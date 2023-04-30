@@ -14,73 +14,71 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 const ModalCarreras = ({
   mode,
   showModal,
-  setShowModal,
   handleOpen,
   handleClose,
-  getData,
-  materia,
+  getAllMaterias,
+  materiaToEdit,
   carreras,
 }) => {
   const editMode = mode === "edit" ? true : false;
-  const [data, setData] = useState({
-    id: editMode ? materia.id : "",
-    name: editMode ? materia.name : "",
-    uv: editMode ? materia.uv : "",
-    majors: [],
+  const [newMateria, setNewMateria] = useState({
+    id_materia: editMode ? materiaToEdit.id_materia : "",
+    nombre: editMode ? materiaToEdit.nombre : "",
+    uv: editMode ? materiaToEdit.uv : 0,
+    carreras: [],
   });
 
-  const postData = async (e) => {
+  const createMateria = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(
+      const resp = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/materias/createmateria`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(newMateria),
         }
       );
-      if (response.status === 200) {
-        console.log("WORKED");
-        setShowModal(false);
-        getData();
+      if (resp.status === 200) {
+        console.log("Ok!");
+        getAllMaterias();
+        handleClose();
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const editData = async (e) => {
+  const editMateria = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/editmateria/${String(
-          materia.id
-        )}`,
+        `${process.env.REACT_APP_SERVER_URL}/materias/editmateria`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(newMateria),
         }
       );
       if (response.status === 200) {
-        setShowModal(false);
-        getData();
+        console.log("Ok!");
+        getAllMaterias();
+        handleClose();
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setData((data) => ({
-      ...data,
+    setNewMateria((newMateria) => ({
+      ...newMateria,
       [name]: value,
     }));
 
-    console.log(data);
+    console.log(newMateria);
   };
 
   const style = {
@@ -95,31 +93,28 @@ const ModalCarreras = ({
     p: 4,
   };
 
-  const findSelected = async () => {
-    fetch(
-      `${process.env.REACT_APP_SERVER_URL}/materias/getcarreras/${materia.id}`
-    )
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        var arr = [];
-        resp.forEach((element) => {
-          arr.push(element.id_carrera);
-        });
-        setData({
-          ...data,
-          majors: arr,
-        });
-      })
-      .catch((err) => {
-        console.log(err.message);
+  const getCarrerasByIdMateria = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/carreras/getcarrerasbyidmateria/${newMateria.id_materia}`
+      );
+      const json = await resp.json();
+      var arr = [];
+      json.forEach((element) => {
+        arr.push(element.id_carrera);
       });
+      setNewMateria({
+        ...newMateria,
+        carreras: arr,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
     if (editMode) {
-      findSelected();
+      getCarrerasByIdMateria();
     }
   }, []);
 
@@ -134,7 +129,7 @@ const ModalCarreras = ({
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h4" component="h2">
-            {mode.toUpperCase()} mode
+            {editMode ? "Editando materia..." : "Nueva materia"}
           </Typography>
           <br />
           <form>
@@ -142,9 +137,10 @@ const ModalCarreras = ({
               id="filled-basic"
               label="Nombre"
               variant="filled"
-              name="name"
-              value={data.name}
+              name="nombre"
+              value={newMateria.nombre}
               onChange={handleChange}
+              sx={{ m: 2 }}
             />
             <br />
             <TextField
@@ -152,8 +148,10 @@ const ModalCarreras = ({
               label="UVs"
               variant="filled"
               name="uv"
-              value={data.uv}
+              type="number"
+              value={newMateria.uv}
               onChange={handleChange}
+              sx={{ m: 2 }}
             />
             <br />
             <br />
@@ -163,8 +161,8 @@ const ModalCarreras = ({
                 labelId="demo-multiple-chip-label"
                 id="demo-multiple-chip"
                 multiple
-                name="majors"
-                value={data.majors}
+                name="carreras"
+                value={newMateria.carreras}
                 onChange={handleChange}
                 input={
                   <OutlinedInput id="select-multiple-chip" label="Carreras" />
@@ -203,9 +201,12 @@ const ModalCarreras = ({
                 ))}
               </Select>
               <br />
-              <Button type="submit" onClick={editMode ? editData : postData}>
-                submit
-              </Button>{" "}
+              <Button
+                type="submit"
+                onClick={editMode ? editMateria : createMateria}
+              >
+                Guardar
+              </Button>
             </FormControl>
           </form>
         </Box>

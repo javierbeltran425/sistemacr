@@ -16,9 +16,9 @@ import ModalMaterias from "./ModalMaterias";
 
 const CRUDmaterias = () => {
   const [materias, setMaterias] = useState([]);
-  const [materia, setMateria] = useState({
-    id: "",
-    name: "",
+  const [materiaToEdit, setMateriaToEdit] = useState({
+    id_materia: "",
+    nombre: "",
     uv: "",
   });
   const [carreras, setCarreras] = useState([]);
@@ -30,59 +30,55 @@ const CRUDmaterias = () => {
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
-  const RemoveFunction = (id) => {
-    if (window.confirm("Do you want to remove?")) {
-      fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/removemateria/${id}`,
-        {
-          method: "DELETE",
+  const removeMateriaById = async (id_materia) => {
+    if (window.confirm("Estás seguro que quieres eliminar esta materia?")) {
+      try {
+        const resp = await fetch(
+          `${process.env.REACT_APP_SERVER_URL}/materias/removemateriabyid/${id_materia}`,
+          {
+            method: "DELETE",
+          }
+        );
+        const json = await resp.json();
+        if (resp.status == 200) {
+          console.log("Ok!");
+          getAllMaterias();
         }
-      )
-        .then((res) => {
-          alert("Removed successfully.");
-          getData();
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
-  const getData = async () => {
-    fetch(`${process.env.REACT_APP_SERVER_URL}/materias/getmaterias`)
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        setMaterias(resp);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+  const getAllMaterias = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/materias/getallmaterias`
+      );
+      const json = await resp.json();
+      setMaterias(json);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const getCarreras = async () => {
-    fetch(`${process.env.REACT_APP_SERVER_URL}/carreras/getcarreras`)
-      .then((res) => {
-        return res.json();
-      })
-      .then((resp) => {
-        setCarreras(resp);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+  const getAllCarreras = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
+      );
+      const json = await resp.json();
+      setCarreras(json);
+    } catch (error) {
+      console.log(error);
+    }
   };
-
-  useEffect(() => {
-    getData();
-    getCarreras();
-  }, []);
 
   const columns = [
+    { id: "id_materia", label: "ID", minWidth: 10, align: "left" },
     { id: "nombre", label: "Nombre", minWidth: 170, align: "left" },
-    { id: "uv", label: "UVs", minWidth: 100, align: "left" },
-    { id: "carreras", label: "Carreras", minWidth: 100, align: "left" },
+    { id: "uv", label: "UVs", minWidth: 170, align: "left" },
+    { id: "carreras", label: "Carreras", minWidth: 170, align: "left" },
   ];
 
   const handleChangePage = (event, newPage) => {
@@ -94,17 +90,21 @@ const CRUDmaterias = () => {
     setPage(0);
   };
 
+  useEffect(() => {
+    getAllMaterias();
+    getAllCarreras();
+  }, []);
+
   return (
     <Box>
       {showModal && (
         <ModalMaterias
           mode={mode}
           showModal={showModal}
-          setShowModal={setShowModal}
           handleOpen={handleOpen}
           handleClose={handleClose}
-          getData={getData}
-          materia={materia}
+          getAllMaterias={getAllMaterias}
+          materiaToEdit={materiaToEdit}
           carreras={carreras}
         />
       )}
@@ -116,7 +116,7 @@ const CRUDmaterias = () => {
               setShowModal(true);
             }}
           >
-            Create
+            Agregar Materia
           </Button>
         </CardActions>
         <CardContent>
@@ -171,24 +171,24 @@ const CRUDmaterias = () => {
                               <Button
                                 variant="contained"
                                 onClick={() => {
-                                  setMateria({
-                                    ...materia,
-                                    id: row.id_materia,
-                                    name: row.nombre,
+                                  setMateriaToEdit({
+                                    ...materiaToEdit,
+                                    id_materia: row.id_materia,
+                                    nombre: row.nombre,
                                     uv: row.uv,
                                   });
                                   setMode("edit");
-                                  setShowModal(true);
+                                  handleOpen();
                                 }}
+                                sx={{ mr: 2 }}
                               >
                                 Edit
                               </Button>
-                            </TableCell>
-                            <TableCell align="left">
+
                               <Button
                                 variant="contained"
                                 onClick={() => {
-                                  RemoveFunction(row.id_materia);
+                                  removeMateriaById(row.id_materia);
                                 }}
                               >
                                 DELETE
