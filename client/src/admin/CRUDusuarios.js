@@ -135,7 +135,7 @@ const CRUDusuarios = () => {
               setShowModal(true);
             }}
           >
-            Create
+            Agregar usuario
           </Button>
         </CardActions>
         <CardContent>
