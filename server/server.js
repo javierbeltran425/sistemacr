@@ -110,4 +110,8 @@ app.post('/horarios/creahorario', (req, res) => {
     horarios.createHorario(req, res)
 })
 
+app.get('/horarios/getmateriasidusuarioidmateria/:id_usuario/:id_materia', (req, res) => {
+    horarios.getHorariosByIdUsuarioIdMateria(req, res)
+})
+
 app.listen(port, () => console.log(`Server running on PORT ${port}`))

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
@@ -13,11 +13,14 @@ import TextField from "@mui/material/TextField";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
+import { Dropdown } from 'primereact/dropdown';
 
 import { ContextUsuario } from "../context/usuario";
 
 // servicios
 import { registrarHorario } from "../services/HorariosServices";
+import { getMaterias } from "../services/MateriasServices";
+import { getHorariosUsuarioMateria } from "../services/HorariosServices";
 
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
@@ -34,6 +37,8 @@ class CalendarAlt extends React.Component {
       start: "",
       end: "",
       desc: "",
+      materias: [],
+      materiaSeleccionada: null,
       openSlot: false,
       openEvent: false,
       clickedEvent: {},
@@ -44,6 +49,50 @@ class CalendarAlt extends React.Component {
   componentDidMount() {
     //this.setState({ events: events, backgroundEvents: backgroundEvents });
     this.getSolicitudesByIdUsuario();
+    this.getAllMaterias()
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.materiaSeleccionada !== this.state.materiaSeleccionada) {
+      this.getHorariosUsuarioMateria();
+    }
+  }
+
+  // función para recuperar las materias
+  getAllMaterias = async () => {
+    try {
+      const response = await getMaterias().catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: TeacherView.js:109 ~ response ~ response:", response)
+      if (response.status === 200) this.setState({ materias: response.data })
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  getHorariosUsuarioMateria = async () => {
+    try {
+      console.log('Materia seleccionada: ', this.state.materiaSeleccionada);
+      const response = await getHorariosUsuarioMateria(this.context.id_usuario, this.state.materiaSeleccionada.id_materia).catch(err => {
+        console.error(err);
+      })
+      // console.log("🚀 ~ file: CalendarAlt.js:80 ~ CalendarAlt ~ response ~ response:", response)
+
+      if (response.status === 200) {
+        const json = response.data;
+        console.log("🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getHorariosUsuarioMateria= ~ json:", json)
+
+        json.forEach((element) => {
+          element.start = new Date(element.start);
+          element.end = new Date(element.end);
+        });
+
+        this.setState({ events: json });
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   getSolicitudesByIdUsuario = async () => {
@@ -152,7 +201,7 @@ class CalendarAlt extends React.Component {
 
     const data = {
       id_usuario: id_usuario,
-      id_materia: "1",
+      id_materia: this.state.materiaSeleccionada.id_materia,
       title: title,
       description: desc,
       start: start,
@@ -187,8 +236,8 @@ class CalendarAlt extends React.Component {
     this.setState({ events });
   }
 
-   // obtener la ruta actual
-   getRoute() {
+  // obtener la ruta actual
+  getRoute() {
     const route = window.location.hash
     console.log("🚀 ~ file: CalendarAlt.js:112 ~ CalendarAlt ~ getRoute ~ route:", route)
 
@@ -251,6 +300,9 @@ class CalendarAlt extends React.Component {
 
     return (
       <div id="Calendar">
+        <div className='flex w-full justify-content-end mb-5'>
+          <Dropdown value={this.state.materiaSeleccionada} options={this.state.materias} optionLabel='nombre' onChange={e => this.setState({ materiaSeleccionada: e.value })} placeholder='Seleccione una materia' emptyMessage='No hay datos' />
+        </div>
         {/* react-big-calendar library utilized to render calendar*/}
         <Calendar
           events={this.state.events}

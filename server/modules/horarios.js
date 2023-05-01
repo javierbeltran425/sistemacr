@@ -13,15 +13,15 @@ const createHorario = async function (req, res) {
     }
 }
 
-const getHorariosByIdUsuario = async function (req, res) {
-    const { id_usuario } = req.params
+const getHorariosByIdUsuarioIdMateria = async function (req, res) {
+    const { id_usuario, id_materia } = req.params
     try {
-      const horarios = await knex.select('id_horario as id', 'titulo as title', 'hora_inicio as start', 'hora_final as end', 'descripcion as desc').from('horarios').where({id_usuario: id_usuario})
-      res.json(horarios)
+        const horarios = await knex.select('id_horario as id', 'titulo as title', 'hora_inicio as start', 'hora_final as end', 'descripcion as desc').from('horarios').where({ id_usuario: id_usuario, id_materia: id_materia })
+        res.json(horarios)
     } catch (error) {
-      res.status(400).send(error)
-      console.error(error)
+        res.status(400).send(error)
+        console.error(error)
     }
-  }
+}
 
-module.exports = { createHorario, getHorariosByIdUsuario }
+module.exports = { createHorario, getHorariosByIdUsuarioIdMateria }
