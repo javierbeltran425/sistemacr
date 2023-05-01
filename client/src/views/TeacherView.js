@@ -103,6 +103,10 @@ const TeacherView = () => {
 
                 <h4>Horarios fijos de consultas para todo el ciclo</h4>
 
+                <div className='flex w-full justify-content-end mb-5'>
+                    <Dropdown placeholder='Seleccione una materia' emptyMessage='No hay datos' />
+                </div>
+
                 <CalendarAlt />
 
 

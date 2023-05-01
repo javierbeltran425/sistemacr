@@ -50,8 +50,8 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="flex md:flex-row w-full h-2 px-6 justify-content-between align-items-center bg-gray-100 shadow-1">
-      <div>
+    <div className="flex md:flex-row w-full h-2 px-6 justify-content-end align-items-center bg-gray-100 shadow-1">
+      {/* <div>
         <Button
           icon="pi pi-bars"
           onClick={() => setVisible(true)}
@@ -82,9 +82,13 @@ const Header = () => {
             <ul>{materiasRender()}</ul>
           )}
         </Sidebar>
-      </div>
+      </div> */}
       <div className="flex gap-2 p-2 align-items-center">
-        <h5>{usuario.email}</h5>
+        <div>
+          <h5 className="p-0 m-0">{usuario.email}</h5>
+          <p className="p-0 m-0 text-right text-blue-500 cursor-pointer">Cerrar sesión</p>
+
+        </div>
         <Avatar label="N" size="large" />
       </div>
     </div>
