@@ -16,6 +16,7 @@ const usuarios = require('./modules/usuarios')
 const solicitudes = require('./modules/solicitudes')
 const carreras = require('./modules/carreras')
 const materias = require('./modules/materias')
+const horarios = require('./modules/horarios')
 
 // AUTHENTICATION
 
@@ -103,5 +104,10 @@ app.delete('/materias/removemateriabyid/:id_materia',(req, res) => {
     materias.removeMateriaById(req, res)
 })
 
+// HORARIOS
+
+app.post('/horarios/creahorario', (req, res) => {
+    horarios.createHorario(req, res)
+})
 
 app.listen(port, () => console.log(`Server running on PORT ${port}`))

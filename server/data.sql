@@ -27,6 +27,18 @@ CREATE TABLE solicitudes (
   CONSTRAINT fk_usuario FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
 
+CREATE TABLE horarios (
+  id_horario SERIAL PRIMARY KEY,
+  id_usuario INT,
+  id_materia INT,
+  titulo VARCHAR(255),
+  descripcion VARCHAR(255),
+  hora_inicio VARCHAR(255),
+  hora_final VARCHAR(255),
+  CONSTRAINT fk_usuario FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+  CONSTRAINT fk_materia FOREIGN KEY(id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE
+);
+
 CREATE TABLE materias (
   id_materia SERIAL PRIMARY KEY,
   nombre VARCHAR(255),
