@@ -16,6 +16,9 @@ import DialogActions from "@mui/material/DialogActions";
 
 import { ContextUsuario } from "../context/usuario";
 
+// servicios
+import { registrarHorario } from "../services/HorariosServices";
+
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
 
@@ -143,6 +146,66 @@ class CalendarAlt extends React.Component {
     this.setState({ events });
   }
 
+  async setNewHorario() {
+    const { start, end, title, desc } = this.state;
+    const id_usuario = this.context.id_usuario;
+
+    const data = {
+      id_usuario: id_usuario,
+      id_materia: "1",
+      title: title,
+      description: desc,
+      start: start,
+      end: end,
+    };
+
+    try {
+      const response = await registrarHorario(data).catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:", response)
+
+      // const response = await fetch(
+      //   `${process.env.REACT_APP_SERVER_URL}/solicitudes/createsolicitud`,
+      //   {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify(data),
+      //   }
+      // );
+      // if (response.status === 200) {
+      //   console.log("Ok!");
+      // }
+    } catch (error) {
+      console.error(error);
+    }
+    console.log(start);
+    let appointment = { title, start, end, desc };
+    let events = this.state.events.slice();
+    events.push(appointment);
+    // localStorage.setItem("cachedEvents", JSON.stringify(events));
+    this.setState({ events });
+  }
+
+   // obtener la ruta actual
+   getRoute() {
+    const route = window.location.hash
+    console.log("🚀 ~ file: CalendarAlt.js:112 ~ CalendarAlt ~ getRoute ~ route:", route)
+
+    switch (route) {
+      case '#/':
+        this.setNewAppointment()
+        break;
+
+      case '#/teacher':
+        this.setNewHorario()
+        break;
+
+      default:
+        break;
+    }
+  }
+
   //  Updates Existing Appointments Title and/or Description
   updateEvent() {
     const { title, desc, start, end, events, clickedEvent } = this.state;
@@ -263,7 +326,7 @@ class CalendarAlt extends React.Component {
               label="Submit"
               primary={"true"}
               onClick={() => {
-                this.setNewAppointment(), this.handleClose();
+                this.getRoute(), this.handleClose();
               }}
             >
               SUBMIT

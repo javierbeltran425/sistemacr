@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // custom components imports
 import CustomCalendar from '../components/Calendar';
@@ -14,22 +14,31 @@ import { Divider } from 'primereact/divider';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 
+// servicios
+import { getMaterias } from '../services/MateriasServices';
+
 const TeacherView = () => {
     const [time, setTime] = useState(null);
     const [flag, setFlag] = useState(false);
 
     const dias = [{ label: "Lunes", value: "LN" }, { label: "Martes", value: "MAR" }, { label: "Miercoles", value: "MIER" }, { label: "Jueves", value: "JV" }, { label: "Viernes", value: "VN" }]
+    const [materias, setMaterias] = useState([])
 
     // States para almacenamiento de datos
+    const [materiaSeleccionada, setMateriaSeleccionada] = useState(null)
     const [nuevaFechaInicio, setNuevaFechaInicio] = useState(null)
     const [nuevaFechaFin, setNuevaFechaFin] = useState(null)
     const [fechas, setFechas] = useState([])
-    console.log("🚀 ~ file: TeacherView.js:25 ~ TeacherView ~ fechas:", fechas)
     const [dia, setDia] = useState(null)
 
     // States para Dialog para administración de fechas
     const [visible, setVisible] = useState(false);
     const [visibleMinus, setVisibleMinus] = useState(false);
+
+    useEffect(() => {
+      getAllMaterias()
+    }, [])
+    
 
     // Función para activar la modal para registrar nuevos horarios
     const onChangeModalState = () => {
@@ -97,6 +106,19 @@ const TeacherView = () => {
         setFechas(_filtro)
     }
 
+    // función para recuperar las materias
+    const getAllMaterias = async () => {
+        try {
+            const response = await getMaterias().catch(err => {
+                console.error(err);
+            })
+            console.log("🚀 ~ file: TeacherView.js:109 ~ response ~ response:", response)
+            if(response.status === 200) setMaterias(response.data)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
         <Layout>
             <div className='w-full px-6 pt-5'>
@@ -104,7 +126,7 @@ const TeacherView = () => {
                 <h4>Horarios fijos de consultas para todo el ciclo</h4>
 
                 <div className='flex w-full justify-content-end mb-5'>
-                    <Dropdown placeholder='Seleccione una materia' emptyMessage='No hay datos' />
+                    <Dropdown value={materiaSeleccionada} options={materias} optionLabel='nombre' onChange={e => setMateriaSeleccionada(e.value)} placeholder='Seleccione una materia' emptyMessage='No hay datos' />
                 </div>
 
                 <CalendarAlt />
