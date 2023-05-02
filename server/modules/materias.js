@@ -18,7 +18,7 @@ const getMateriasByIdUsuario = async function (req, res) {
   const { id_usuario } = req.params
 
   try {
-    const materias = await knex.select('usuariosxmaterias.id_materia', 'materias.nombre', 'materias.uv')
+    const materias = await knex.select('usuariosxmaterias.id_materia', 'usuariosxmaterias.id_profesor', 'materias.nombre', 'materias.uv')
       .from('usuariosxmaterias')
       .where({id_usuario: id_usuario})
       .join('materias', 'materias.id_materia', 'usuariosxmaterias.id_materia')

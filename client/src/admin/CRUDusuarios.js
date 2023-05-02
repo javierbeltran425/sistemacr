@@ -13,6 +13,8 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import ModalUsuarios from "./ModalUsuarios";
+import "../constants/usuario";
+import { USUARIO_ROLES } from "../constants/usuario";
 
 const CRUDusuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -99,9 +101,9 @@ const CRUDusuarios = () => {
     { id: "id_usuario", label: "ID", minWidth: 10, align: "left" },
     { id: "email", label: "Email", minWidth: 170, align: "left" },
     { id: "nombre", label: "Nombre", minWidth: 170, align: "left" },
-    { id: "rol", label: "Rol", minWidth: 170, align: "left" },
+    { id: "rol", label: "Rol", minWidth: 100, align: "left" },
     { id: "carrera", label: "Carrera", minWidth: 170, align: "left" },
-    { id: "materias", label: "Materias", minWidth: 170, align: "left" },
+    { id: "materias", label: "Materias", minWidth: 250, align: "left" },
   ];
 
   const handleChangePage = (event, newPage) => {
@@ -125,6 +127,9 @@ const CRUDusuarios = () => {
           usuarioToEdit={usuarioToEdit}
           carreras={carreras}
           materias={materias}
+          profesores={usuarios.filter((usuarios) => {
+            return usuarios.rol == USUARIO_ROLES.PROFESOR;
+          })}
         />
       )}
       <Card sx={{ minWidth: 275 }}>

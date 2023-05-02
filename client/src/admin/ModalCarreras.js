@@ -100,29 +100,29 @@ const ModalCarreras = ({
           <Typography id="modal-modal-title" variant="h4" component="h2">
             {mode == "edit" ? "Editando carrera..." : "Nueva carrera"}
           </Typography>
-          <br />
           <form>
-            <TextField
-              id="filled-basic"
-              label="Nombre"
-              variant="filled"
-              name="nombre"
-              value={newCarrera.nombre}
-              onChange={handleChange}
-              sx={{ m: 2 }}
-            />
-            <br />
-            <TextField
-              id="filled-basic"
-              label="Facultad"
-              variant="filled"
-              name="facultad"
-              value={newCarrera.facultad}
-              onChange={handleChange}
-              sx={{ m: 2 }}
-            />
-            <br />
-            <br />
+            <FormControl fullWidth>
+              <TextField
+                id="filled-basic"
+                label="Nombre"
+                variant="filled"
+                name="nombre"
+                value={newCarrera.nombre}
+                onChange={handleChange}
+                sx={{ m: 2 }}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TextField
+                id="filled-basic"
+                label="Facultad"
+                variant="filled"
+                name="facultad"
+                value={newCarrera.facultad}
+                onChange={handleChange}
+                sx={{ m: 2 }}
+              />
+            </FormControl>
             <FormControl sx={{ m: 1, width: 300 }}>
               <Button
                 type="submit"

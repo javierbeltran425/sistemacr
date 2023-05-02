@@ -13,7 +13,7 @@ import TextField from "@mui/material/TextField";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
-import { Dropdown } from 'primereact/dropdown';
+import { Dropdown } from "primereact/dropdown";
 
 import { ContextUsuario } from "../context/usuario";
 
@@ -49,7 +49,7 @@ class CalendarAlt extends React.Component {
   componentDidMount() {
     //this.setState({ events: events, backgroundEvents: backgroundEvents });
     this.getSolicitudesByIdUsuario();
-    this.getAllMaterias()
+    this.getAllMaterias();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -61,27 +61,36 @@ class CalendarAlt extends React.Component {
   // función para recuperar las materias
   getAllMaterias = async () => {
     try {
-      const response = await getMaterias().catch(err => {
+      const response = await getMaterias().catch((err) => {
         console.error(err);
-      })
-      console.log("🚀 ~ file: TeacherView.js:109 ~ response ~ response:", response)
-      if (response.status === 200) this.setState({ materias: response.data })
+      });
+      console.log(
+        "🚀 ~ file: TeacherView.js:109 ~ response ~ response:",
+        response
+      );
+      if (response.status === 200) this.setState({ materias: response.data });
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   getHorariosUsuarioMateria = async () => {
     try {
-      console.log('Materia seleccionada: ', this.state.materiaSeleccionada);
-      const response = await getHorariosUsuarioMateria(this.context.id_usuario, this.state.materiaSeleccionada.id_materia).catch(err => {
+      console.log("Materia seleccionada: ", this.state.materiaSeleccionada);
+      const response = await getHorariosUsuarioMateria(
+        this.context.id_usuario,
+        this.state.materiaSeleccionada.id_materia
+      ).catch((err) => {
         console.error(err);
-      })
+      });
       // console.log("🚀 ~ file: CalendarAlt.js:80 ~ CalendarAlt ~ response ~ response:", response)
 
       if (response.status === 200) {
         const json = response.data;
-        console.log("🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getHorariosUsuarioMateria= ~ json:", json)
+        console.log(
+          "🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getHorariosUsuarioMateria= ~ json:",
+          json
+        );
 
         json.forEach((element) => {
           element.start = new Date(element.start);
@@ -93,7 +102,7 @@ class CalendarAlt extends React.Component {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   getSolicitudesByIdUsuario = async () => {
     try {
@@ -209,10 +218,13 @@ class CalendarAlt extends React.Component {
     };
 
     try {
-      const response = await registrarHorario(data).catch(err => {
+      const response = await registrarHorario(data).catch((err) => {
         console.error(err);
-      })
-      console.log("🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:", response)
+      });
+      console.log(
+        "🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:",
+        response
+      );
 
       // const response = await fetch(
       //   `${process.env.REACT_APP_SERVER_URL}/solicitudes/createsolicitud`,
@@ -238,16 +250,19 @@ class CalendarAlt extends React.Component {
 
   // obtener la ruta actual
   getRoute() {
-    const route = window.location.hash
-    console.log("🚀 ~ file: CalendarAlt.js:112 ~ CalendarAlt ~ getRoute ~ route:", route)
+    const route = window.location.hash;
+    console.log(
+      "🚀 ~ file: CalendarAlt.js:112 ~ CalendarAlt ~ getRoute ~ route:",
+      route
+    );
 
     switch (route) {
-      case '#/':
-        this.setNewAppointment()
+      case "#/":
+        this.setNewAppointment();
         break;
 
-      case '#/teacher':
-        this.setNewHorario()
+      case "#/teacher":
+        this.setNewHorario();
         break;
 
       default:
@@ -300,8 +315,15 @@ class CalendarAlt extends React.Component {
 
     return (
       <div id="Calendar">
-        <div className='flex w-full justify-content-end mb-5'>
-          <Dropdown value={this.state.materiaSeleccionada} options={this.state.materias} optionLabel='nombre' onChange={e => this.setState({ materiaSeleccionada: e.value })} placeholder='Seleccione una materia' emptyMessage='No hay datos' />
+        <div className="flex w-full justify-content-end mb-5">
+          <Dropdown
+            value={this.state.materiaSeleccionada}
+            options={this.state.materias}
+            optionLabel="nombre"
+            onChange={(e) => this.setState({ materiaSeleccionada: e.value })}
+            placeholder="Seleccione una materia"
+            emptyMessage="No hay datos"
+          />
         </div>
         {/* react-big-calendar library utilized to render calendar*/}
         <Calendar

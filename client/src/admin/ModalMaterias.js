@@ -131,31 +131,31 @@ const ModalCarreras = ({
           <Typography id="modal-modal-title" variant="h4" component="h2">
             {editMode ? "Editando materia..." : "Nueva materia"}
           </Typography>
-          <br />
           <form>
-            <TextField
-              id="filled-basic"
-              label="Nombre"
-              variant="filled"
-              name="nombre"
-              value={newMateria.nombre}
-              onChange={handleChange}
-              sx={{ m: 2 }}
-            />
-            <br />
-            <TextField
-              id="filled-basic"
-              label="UVs"
-              variant="filled"
-              name="uv"
-              type="number"
-              value={newMateria.uv}
-              onChange={handleChange}
-              sx={{ m: 2 }}
-            />
-            <br />
-            <br />
-            <FormControl sx={{ m: 1, width: 300 }}>
+            <FormControl fullWidth>
+              <TextField
+                id="filled-basic"
+                label="Nombre"
+                variant="filled"
+                name="nombre"
+                value={newMateria.nombre}
+                onChange={handleChange}
+                sx={{ m: 2 }}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TextField
+                id="filled-basic"
+                label="UVs"
+                variant="filled"
+                name="uv"
+                type="number"
+                value={newMateria.uv}
+                onChange={handleChange}
+                sx={{ m: 2 }}
+              />
+            </FormControl>
+            <FormControl fullWidth sx={{ my: 1 }}>
               <InputLabel id="demo-multiple-chip-label">Carreras</InputLabel>
               <Select
                 labelId="demo-multiple-chip-label"

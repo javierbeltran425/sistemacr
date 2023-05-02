@@ -12,6 +12,9 @@ import Chip from "@mui/material/Chip";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import "../constants/usuario";
 import { USUARIO_ROLES, USUARIO_ROLES_ARRAY } from "../constants/usuario";
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 const ModalUsuarios = ({
   mode,
@@ -22,6 +25,7 @@ const ModalUsuarios = ({
   usuarioToEdit,
   carreras,
   materias,
+  profesores,
 }) => {
   const editMode = mode === "edit" ? true : false;
 
@@ -32,18 +36,20 @@ const ModalUsuarios = ({
     nombre: editMode ? usuarioToEdit.nombre : "",
     rol: editMode ? usuarioToEdit.rol : "",
     password: "",
-    materias: [],
   });
+  const [newMaterias, setNewMaterias] = useState([]);
 
   const createUsuario = async (e) => {
     e.preventDefault();
     try {
+      let data = newUsuario;
+      data.materias = newMaterias;
       const resp = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/usuarios/createusuario`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newUsuario),
+          body: JSON.stringify(data),
         }
       );
       if (resp.status === 200) {
@@ -59,12 +65,14 @@ const ModalUsuarios = ({
   const editUsuario = async (e) => {
     e.preventDefault();
     try {
+      let data = newUsuario;
+      data.materias = newMaterias;
       const response = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/usuarios/editusuario`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newUsuario),
+          body: JSON.stringify(data),
         }
       );
       if (response.status === 200) {
@@ -93,7 +101,7 @@ const ModalUsuarios = ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 400,
+    width: 600,
     bgcolor: "background.paper",
     border: "2px solid #000",
     boxShadow: 24,
@@ -106,17 +114,22 @@ const ModalUsuarios = ({
         `${process.env.REACT_APP_SERVER_URL}/materias/getmateriasbyidusuario/${newUsuario.id_usuario}`
       );
       const json = await resp.json();
-      var arr = [];
+      var arr1 = [];
+      var arr2 = [];
       json.forEach((element) => {
-        arr.push(element.id_materia);
+        arr1.push(element.id_materia);
+        arr2.push(element.id_profesor);
       });
-      setNewUsuario({
-        ...newUsuario,
-        materias: arr,
-      });
+      setNewMaterias(json);
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const getDisabled = (id_materia) => {
+    if (newMaterias.map((i) => i.id_materia).includes(id_materia))
+      return { disabled: true };
+    return {};
   };
 
   useEffect(() => {
@@ -141,40 +154,43 @@ const ModalUsuarios = ({
           <br />
           <form>
             {!editMode && (
-              <TextField
-                id="filled-basic"
-                label="Email"
-                variant="filled"
-                name="email"
-                value={newUsuario.email}
-                onChange={handleChange}
-                sx={{ m: 2 }}
-              />
+              <FormControl fullWidth>
+                <TextField
+                  id="filled-basic"
+                  label="Email"
+                  variant="filled"
+                  name="email"
+                  value={newUsuario.email}
+                  onChange={handleChange}
+                  sx={{ m: 1 }}
+                />
+              </FormControl>
             )}
-            <TextField
-              id="filled-basic"
-              label="Nombre"
-              variant="filled"
-              name="nombre"
-              value={newUsuario.nombre}
-              onChange={handleChange}
-              sx={{ m: 2 }}
-            />
-            <br />
-            {!editMode && (
-              <TextField
-                id="filled-basic"
-                label="Contraseña"
-                variant="filled"
-                name="password"
-                value={newUsuario.password}
-                onChange={handleChange}
-                sx={{ m: 2 }}
-              />
-            )}
-            <br />
-            <br />
             <FormControl fullWidth>
+              <TextField
+                id="filled-basic"
+                label="Nombre"
+                variant="filled"
+                name="nombre"
+                value={newUsuario.nombre}
+                onChange={handleChange}
+                sx={{ m: 1 }}
+              />
+            </FormControl>
+            {!editMode && (
+              <FormControl fullWidth>
+                <TextField
+                  id="filled-basic"
+                  label="Contraseña"
+                  variant="filled"
+                  name="password"
+                  value={newUsuario.password}
+                  onChange={handleChange}
+                  sx={{ m: 1 }}
+                />
+              </FormControl>
+            )}
+            <FormControl fullWidth sx={{ my: 1 }}>
               <InputLabel id="demo-simple-select-label">Rol</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
@@ -191,9 +207,7 @@ const ModalUsuarios = ({
                 ))}
               </Select>
             </FormControl>
-            <br />
-            <br />
-            <FormControl fullWidth>
+            <FormControl fullWidth sx={{ my: 1 }}>
               <InputLabel id="demo-simple-select-label">Carrera</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
@@ -216,6 +230,7 @@ const ModalUsuarios = ({
             </FormControl>
             <br />
             <br />
+            {/*
             <FormControl sx={{ m: 1, width: 300 }}>
               <InputLabel id="demo-multiple-chip-label">Materias</InputLabel>
               <Select
@@ -261,7 +276,112 @@ const ModalUsuarios = ({
                   </MenuItem>
                 ))}
               </Select>
-              <br />
+            </FormControl>
+                <br />
+                */}
+            <Typography id="modal-modal-title" sx={{ textAlign: "center" }}>
+              Materias
+            </Typography>
+            {newMaterias.map((materia, index) => (
+              <div
+                key={materia.id_materia}
+                style={{ display: "flex", alignItems: "center" }}
+              >
+                <FormControl fullWidth sx={{ m: 1 }}>
+                  <InputLabel id="demo-simple-select-label">Materia</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    name="materias"
+                    value={materia.id_materia}
+                    label="Materia"
+                    onChange={(e) => {
+                      let arr = [...newMaterias];
+                      arr[index].id_materia = e.target.value;
+                      arr[index].id_profesor = null;
+                      setNewMaterias(arr);
+                    }}
+                  >
+                    {materias.map((element) => (
+                      <MenuItem
+                        key={element.id_materia}
+                        value={element.id_materia}
+                        style={null}
+                        {...getDisabled(element.id_materia)}
+                      >
+                        {element.nombre}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {newUsuario.rol != USUARIO_ROLES.PROFESOR && (
+                  <FormControl fullWidth sx={{ m: 1 }}>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name="profesores"
+                      value={materia.id_profesor}
+                      label="Profesor"
+                      onChange={(e) => {
+                        let arr = [...newMaterias];
+                        arr[index].id_profesor = e.target.value;
+                        setNewMaterias(arr);
+                      }}
+                    >
+                      {profesores
+                        .filter((profesor) => {
+                          return profesor.id_materia.includes(
+                            materia.id_materia
+                          );
+                        })
+                        .map((element) => (
+                          <MenuItem
+                            key={element.id_usuario}
+                            value={element.id_usuario}
+                            style={null}
+                          >
+                            {element.nombre}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                  </FormControl>
+                )}
+                <FormControl style={null}>
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={(e) => {
+                      setNewMaterias((newMaterias) =>
+                        newMaterias.filter((s, i) => i != index)
+                      );
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </FormControl>
+              </div>
+            ))}
+            <div style={{ textAlign: "center" }}>
+              <FormControl style={null}>
+                <IconButton
+                  onClick={() => {
+                    setNewMaterias([
+                      ...newMaterias,
+                      {
+                        id_materia: null,
+                        id_profesor: null,
+                        nombre: "",
+                        uv: null,
+                      },
+                    ]);
+                  }}
+                  aria-label="delete"
+                >
+                  <AddCircleIcon />
+                </IconButton>
+              </FormControl>
+            </div>
+            <FormControl fullWidth>
               <Button
                 type="submit"
                 onClick={editMode ? editUsuario : createUsuario}

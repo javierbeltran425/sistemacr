@@ -86,8 +86,12 @@ const Header = () => {
       <div className="flex gap-2 p-2 align-items-center">
         <div>
           <h5 className="p-0 m-0">{usuario.email}</h5>
-          <p className="p-0 m-0 text-right text-blue-500 cursor-pointer">Cerrar sesión</p>
-
+          <p
+            onClick={signOut}
+            className="p-0 m-0 text-right text-blue-500 cursor-pointer"
+          >
+            Cerrar sesión
+          </p>
         </div>
         <Avatar label="N" size="large" />
       </div>
