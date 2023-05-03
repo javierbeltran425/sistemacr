@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -279,7 +279,11 @@ const ModalUsuarios = ({
             </FormControl>
                 <br />
                 */}
-            <Typography id="modal-modal-title" sx={{ textAlign: "center" }}>
+            <Typography
+              id="modal-modal-title"
+              variant="h6"
+              sx={{ textAlign: "center" }}
+            >
               Materias
             </Typography>
             {newMaterias.map((materia, index) => (
@@ -385,6 +389,7 @@ const ModalUsuarios = ({
               <Button
                 type="submit"
                 onClick={editMode ? editUsuario : createUsuario}
+                sx={{ mt: 1 }}
               >
                 Guardar
               </Button>

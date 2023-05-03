@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
-import events from "../data/events";
 import backgroundEvents from "../data/backgroundEvents";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Dialog from "@mui/material/Dialog";
@@ -14,12 +13,15 @@ import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
 import { Dropdown } from "primereact/dropdown";
-
 import { ContextUsuario } from "../context/usuario";
+import { datetime, RRule, RRuleSet, rrulestr } from "rrule";
 
 // servicios
-import { deleteHorariosUsuarioMateria, registrarHorario } from "../services/HorariosServices";
-import { getMaterias } from "../services/MateriasServices";
+import {
+  deleteHorariosUsuarioMateria,
+  registrarHorario,
+} from "../services/HorariosServices";
+import { getMateriasByIdUsuario } from "../services/MateriasServices";
 import { getHorariosUsuarioMateria } from "../services/HorariosServices";
 
 moment.tz.setDefault("America/El _Salvador");
@@ -47,9 +49,8 @@ class CalendarAlt extends React.Component {
   }
 
   componentDidMount() {
-    //this.setState({ events: events, backgroundEvents: backgroundEvents });
     this.getSolicitudesByIdUsuario();
-    this.getAllMaterias();
+    this.getMateriasByIdUsuario();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -59,16 +60,22 @@ class CalendarAlt extends React.Component {
   }
 
   // función para recuperar las materias
-  getAllMaterias = async () => {
+  getMateriasByIdUsuario = async () => {
     try {
-      const response = await getMaterias().catch((err) => {
+      const response = await getMateriasByIdUsuario(
+        this.context.id_usuario
+      ).catch((err) => {
         console.error(err);
       });
       console.log(
         "🚀 ~ file: TeacherView.js:109 ~ response ~ response:",
         response
       );
-      if (response.status === 200) this.setState({ materias: response.data });
+      if (response.status === 200) {
+        this.setState({ materias: response.data });
+        if (this.state.materias)
+          this.setState({ materiaSeleccionada: this.state.materias[0] });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -97,7 +104,7 @@ class CalendarAlt extends React.Component {
           element.end = new Date(element.end);
         });
 
-        this.setState({ events: json });
+        this.setState({ backgroundEvents: json });
       }
     } catch (error) {
       console.error(error);
@@ -242,10 +249,11 @@ class CalendarAlt extends React.Component {
     }
     console.log(start);
     let appointment = { title, start, end, desc };
-    let events = this.state.events.slice();
-    events.push(appointment);
+    let backgroundEvents = this.state.backgroundEvents.slice();
+    backgroundEvents.push(appointment);
     // localStorage.setItem("cachedEvents", JSON.stringify(events));
-    this.setState({ events });
+
+    this.setState({ backgroundEvents: backgroundEvents });
   }
 
   // obtener la ruta actual
@@ -257,6 +265,10 @@ class CalendarAlt extends React.Component {
     );
 
     switch (route) {
+      case "":
+        this.setNewAppointment();
+        break;
+
       case "#/":
         this.setNewAppointment();
         break;
@@ -293,31 +305,69 @@ class CalendarAlt extends React.Component {
     // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvents));
     this.setState({ events: updatedEvents });
 
-    console.log('Evento a eliminar: ', this.state.events);
+    console.log("Evento a eliminar: ", this.state.events);
 
-    const response = await deleteHorariosUsuarioMateria(this.state.events[0].id).catch(err => {
+    const response = await deleteHorariosUsuarioMateria(
+      this.state.events[0].id
+    ).catch((err) => {
       console.error(err);
-    })
-    console.log("🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:", response)
+    });
+    console.log(
+      "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
+      response
+    );
   }
 
   render() {
     console.log("render()");
 
     const customSlotPropGetter = (date) => {
-      if (date.getDay() === 4 && date.getHours() < 10 && date.getHours() > 4)
+      /*if (date.getDay() === 3 && date.getHours() < 10 && date.getHours() > 4)
         return {
           style: {
             backgroundColor: "#C2F5DA",
           },
-        };
-      if (date.getDay() === 2)
-        return {
-          style: {
-            backgroundColor: "#C2F5DA",
-          },
-        };
-      return {};
+        };*/
+      /*let thursday = [];
+      thursday = this.state.events.filter((item) => {
+        return item.start.getDay() == 4;
+      });
+      if (
+        thursday.length > 0 &&
+        parseInt(date.getTime()) < parseInt(thursday[0].end.getTime()) &&
+        parseInt(date.getTime()) >= parseInt(thursday[0].start.getTime())
+      ) {
+        if (date.getDay() === 4)
+          return {
+            style: {
+              backgroundColor: "#C2F5DA",
+            },
+          };
+      }*/
+      const backgroundEvents = this.state.backgroundEvents;
+      var d = date.getHours() + date.getMinutes() / 60.0;
+      for (let i = 0; i < backgroundEvents.length; i++) {
+        let t1 =
+          backgroundEvents[i].start.getHours() +
+          backgroundEvents[i].start.getMinutes() / 60.0;
+        let t2 =
+          backgroundEvents[i].end.getHours() +
+          backgroundEvents[i].end.getMinutes() / 60.0;
+        console.log(`${d} < ${t1} >= ${t2}`);
+        if (
+          date.getDay() == backgroundEvents[i].start.getDay() &&
+          d >= t1 &&
+          d < t2
+        ) {
+          console.log("bruh");
+          return {
+            style: {
+              backgroundColor: "#C2F5DA",
+            },
+          };
+        }
+      }
+      return;
     };
 
     return (
@@ -335,7 +385,7 @@ class CalendarAlt extends React.Component {
         {/* react-big-calendar library utilized to render calendar*/}
         <Calendar
           events={this.state.events}
-          backgroundEvents={backgroundEvents}
+          backgroundEvents={this.state.backgroundEvents}
           views={["month", "week", "day", "agenda"]}
           defaultView="week"
           style={{ height: "80vh" }}

@@ -45,9 +45,7 @@ const Header = () => {
     });
   };
 
-  useEffect(() => {
-    getMateriasByIdUsuario();
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <div className="flex md:flex-row w-full h-2 px-6 justify-content-end align-items-center bg-gray-100 shadow-1">
