@@ -18,7 +18,7 @@ import { Dropdown } from "primereact/dropdown";
 import { ContextUsuario } from "../context/usuario";
 
 // servicios
-import { registrarHorario } from "../services/HorariosServices";
+import { deleteHorariosUsuarioMateria, registrarHorario } from "../services/HorariosServices";
 import { getMaterias } from "../services/MateriasServices";
 import { getHorariosUsuarioMateria } from "../services/HorariosServices";
 
@@ -286,12 +286,19 @@ class CalendarAlt extends React.Component {
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
-  deleteEvent() {
+  async deleteEvent() {
     let updatedEvents = this.state.events.filter(
       (event) => event["start"] !== this.state.start
     );
     // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvents));
     this.setState({ events: updatedEvents });
+
+    console.log('Evento a eliminar: ', this.state.events);
+
+    const response = await deleteHorariosUsuarioMateria(this.state.events[0].id).catch(err => {
+      console.error(err);
+    })
+    console.log("🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:", response)
   }
 
   render() {

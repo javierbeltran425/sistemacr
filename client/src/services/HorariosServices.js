@@ -14,3 +14,10 @@ export const getHorariosUsuarioMateria = async (id_usuario, id_materia) => {
         url: `${process.env.REACT_APP_SERVER_URL}/horarios/getmateriasidusuarioidmateria/${id_usuario}/${id_materia}`,
     })
 }
+
+export const deleteHorariosUsuarioMateria = async (id_evento) => {
+    return axios({
+        method: "PUT",
+        url: `${process.env.REACT_APP_SERVER_URL}/horarios/deletemateriasidusuarioidmateria/${id_evento}`
+    })
+}

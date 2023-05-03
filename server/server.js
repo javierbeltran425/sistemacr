@@ -114,4 +114,8 @@ app.get('/horarios/getmateriasidusuarioidmateria/:id_usuario/:id_materia', (req,
     horarios.getHorariosByIdUsuarioIdMateria(req, res)
 })
 
+app.put('/horarios/deletemateriasidusuarioidmateria/:id_evento', (req, res) => {
+    horarios.deleteHorariosByIdUsuarioIdMateria(req, res)
+})
+
 app.listen(port, () => console.log(`Server running on PORT ${port}`))

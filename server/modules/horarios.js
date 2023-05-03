@@ -24,4 +24,15 @@ const getHorariosByIdUsuarioIdMateria = async function (req, res) {
     }
 }
 
-module.exports = { createHorario, getHorariosByIdUsuarioIdMateria }
+const deleteHorariosByIdUsuarioIdMateria = async function (req, res) {
+    const { id_evento } = req.params
+    try {
+        const horarios = await knex('horarios').where({ id_horario: id_evento }).del()
+        res.json(horarios)
+    } catch (error) {
+        res.status(400).send(error)
+        console.error(error)
+    }
+}
+
+module.exports = { createHorario, getHorariosByIdUsuarioIdMateria, deleteHorariosByIdUsuarioIdMateria }
