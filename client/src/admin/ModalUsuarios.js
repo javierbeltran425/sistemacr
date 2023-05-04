@@ -101,7 +101,7 @@ const ModalUsuarios = ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 600,
+    width: 700,
     bgcolor: "background.paper",
     border: "2px solid #000",
     boxShadow: 24,
@@ -320,6 +320,9 @@ const ModalUsuarios = ({
                 </FormControl>
                 {newUsuario.rol != USUARIO_ROLES.PROFESOR && (
                   <FormControl fullWidth sx={{ m: 1 }}>
+                    <InputLabel id="demo-simple-select-label">
+                      Profesor
+                    </InputLabel>
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"

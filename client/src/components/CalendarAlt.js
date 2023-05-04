@@ -15,6 +15,7 @@ import DialogActions from "@mui/material/DialogActions";
 import { Dropdown } from "primereact/dropdown";
 import { ContextUsuario } from "../context/usuario";
 import { datetime, RRule, RRuleSet, rrulestr } from "rrule";
+import "../constants/usuario";
 
 // servicios
 import {
@@ -23,12 +24,15 @@ import {
 } from "../services/HorariosServices";
 import { getMateriasByIdUsuario } from "../services/MateriasServices";
 import { getHorariosUsuarioMateria } from "../services/HorariosServices";
+import { getSolicitudesByIdUsuarioIdMateria } from "../services/SolicitudesServices";
+import { USUARIO_ROLES } from "../constants/usuario";
 
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
 
 class CalendarAlt extends React.Component {
   static contextType = ContextUsuario;
+  currentPage = window.location.hash;
 
   constructor() {
     super();
@@ -49,13 +53,14 @@ class CalendarAlt extends React.Component {
   }
 
   componentDidMount() {
-    this.getSolicitudesByIdUsuario();
     this.getMateriasByIdUsuario();
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.materiaSeleccionada !== this.state.materiaSeleccionada) {
       this.getHorariosUsuarioMateria();
+      if (this.currentPage != "#/teacher")
+        this.getSolicitudesByIdUsuarioIdMateria();
     }
   }
 
@@ -82,10 +87,14 @@ class CalendarAlt extends React.Component {
   };
 
   getHorariosUsuarioMateria = async () => {
+    let id_usuario;
+    if (this.context.rol == USUARIO_ROLES.PROFESOR)
+      id_usuario = this.context.id_usuario;
+    else id_usuario = this.state.materiaSeleccionada.id_profesor;
     try {
       console.log("Materia seleccionada: ", this.state.materiaSeleccionada);
       const response = await getHorariosUsuarioMateria(
-        this.context.id_usuario,
+        id_usuario,
         this.state.materiaSeleccionada.id_materia
       ).catch((err) => {
         console.error(err);
@@ -111,19 +120,26 @@ class CalendarAlt extends React.Component {
     }
   };
 
-  getSolicitudesByIdUsuario = async () => {
+  getSolicitudesByIdUsuarioIdMateria = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesbyidusuario/${this.context.id_usuario}`
+      const response = await getSolicitudesByIdUsuarioIdMateria(
+        this.state.materiaSeleccionada.id_profesor,
+        this.state.materiaSeleccionada.id_materia
       );
-      const json = await response.json();
+      if (response.status === 200) {
+        const json = response.data;
+        console.log(
+          "🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getSolicitudesByIdUsuarioIdMateria= ~ json:",
+          json
+        );
 
-      json.forEach((element) => {
-        element.start = new Date(element.start);
-        element.end = new Date(element.end);
-      });
+        json.forEach((element) => {
+          element.start = new Date(element.start);
+          element.end = new Date(element.end);
+        });
 
-      this.setState({ events: json });
+        this.setState({ events: json });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -178,9 +194,13 @@ class CalendarAlt extends React.Component {
   async setNewAppointment() {
     const { start, end, title, desc } = this.state;
     const id_usuario = this.context.id_usuario;
+    const id_profesor = this.state.materiaSeleccionada.id_profesor;
+    const id_materia = this.state.materiaSeleccionada.id_materia;
 
     const data = {
       id_usuario: id_usuario,
+      id_profesor: id_profesor,
+      id_materia: id_materia,
       title: title,
       description: desc,
       type: "",
@@ -215,14 +235,13 @@ class CalendarAlt extends React.Component {
     const { start, end, title, desc } = this.state;
     const id_usuario = this.context.id_usuario;
 
-
     try {
-      let startDate = new Date(start)
-      let endDate = new Date(end)
+      let startDate = new Date(start);
+      let endDate = new Date(end);
       for (let i = 0; i < 5; i++) {
         if (i > 0) {
-          startDate = new Date(startDate.getTime() + (7 * 24 * 60 * 60 * 1000))
-          endDate = new Date(endDate.getTime() + (7 * 24 * 60 * 60 * 1000))
+          startDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+          endDate = new Date(endDate.getTime() + 7 * 24 * 60 * 60 * 1000);
         }
         const data = {
           id_usuario: id_usuario,
@@ -232,8 +251,10 @@ class CalendarAlt extends React.Component {
           start: startDate,
           end: endDate,
         };
-        console.log("🚀 ~ file: CalendarAlt.js:229 ~ CalendarAlt ~ setNewHorario ~ data:", data)
-
+        console.log(
+          "🚀 ~ file: CalendarAlt.js:229 ~ CalendarAlt ~ setNewHorario ~ data:",
+          data
+        );
 
         const response = await registrarHorario(data).catch((err) => {
           console.error(err);
@@ -332,7 +353,7 @@ class CalendarAlt extends React.Component {
   render() {
     console.log("render()");
 
-    const customSlotPropGetter = (date) => {
+    const customSlotPropGetter = () => {
       /*if (date.getDay() === 3 && date.getHours() < 10 && date.getHours() > 4)
         return {
           style: {
@@ -354,7 +375,7 @@ class CalendarAlt extends React.Component {
               backgroundColor: "#C2F5DA",
             },
           };
-      }*/
+      }
       const backgroundEvents = this.state.backgroundEvents;
       var d = date.getHours() + date.getMinutes() / 60.0;
       for (let i = 0; i < backgroundEvents.length; i++) {
@@ -378,7 +399,7 @@ class CalendarAlt extends React.Component {
           };
         }
       }
-      return;
+      return;*/
     };
 
     return (

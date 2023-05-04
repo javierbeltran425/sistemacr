@@ -55,9 +55,12 @@ app.post("/solicitudes/createsolicitud", (req, res) => {
   solicitudes.createSolicitud(req, res);
 });
 
-app.get("/solicitudes/getsolicitudesbyidusuario/:id_usuario", (req, res) => {
-  solicitudes.getSolicitudesByIdUsuario(req, res);
-});
+app.get(
+  "/solicitudes/getsolicitudesbyidusuarioidmateria/:id_usuario/:id_materia",
+  (req, res) => {
+    solicitudes.getSolicitudesByIdUsuarioIdMateria(req, res);
+  }
+);
 
 // CARRERAS
 
@@ -116,8 +119,8 @@ app.get(
   }
 );
 
-app.put('/horarios/deletemateriasidusuarioidmateria/:id_evento', (req, res) => {
-    horarios.deleteHorariosByIdUsuarioIdMateria(req, res)
-})
+app.put("/horarios/deletemateriasidusuarioidmateria/:id_evento", (req, res) => {
+  horarios.deleteHorariosByIdUsuarioIdMateria(req, res);
+});
 
-app.listen(port, () => console.log(`Server running on PORT ${port}`))
+app.listen(port, () => console.log(`Server running on PORT ${port}`));
