@@ -215,23 +215,34 @@ class CalendarAlt extends React.Component {
     const { start, end, title, desc } = this.state;
     const id_usuario = this.context.id_usuario;
 
-    const data = {
-      id_usuario: id_usuario,
-      id_materia: this.state.materiaSeleccionada.id_materia,
-      title: title,
-      description: desc,
-      start: start,
-      end: end,
-    };
 
     try {
-      const response = await registrarHorario(data).catch((err) => {
-        console.error(err);
-      });
-      console.log(
-        "🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
+      let startDate = new Date(start)
+      let endDate = new Date(end)
+      for (let i = 0; i < 5; i++) {
+        if (i > 0) {
+          startDate = new Date(startDate.getTime() + (7 * 24 * 60 * 60 * 1000))
+          endDate = new Date(endDate.getTime() + (7 * 24 * 60 * 60 * 1000))
+        }
+        const data = {
+          id_usuario: id_usuario,
+          id_materia: this.state.materiaSeleccionada.id_materia,
+          title: title,
+          description: desc,
+          start: startDate,
+          end: endDate,
+        };
+        console.log("🚀 ~ file: CalendarAlt.js:229 ~ CalendarAlt ~ setNewHorario ~ data:", data)
+
+
+        const response = await registrarHorario(data).catch((err) => {
+          console.error(err);
+        });
+        console.log(
+          "🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:",
+          response
+        );
+      }
 
       // const response = await fetch(
       //   `${process.env.REACT_APP_SERVER_URL}/solicitudes/createsolicitud`,
