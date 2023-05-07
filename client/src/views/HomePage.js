@@ -24,7 +24,7 @@ const HomePage = () => {
 
   return (
     <Layout>
-      <div className="w-full px-6 py-3">
+      <div className="w-full lg:px-6 py-3">
         {/*
                 <div className='flex w-full flex-row justify-content-between'>
                     <div className='flex'>

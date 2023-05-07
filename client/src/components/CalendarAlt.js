@@ -2,7 +2,6 @@ import React from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
-import backgroundEvents from "../data/backgroundEvents";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -14,8 +13,8 @@ import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
 import { Dropdown } from "primereact/dropdown";
 import { ContextUsuario } from "../context/usuario";
-import { datetime, RRule, RRuleSet, rrulestr } from "rrule";
 import "../constants/usuario";
+import "../styles/CalendarAlt.css";
 
 // servicios
 import {
@@ -33,6 +32,20 @@ const localizer = momentLocalizer(moment);
 class CalendarAlt extends React.Component {
   static contextType = ContextUsuario;
   currentPage = window.location.hash;
+  messages = {
+    allDay: "Todo el día",
+    previous: "Anterior",
+    next: "Siguiente",
+    today: "Hoy",
+    month: "Mes",
+    week: "Semana",
+    day: "Día",
+    agenda: "Agenda",
+    date: "Fecha",
+    time: "Hora",
+    event: "Evento",
+    noEventsInRange: "Na hay eventos este día.",
+  };
 
   constructor() {
     super();
@@ -354,28 +367,7 @@ class CalendarAlt extends React.Component {
     console.log("render()");
 
     const customSlotPropGetter = () => {
-      /*if (date.getDay() === 3 && date.getHours() < 10 && date.getHours() > 4)
-        return {
-          style: {
-            backgroundColor: "#C2F5DA",
-          },
-        };*/
-      /*let thursday = [];
-      thursday = this.state.events.filter((item) => {
-        return item.start.getDay() == 4;
-      });
-      if (
-        thursday.length > 0 &&
-        parseInt(date.getTime()) < parseInt(thursday[0].end.getTime()) &&
-        parseInt(date.getTime()) >= parseInt(thursday[0].start.getTime())
-      ) {
-        if (date.getDay() === 4)
-          return {
-            style: {
-              backgroundColor: "#C2F5DA",
-            },
-          };
-      }
+      /*
       const backgroundEvents = this.state.backgroundEvents;
       var d = date.getHours() + date.getMinutes() / 60.0;
       for (let i = 0; i < backgroundEvents.length; i++) {
@@ -416,6 +408,7 @@ class CalendarAlt extends React.Component {
         </div>
         {/* react-big-calendar library utilized to render calendar*/}
         <Calendar
+          messages={this.messages}
           events={this.state.events}
           backgroundEvents={this.state.backgroundEvents}
           views={["month", "week", "day", "agenda"]}
@@ -425,7 +418,9 @@ class CalendarAlt extends React.Component {
           selectable
           timeslots={2}
           localizer={localizer}
+          culture="es"
           slotPropGetter={customSlotPropGetter}
+          showAllEvents={true}
           /*min={new Date(0, 0, 0, 6, 0, 0)}
           max={new Date(0, 0, 0, 23, 0, 0)}*/
           onSelectEvent={(event) => this.handleEventSelected(event)}
@@ -450,7 +445,7 @@ class CalendarAlt extends React.Component {
             />
             <br />
             <TextField
-              label="Description"
+              label="Descripción"
               multiline
               minRows={2}
               maxRows={4}

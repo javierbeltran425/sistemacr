@@ -62,6 +62,10 @@ app.get(
   }
 );
 
+app.delete("/solicitudes/deletesolicitud/:id_solicitud", (req, res) => {
+  solicitudes.deleteSolicitud(req, res);
+});
+
 // CARRERAS
 
 app.get("/carreras/getallcarreras", (req, res) => {

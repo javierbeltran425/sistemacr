@@ -55,4 +55,21 @@ const getSolicitudesByIdUsuarioIdMateria = async function (req, res) {
   }
 };
 
-module.exports = { createSolicitud, getSolicitudesByIdUsuarioIdMateria };
+const deleteSolicitud = async function (req, res) {
+  const { id_solicitud } = req.params;
+  try {
+    const deletedSolicitud = await knex("solicitudes")
+      .where({ id_solicitud: id_solicitud })
+      .del();
+    res.json(deleteSolicitud);
+  } catch (error) {
+    res.status(400).send(error);
+    console.error(error);
+  }
+};
+
+module.exports = {
+  createSolicitud,
+  getSolicitudesByIdUsuarioIdMateria,
+  deleteSolicitud,
+};
