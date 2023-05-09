@@ -2,9 +2,8 @@ import React, { useState } from "react";
 
 //custom components
 import Layout from "../components/layout/Layout";
-import Calendar from "../components/Calendar";
 import History from "../components/History";
-import CalendarAlt from "../components/CalendarAlt";
+import Calendar from "../components/CalendarStudent";
 
 //prime components
 import { Dropdown } from "primereact/dropdown";
@@ -51,7 +50,7 @@ const HomePage = () => {
                 */}
 
         <div className="mt-4">
-          <CalendarAlt />
+          <Calendar />
         </div>
       </div>
     </Layout>

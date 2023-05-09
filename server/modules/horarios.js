@@ -4,7 +4,7 @@ const createHorario = async function (req, res) {
   const { id_usuario, id_materia, title, description, start, end } = req.body;
   console.log("Body recibido: ", req.body);
   try {
-    const newSolicitud = await knex("horarios").insert({
+    const newSolicitud = await knex("horarios").returning("id_horario").insert({
       id_usuario: id_usuario,
       id_materia: id_materia,
       titulo: title,
@@ -41,14 +41,20 @@ const getHorariosByIdUsuarioIdMateria = async function (req, res) {
 };
 
 const deleteHorariosByIdUsuarioIdMateria = async function (req, res) {
-    const { id_evento } = req.params
-    try {
-        const horarios = await knex('horarios').where({ id_horario: id_evento }).del()
-        res.json(horarios)
-    } catch (error) {
-        res.status(400).send(error)
-        console.error(error)
-    }
-}
+  const { id_evento } = req.params;
+  try {
+    const horarios = await knex("horarios")
+      .where({ id_horario: id_evento })
+      .del();
+    res.json(horarios);
+  } catch (error) {
+    res.status(400).send(error);
+    console.error(error);
+  }
+};
 
-module.exports = { createHorario, getHorariosByIdUsuarioIdMateria, deleteHorariosByIdUsuarioIdMateria }
+module.exports = {
+  createHorario,
+  getHorariosByIdUsuarioIdMateria,
+  deleteHorariosByIdUsuarioIdMateria,
+};

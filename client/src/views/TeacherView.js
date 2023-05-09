@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 
 // custom components imports
-import CustomCalendar from "../components/Calendar";
+import CalendarOld from "../components/Calendar(old)";
 import Layout from "../components/layout/Layout";
-import CalendarAlt from "../components/CalendarAlt";
+import CalendarTeacher from "../components/CalendarTeacher";
 
 // prime components
 import { InputText } from "primereact/inputtext";
@@ -113,10 +113,10 @@ const TeacherView = () => {
 
   return (
     <Layout>
-      <div className="w-full px-6 pt-5">
+      <div className="w-full lg:px-6 pt-5">
         <h4>Horarios fijos de consultas para todo el ciclo</h4>
 
-        <CalendarAlt />
+        <CalendarTeacher />
 
         <div
           className="w-full px-6 pt-2 surface-100 border-round-md shadow-1"
@@ -198,7 +198,7 @@ const TeacherView = () => {
       <div className="m-0 px-6 pb-4">
         <h4>Consultas programadas</h4>
         <Divider />
-        <CustomCalendar />
+        <CalendarOld />
       </div>
 
       {/* Zona de modales */}

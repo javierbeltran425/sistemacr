@@ -62,7 +62,7 @@ app.get(
   }
 );
 
-app.delete("/solicitudes/deletesolicitud/:id_solicitud", (req, res) => {
+app.put("/solicitudes/deletesolicitud/:id_solicitud", (req, res) => {
   solicitudes.deleteSolicitud(req, res);
 });
 

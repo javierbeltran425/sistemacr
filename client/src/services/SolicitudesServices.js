@@ -12,7 +12,7 @@ export const getSolicitudesByIdUsuarioIdMateria = async (
 
 export const deleteSolicitud = async (id_solicitud) => {
   return axios({
-    method: "DELETE",
+    method: "PUT",
     url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/deletesolicitud/${id_solicitud}`,
   });
 };
