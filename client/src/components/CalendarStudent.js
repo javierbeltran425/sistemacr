@@ -16,6 +16,14 @@ import { ContextUsuario } from "../context/usuario";
 import "../constants/usuario";
 import "../styles/Calendar.css";
 import "moment/locale/es";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+
+// constantes
+import { USUARIO_ROLES } from "../constants/usuario";
+import { SOLICITUDES_TIPOS_ARRAY } from "../constants/solicitudes";
 
 // servicios
 import { getMateriasByIdUsuario } from "../services/MateriasServices";
@@ -23,8 +31,9 @@ import { getHorariosUsuarioMateria } from "../services/HorariosServices";
 import {
   getSolicitudesByIdUsuarioIdMateria,
   deleteSolicitud,
+  editSolicitud,
 } from "../services/SolicitudesServices";
-import { USUARIO_ROLES } from "../constants/usuario";
+import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
@@ -56,6 +65,7 @@ class CalendarAlt extends React.Component {
       start: "",
       end: "",
       desc: "",
+      tipo: "",
       materias: [],
       materiaSeleccionada: null,
       openSlot: false,
@@ -71,6 +81,7 @@ class CalendarAlt extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.materiaSeleccionada !== this.state.materiaSeleccionada) {
+      console.log("oh hello there");
       this.getHorariosUsuarioMateria();
       this.getSolicitudesByIdUsuarioIdMateria();
     }
@@ -85,7 +96,7 @@ class CalendarAlt extends React.Component {
         console.error(err);
       });
       console.log(
-        "🚀 ~ file: TeacherView.js:109 ~ response ~ response:",
+        "🚀 ~ file: CalendarStudent.js:109 ~ response ~ response:",
         response
       );
       if (response.status === 200) {
@@ -182,11 +193,16 @@ class CalendarAlt extends React.Component {
       end: event.end,
       title: event.title,
       desc: event.desc,
+      tipo: event.tipo,
     });
   }
 
   setTitle(e) {
     this.setState({ title: e });
+  }
+
+  setTipo(e) {
+    this.setState({ tipo: e });
   }
 
   setDescription(e) {
@@ -203,7 +219,7 @@ class CalendarAlt extends React.Component {
 
   // Onclick callback function that pushes new appointment into events array.
   async setNewAppointment() {
-    const { start, end, title, desc } = this.state;
+    const { start, end, title, desc, tipo } = this.state;
     const id_usuario = this.context.id_usuario;
     const id_profesor = this.state.materiaSeleccionada.id_profesor;
     const id_materia = this.state.materiaSeleccionada.id_materia;
@@ -214,7 +230,7 @@ class CalendarAlt extends React.Component {
       id_materia: id_materia,
       title: title,
       description: desc,
-      type: "",
+      tipo: tipo,
       start: start,
       end: end,
     };
@@ -233,10 +249,14 @@ class CalendarAlt extends React.Component {
         const json = await response.json();
         let appointment = {
           id: json[0].id_solicitud,
+          id_usuario,
+          id_profesor,
+          id_materia,
           title,
           start,
           end,
           desc,
+          tipo,
         };
         let events = this.state.events.slice();
         events.push(appointment);
@@ -249,18 +269,35 @@ class CalendarAlt extends React.Component {
   }
 
   //  Updates Existing Appointments Title and/or Description
-  updateEvent() {
-    const { title, desc, start, end, events, clickedEvent } = this.state;
+  async updateEvent() {
+    const { title, desc, tipo, start, end, events, clickedEvent } = this.state;
     const index = events.findIndex((event) => event === clickedEvent);
     const updatedEvent = events.slice();
     updatedEvent[index].title = title;
     updatedEvent[index].desc = desc;
     updatedEvent[index].start = start;
     updatedEvent[index].end = end;
+    updatedEvent[index].tipo = tipo;
     // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvent));
     this.setState({
       events: updatedEvent,
     });
+
+    const data = {
+      id_solicitud: updatedEvent[index].id,
+      title: title,
+      description: desc,
+      tipo: tipo,
+      start: start,
+      end: end,
+    };
+    const response = await editSolicitud(data).catch((err) => {
+      console.error(err);
+    });
+    console.log(
+      "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
+      response
+    );
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
@@ -284,6 +321,14 @@ class CalendarAlt extends React.Component {
       response
     );
   }
+
+  concurrentEventExists = (slotInfo) => {
+    return this.state.events.some(
+      (item) =>
+        (item.start < slotInfo.start && slotInfo.start < item.end) ||
+        (item.start < slotInfo.end && slotInfo.end < item.end)
+    );
+  };
 
   render() {
     console.log("render()");
@@ -313,6 +358,13 @@ class CalendarAlt extends React.Component {
       return;
     };
 
+    const customEventPropGetter = (event) => {
+      if (event.id_usuario != this.context.id_usuario)
+        return {
+          style: { backgroundColor: "#adb5bd", borderColor: "#adb5bd" },
+        };
+    };
+
     return (
       <div id="Calendar">
         <div className="flex w-full justify-content-end mb-5">
@@ -338,23 +390,50 @@ class CalendarAlt extends React.Component {
           localizer={localizer}
           culture="es"
           slotPropGetter={customSlotPropGetter}
+          eventPropGetter={customEventPropGetter}
           showAllEvents={true}
           /*min={new Date(0, 0, 0, 6, 0, 0)}
           max={new Date(0, 0, 0, 23, 0, 0)}*/
-          onSelectEvent={(event) => this.handleEventSelected(event)}
-          onSelectSlot={(slotInfo) => this.handleSlotSelected(slotInfo)}
+          onSelectEvent={(event) => {
+            event.id_usuario == this.context.id_usuario
+              ? this.handleEventSelected(event)
+              : console.log(event.id_usuario, this.context.id_usuario);
+          }}
+          onSelectSlot={(slotInfo) => {
+            this.concurrentEventExists(slotInfo)
+              ? null
+              : this.handleSlotSelected(slotInfo);
+          }}
         />
 
         {/* Material-ui Modal for booking new appointment */}
         <Dialog open={this.state.openSlot} onClose={this.handleClose}>
           <DialogTitle>
-            {`Book an appointment on ${moment(this.state.start).format(
-              "MMMM Do YYYY"
+            {`Solicita una reunión el ${moment(this.state.start).format(
+              "Do MMMM YYYY"
             )}`}
           </DialogTitle>
           <DialogContent>
+            <FormControl fullWidth sx={{ marginBottom: 0.5, marginTop: 1 }}>
+              <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="Tipo"
+                defaultValue={SOLICITUDES_TIPOS.CONSULTA}
+                onChange={(e) => {
+                  this.setTipo(e.target.value);
+                }}
+              >
+                {SOLICITUDES_TIPOS_ARRAY.map((tipo) => (
+                  <MenuItem key={tipo} value={tipo}>
+                    {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
-              label="Title"
+              label="Título"
               margin="dense"
               fullWidth
               onChange={(e) => {
@@ -374,14 +453,14 @@ class CalendarAlt extends React.Component {
               }}
             />
             <DemoContainer components={["MobileTimePicker"]}>
-              <DemoItem label="Start Time">
+              <DemoItem label="Hora de inicio">
                 <MobileTimePicker
                   value={moment(this.state.start)}
                   minutesStep={5}
                   onChange={(date) => this.handleStartTime(date)}
                 />
               </DemoItem>
-              <DemoItem label="End Time">
+              <DemoItem label="Hora de finalización">
                 <MobileTimePicker
                   value={moment(this.state.end)}
                   minutesStep={5}
@@ -396,7 +475,7 @@ class CalendarAlt extends React.Component {
               secondary={"true"}
               onClick={this.handleClose}
             >
-              CANCEL
+              CANCELAR
             </Button>
             <Button
               label="Submit"
@@ -405,7 +484,7 @@ class CalendarAlt extends React.Component {
                 this.setNewAppointment(), this.handleClose();
               }}
             >
-              SUBMIT
+              ENVIAR
             </Button>
           </DialogActions>
         </Dialog>
@@ -413,13 +492,31 @@ class CalendarAlt extends React.Component {
         {/* Material-ui Modal for booking existing appointment */}
         <Dialog open={this.state.openEvent} onClose={this.handleClose}>
           <DialogTitle>
-            {`View/Edit Appointment of ${moment(this.state.start).format(
-              "MMMM Do YYYY"
+            {`Editando una reunión el ${moment(this.state.start).format(
+              "Do MMMM YYYY"
             )}`}
           </DialogTitle>
           <DialogContent>
+            <FormControl fullWidth sx={{ marginBottom: 0.5, marginTop: 1 }}>
+              <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="Tipo"
+                value={this.state.tipo}
+                onChange={(e) => {
+                  this.setTipo(e.target.value);
+                }}
+              >
+                {SOLICITUDES_TIPOS_ARRAY.map((tipo) => (
+                  <MenuItem key={tipo} value={tipo}>
+                    {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
-              label="Title"
+              label="Título"
               margin="dense"
               value={this.state.title}
               fullWidth
@@ -429,7 +526,7 @@ class CalendarAlt extends React.Component {
             />
             <br />
             <TextField
-              label="Description"
+              label="Descripción"
               multiline
               minRows={2}
               maxRows={4}
@@ -441,14 +538,14 @@ class CalendarAlt extends React.Component {
               }}
             />
             <DemoContainer components={["MobileTimePicker"]}>
-              <DemoItem label="Start Time">
+              <DemoItem label="Hora de inicio">
                 <MobileTimePicker
                   value={moment(this.state.start)}
                   minutesStep={5}
                   onChange={(date) => this.handleStartTime(date)}
                 />
               </DemoItem>
-              <DemoItem label="End Time">
+              <DemoItem label="Hora de finalización">
                 <MobileTimePicker
                   value={moment(this.state.end)}
                   minutesStep={5}
@@ -459,7 +556,7 @@ class CalendarAlt extends React.Component {
           </DialogContent>
           <DialogActions>
             <Button label="Cancel" primary={"false"} onClick={this.handleClose}>
-              CANCEL
+              CANCELAR
             </Button>
             <Button
               label="Delete"
@@ -468,7 +565,7 @@ class CalendarAlt extends React.Component {
                 this.deleteEvent(), this.handleClose();
               }}
             >
-              DELETE
+              BORRAR
             </Button>
             <Button
               label="Confirm Edit"
@@ -477,7 +574,7 @@ class CalendarAlt extends React.Component {
                 this.updateEvent(), this.handleClose();
               }}
             >
-              CONFIRM EDIT
+              GUARDAR CAMBIOS
             </Button>
           </DialogActions>
         </Dialog>

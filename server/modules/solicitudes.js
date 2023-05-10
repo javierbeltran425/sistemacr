@@ -7,7 +7,7 @@ const createSolicitud = async function (req, res) {
     id_materia,
     title,
     description,
-    type,
+    tipo,
     start,
     end,
   } = req.body;
@@ -21,7 +21,7 @@ const createSolicitud = async function (req, res) {
         id_materia: id_materia,
         titulo: title,
         descripcion: description,
-        tipo: type,
+        tipo: tipo,
         hora_inicio: start,
         hora_final: end,
       });
@@ -40,12 +40,14 @@ const getSolicitudesByIdUsuarioIdMateria = async function (req, res) {
     const solicitudes = await knex
       .select(
         "id_solicitud as id",
+        "id_usuario",
         "id_profesor",
         "id_materia",
         "titulo as title",
         "hora_inicio as start",
         "hora_final as end",
-        "descripcion as desc"
+        "descripcion as desc",
+        "tipo"
       )
       .from("solicitudes")
       .where({ id_profesor: id_usuario })
@@ -58,12 +60,18 @@ const getSolicitudesByIdUsuarioIdMateria = async function (req, res) {
 };
 
 const editSolicitud = async function (req, res) {
-  const { id_carrera, nombre, facultad } = req.body;
+  const { id_solicitud, title, description, tipo, start, end } = req.body;
   try {
-    const updatedCarrera = await knex("carreras")
-      .where({ id_carrera: id_carrera })
-      .update({ nombre: nombre, facultad: facultad });
-    res.json(updatedCarrera);
+    const updatedSolicitud = await knex("solicitudes")
+      .where({ id_solicitud: id_solicitud })
+      .update({
+        titulo: title,
+        descripcion: description,
+        tipo: tipo,
+        hora_inicio: start,
+        hora_final: end,
+      });
+    res.json(updatedSolicitud);
   } catch (error) {
     res.status(400).send(error);
     console.error(error);
@@ -87,4 +95,5 @@ module.exports = {
   createSolicitud,
   getSolicitudesByIdUsuarioIdMateria,
   deleteSolicitud,
+  editSolicitud,
 };

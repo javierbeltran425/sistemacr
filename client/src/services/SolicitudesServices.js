@@ -16,3 +16,11 @@ export const deleteSolicitud = async (id_solicitud) => {
     url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/deletesolicitud/${id_solicitud}`,
   });
 };
+
+export const editSolicitud = async (data) => {
+  return axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/editsolicitud`,
+    data,
+  });
+};

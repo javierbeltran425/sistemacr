@@ -62,6 +62,10 @@ app.get(
   }
 );
 
+app.put("/solicitudes/editsolicitud", (req, res) => {
+  solicitudes.editSolicitud(req, res);
+});
+
 app.put("/solicitudes/deletesolicitud/:id_solicitud", (req, res) => {
   solicitudes.deleteSolicitud(req, res);
 });
