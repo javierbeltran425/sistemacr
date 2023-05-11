@@ -14,7 +14,7 @@ import DialogActions from "@mui/material/DialogActions";
 import { Dropdown } from "primereact/dropdown";
 import { ContextUsuario } from "../context/usuario";
 import { InputSwitch } from "primereact/inputswitch";
-import { InputNumber } from 'primereact/inputnumber';
+import { InputNumber } from "primereact/inputnumber";
 import "../constants/usuario";
 import "../styles/Calendar.css";
 import "moment/locale/es";
@@ -162,7 +162,7 @@ class CalendarAlt extends React.Component {
       end: event.end,
       title: event.title,
       desc: event.desc,
-      identificador: event.identificador
+      identificador: event.identificador,
     });
 
     console.log("event after select: ", this.state);
@@ -185,7 +185,7 @@ class CalendarAlt extends React.Component {
   }
 
   resetRecurrencia() {
-    this.setState({ recurrencia: 1 })
+    this.setState({ recurrencia: 1 });
   }
 
   // Onclick callback function that pushes new appointment into events array.
@@ -193,8 +193,8 @@ class CalendarAlt extends React.Component {
     const { start, end, title, desc } = this.state;
     const id_usuario = this.context.id_usuario;
 
-    let cadena = '';
-    const caracteresPermitidos = '0123456789';
+    let cadena = "";
+    const caracteresPermitidos = "0123456789";
 
     for (let i = 0; i < 8; i++) {
       const indice = Math.floor(Math.random() * caracteresPermitidos.length);
@@ -202,13 +202,13 @@ class CalendarAlt extends React.Component {
     }
 
     try {
-      let startDate = new Date(start)
-      let endDate = new Date(end)
+      let startDate = new Date(start);
+      let endDate = new Date(end);
 
       for (let i = 0; i < this.state.recurrencia; i++) {
         if (i > 0) {
-          startDate = new Date(startDate.getTime() + (7 * 24 * 60 * 60 * 1000))
-          endDate = new Date(endDate.getTime() + (7 * 24 * 60 * 60 * 1000))
+          startDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+          endDate = new Date(endDate.getTime() + 7 * 24 * 60 * 60 * 1000);
         }
         const data = {
           id_usuario: id_usuario,
@@ -219,8 +219,10 @@ class CalendarAlt extends React.Component {
           start: startDate,
           end: endDate,
         };
-        console.log("🚀 ~ file: CalendarAlt.js:229 ~ CalendarAlt ~ setNewHorario ~ data:", data)
-
+        console.log(
+          "🚀 ~ file: CalendarAlt.js:229 ~ CalendarAlt ~ setNewHorario ~ data:",
+          data
+        );
 
         const response = await registrarHorario(data).catch((err) => {
           console.error(err);
@@ -283,7 +285,10 @@ class CalendarAlt extends React.Component {
 
     console.log("Evento a eliminar: ", this.state.events);
 
-    console.log("🚀 ~ file: CalendarAlt.js:334 ~ CalendarAlt ~ deleteEvent ~ this.state.events[0].identificador:", this.state.events[0])
+    console.log(
+      "🚀 ~ file: CalendarAlt.js:334 ~ CalendarAlt ~ deleteEvent ~ this.state.events[0].identificador:",
+      this.state.events[0]
+    );
     const response = await deleteHorariosUsuarioMateria(
       this.state.identificador
     ).catch((err) => {
@@ -294,7 +299,7 @@ class CalendarAlt extends React.Component {
       response
     );
 
-    this.getHorariosUsuarioMateria()
+    this.getHorariosUsuarioMateria();
   }
 
   render() {
@@ -363,12 +368,10 @@ class CalendarAlt extends React.Component {
 
         {/* Material-ui Modal for booking new appointment */}
         <Dialog open={this.state.openSlot} onClose={this.handleClose}>
-          <DialogTitle>
-            Registra un nuevo horario
-          </DialogTitle>
+          <DialogTitle>Registra un nuevo horario</DialogTitle>
           <DialogContent>
             <TextField
-              label="Title"
+              label="Título"
               margin="dense"
               fullWidth
               onChange={(e) => {
@@ -389,16 +392,18 @@ class CalendarAlt extends React.Component {
             />
 
             <div className="w-full my-3">
-              <label className="text-sm" >Horario recurrente</label>
+              <label className="text-sm">Horario recurrente</label>
             </div>
             <div className="grid">
               <div className="col-3 card flex flex-column justify-content-center align-items-center my-4">
-                <InputSwitch checked={this.state.recurrente} onChange={(e) => {
-                  this.setState({ recurrente: e.value })
-                  
-                  if (this.state.recurrente === true)
-                    this.resetRecurrencia()
-                }} />
+                <InputSwitch
+                  checked={this.state.recurrente}
+                  onChange={(e) => {
+                    this.setState({ recurrente: e.value });
+
+                    if (this.state.recurrente === true) this.resetRecurrencia();
+                  }}
+                />
               </div>
               <div className="col-9 flex flex-column justify-content-center">
                 <label className="text-sm">Cantidad de semanas</label>
@@ -411,12 +416,80 @@ class CalendarAlt extends React.Component {
                   max={100}
                   value={this.state.recurrencia}
                   onChange={(e) => {
-                    this.setState({ recurrencia: e.value })
+                    this.setState({ recurrencia: e.value });
                   }}
                 />
               </div>
             </div>
             <DemoContainer components={["MobileTimePicker"]}>
+              <DemoItem label="Hora de inicio">
+                <MobileTimePicker
+                  value={moment(this.state.start)}
+                  minutesStep={5}
+                  onChange={(date) => this.handleStartTime(date)}
+                />
+              </DemoItem>
+              <DemoItem label="Hora de finalización">
+                <MobileTimePicker
+                  value={moment(this.state.end)}
+                  minutesStep={5}
+                  onChange={(date) => this.handleEndTime(date)}
+                />
+              </DemoItem>
+            </DemoContainer>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              label="Cancel"
+              secondary={"true"}
+              onClick={this.handleClose}
+            >
+              CANCELAR
+            </Button>
+            <Button
+              label="Submit"
+              primary={"true"}
+              onClick={() => {
+                this.setNewHorario(), this.handleClose();
+              }}
+            >
+              GUARDAR
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Material-ui Modal for booking existing appointment */}
+        <Dialog open={this.state.openEvent} onClose={this.handleClose}>
+          <DialogTitle>
+            <p>Vista del horario establecido</p>
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Título"
+              margin="dense"
+              value={this.state.title}
+              fullWidth
+              onChange={(e) => {
+                this.setTitle(e.target.value);
+              }}
+            />
+            <br />
+            <TextField
+              label="Descripción"
+              multiline
+              minRows={2}
+              maxRows={4}
+              margin="dense"
+              value={this.state.desc}
+              fullWidth
+              onChange={(e) => {
+                this.setDescription(e.target.value);
+              }}
+            />
+            <DemoContainer
+              components={["MobileTimePicker"]}
+              sx={{ marginTop: 13 }}
+            >
               <DemoItem label="Start Time">
                 <MobileTimePicker
                   value={moment(this.state.start)}
@@ -434,77 +507,8 @@ class CalendarAlt extends React.Component {
             </DemoContainer>
           </DialogContent>
           <DialogActions>
-            <Button
-              label="Cancel"
-              secondary={"true"}
-              onClick={this.handleClose}
-            >
-              CANCEL
-            </Button>
-            <Button
-              label="Submit"
-              primary={"true"}
-              onClick={() => {
-                this.setNewHorario(), this.handleClose();
-              }}
-            >
-              SUBMIT
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Material-ui Modal for booking existing appointment */}
-        <Dialog open={this.state.openEvent} onClose={this.handleClose}>
-          <div style={{ width: "40vW", height: "80vH" }}>
-            <DialogTitle>
-              <p>
-                Vista del horario establecido
-              </p>
-            </DialogTitle>
-            <DialogContent>
-              <TextField
-                label="Title"
-                margin="dense"
-                value={this.state.title}
-                fullWidth
-                onChange={(e) => {
-                  this.setTitle(e.target.value);
-                }}
-              />
-              <br />
-              <TextField
-                label="Description"
-                multiline
-                minRows={2}
-                maxRows={4}
-                margin="dense"
-                value={this.state.desc}
-                fullWidth
-                onChange={(e) => {
-                  this.setDescription(e.target.value);
-                }}
-              />
-              <DemoContainer components={["MobileTimePicker"]}>
-                <DemoItem label="Start Time">
-                  <MobileTimePicker
-                    value={moment(this.state.start)}
-                    minutesStep={5}
-                    onChange={(date) => this.handleStartTime(date)}
-                  />
-                </DemoItem>
-                <DemoItem label="End Time">
-                  <MobileTimePicker
-                    value={moment(this.state.end)}
-                    minutesStep={5}
-                    onChange={(date) => this.handleEndTime(date)}
-                  />
-                </DemoItem>
-              </DemoContainer>
-            </DialogContent>
-          </div>
-          <DialogActions>
             <Button label="Cancel" primary={"false"} onClick={this.handleClose}>
-              CANCEL
+              SALIR
             </Button>
             <Button
               label="Delete"
@@ -513,7 +517,7 @@ class CalendarAlt extends React.Component {
                 this.deleteEvent(), this.handleClose();
               }}
             >
-              DELETE
+              BORRAR
             </Button>
             {/* <Button
               label="Confirm Edit"

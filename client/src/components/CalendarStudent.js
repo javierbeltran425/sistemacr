@@ -335,6 +335,7 @@ class CalendarAlt extends React.Component {
 
     const customSlotPropGetter = (date) => {
       const backgroundEvents = this.state.backgroundEvents;
+      /*
       var d = date.getHours() + date.getMinutes() / 60.0;
       for (let i = 0; i < backgroundEvents.length; i++) {
         let t1 =
@@ -347,6 +348,19 @@ class CalendarAlt extends React.Component {
           date.getDay() == backgroundEvents[i].start.getDay() &&
           d >= t1 &&
           d < t2
+        ) {
+          return {
+            style: {
+              backgroundColor: "#C2F5DA",
+            },
+          };
+        }
+      }
+      */
+      for (let i = 0; i < backgroundEvents.length; i++) {
+        if (
+          backgroundEvents[i].start <= date &&
+          date < backgroundEvents[i].end
         ) {
           return {
             style: {
