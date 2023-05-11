@@ -13,6 +13,8 @@ import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
 import { Dropdown } from "primereact/dropdown";
 import { ContextUsuario } from "../context/usuario";
+import { InputSwitch } from "primereact/inputswitch";
+import { InputNumber } from 'primereact/inputnumber';
 import "../constants/usuario";
 import "../styles/Calendar.css";
 import "moment/locale/es";
@@ -56,11 +58,14 @@ class CalendarAlt extends React.Component {
       start: "",
       end: "",
       desc: "",
+      identificador: null,
       materias: [],
       materiaSeleccionada: null,
       openSlot: false,
       openEvent: false,
       clickedEvent: {},
+      recurrencia: 1,
+      recurrente: false,
     };
     this.handleClose = this.handleClose.bind(this);
   }
@@ -149,7 +154,7 @@ class CalendarAlt extends React.Component {
   }
 
   handleEventSelected(event) {
-    console.log("event", event);
+    console.log("event aaa", event);
     this.setState({
       openEvent: true,
       clickedEvent: event,
@@ -157,7 +162,10 @@ class CalendarAlt extends React.Component {
       end: event.end,
       title: event.title,
       desc: event.desc,
+      identificador: event.identificador
     });
+
+    console.log("event after select: ", this.state);
   }
 
   setTitle(e) {
@@ -176,57 +184,76 @@ class CalendarAlt extends React.Component {
     this.setState({ end: new Date(date) });
   }
 
+  resetRecurrencia() {
+    this.setState({ recurrencia: 1 })
+  }
+
   // Onclick callback function that pushes new appointment into events array.
   async setNewHorario() {
     const { start, end, title, desc } = this.state;
     const id_usuario = this.context.id_usuario;
 
+    let cadena = '';
+    const caracteresPermitidos = '0123456789';
+
+    for (let i = 0; i < 8; i++) {
+      const indice = Math.floor(Math.random() * caracteresPermitidos.length);
+      cadena += caracteresPermitidos.charAt(indice);
+    }
+
     try {
-      let startDate = new Date(start);
-      let endDate = new Date(end);
-      /*
-      for (let i = 0; i < 5; i++) {
+      let startDate = new Date(start)
+      let endDate = new Date(end)
+
+      for (let i = 0; i < this.state.recurrencia; i++) {
         if (i > 0) {
-          startDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-          endDate = new Date(endDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-        }*/
-      const data = {
-        id_usuario: id_usuario,
-        id_materia: this.state.materiaSeleccionada.id_materia,
-        title: title,
-        description: desc,
-        start: startDate,
-        end: endDate,
-      };
-      console.log(
-        "🚀 ~ file: CalendarAlt.js:229 ~ CalendarAlt ~ setNewHorario ~ data:",
-        data
-      );
+          startDate = new Date(startDate.getTime() + (7 * 24 * 60 * 60 * 1000))
+          endDate = new Date(endDate.getTime() + (7 * 24 * 60 * 60 * 1000))
+        }
+        const data = {
+          id_usuario: id_usuario,
+          id_materia: this.state.materiaSeleccionada.id_materia,
+          identificador: parseInt(cadena),
+          title: title,
+          description: desc,
+          start: startDate,
+          end: endDate,
+        };
+        console.log("🚀 ~ file: CalendarAlt.js:229 ~ CalendarAlt ~ setNewHorario ~ data:", data)
 
-      const response = await registrarHorario(data).catch((err) => {
-        console.error(err);
-      });
-      console.log(
-        "🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
-      const json = await response.data;
-      console.log(json);
-      let appointment = {
-        id: json[0].id_horario,
-        title,
-        start,
-        end,
-        desc,
-      };
-      let backgroundEvents = this.state.backgroundEvents.slice();
-      backgroundEvents.push(appointment);
-      // localStorage.setItem("cachedEvents", JSON.stringify(events));
 
-      this.setState({ backgroundEvents: backgroundEvents });
+        const response = await registrarHorario(data).catch((err) => {
+          console.error(err);
+        });
+        console.log(
+          "🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:",
+          response
+        );
+
+        this.getHorariosUsuarioMateria();
+      }
+
+      // const response = await fetch(
+      //   `${process.env.REACT_APP_SERVER_URL}/solicitudes/createsolicitud`,
+      //   {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify(data),
+      //   }
+      // );
+      // if (response.status === 200) {
+      //   console.log("Ok!");
+      // }
     } catch (error) {
       console.error(error);
     }
+    console.log(start);
+    let appointment = { title, start, end, desc };
+    let backgroundEvents = this.state.backgroundEvents.slice();
+    backgroundEvents.push(appointment);
+    // localStorage.setItem("cachedEvents", JSON.stringify(events));
+
+    this.setState({ backgroundEvents: backgroundEvents });
   }
 
   //  Updates Existing Appointments Title and/or Description
@@ -246,26 +273,28 @@ class CalendarAlt extends React.Component {
 
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
-    let eventToDelete = this.state.backgroundEvents.find(
-      (event) => event["start"] === this.state.start
+    let updatedEvents = this.state.events.filter(
+      (event) => event["identificador"] !== this.state.identificador
     );
-    let updatedEvents = this.state.backgroundEvents.filter(
-      (event) => event["start"] !== this.state.start
-    );
+
+    console.log("indentificador seleccionado", this.state.identificador);
     // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvents));
-    this.setState({ backgroundEvents: updatedEvents });
+    this.setState({ events: updatedEvents });
 
     console.log("Evento a eliminar: ", this.state.events);
 
-    const response = await deleteHorariosUsuarioMateria(eventToDelete.id).catch(
-      (err) => {
-        console.error(err);
-      }
-    );
+    console.log("🚀 ~ file: CalendarAlt.js:334 ~ CalendarAlt ~ deleteEvent ~ this.state.events[0].identificador:", this.state.events[0])
+    const response = await deleteHorariosUsuarioMateria(
+      this.state.identificador
+    ).catch((err) => {
+      console.error(err);
+    });
     console.log(
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
+
+    this.getHorariosUsuarioMateria()
   }
 
   render() {
@@ -335,9 +364,7 @@ class CalendarAlt extends React.Component {
         {/* Material-ui Modal for booking new appointment */}
         <Dialog open={this.state.openSlot} onClose={this.handleClose}>
           <DialogTitle>
-            {`Book an appointment on ${moment(this.state.start).format(
-              "MMMM Do YYYY"
-            )}`}
+            Registra un nuevo horario
           </DialogTitle>
           <DialogContent>
             <TextField
@@ -360,6 +387,35 @@ class CalendarAlt extends React.Component {
                 this.setDescription(e.target.value);
               }}
             />
+
+            <div className="w-full my-3">
+              <label className="text-sm" >Horario recurrente</label>
+            </div>
+            <div className="grid">
+              <div className="col-3 card flex flex-column justify-content-center align-items-center my-4">
+                <InputSwitch checked={this.state.recurrente} onChange={(e) => {
+                  this.setState({ recurrente: e.value })
+                  
+                  if (this.state.recurrente === true)
+                    this.resetRecurrencia()
+                }} />
+              </div>
+              <div className="col-9 flex flex-column justify-content-center">
+                <label className="text-sm">Cantidad de semanas</label>
+                <InputNumber
+                  disabled={this.state.recurrente ? false : true}
+                  className="w-full"
+                  mode="decimal"
+                  showButtons
+                  min={1}
+                  max={100}
+                  value={this.state.recurrencia}
+                  onChange={(e) => {
+                    this.setState({ recurrencia: e.value })
+                  }}
+                />
+              </div>
+            </div>
             <DemoContainer components={["MobileTimePicker"]}>
               <DemoItem label="Start Time">
                 <MobileTimePicker
@@ -399,51 +455,53 @@ class CalendarAlt extends React.Component {
 
         {/* Material-ui Modal for booking existing appointment */}
         <Dialog open={this.state.openEvent} onClose={this.handleClose}>
-          <DialogTitle>
-            {`View/Edit Appointment of ${moment(this.state.start).format(
-              "MMMM Do YYYY"
-            )}`}
-          </DialogTitle>
-          <DialogContent>
-            <TextField
-              label="Title"
-              margin="dense"
-              value={this.state.title}
-              fullWidth
-              onChange={(e) => {
-                this.setTitle(e.target.value);
-              }}
-            />
-            <br />
-            <TextField
-              label="Description"
-              multiline
-              minRows={2}
-              maxRows={4}
-              margin="dense"
-              value={this.state.desc}
-              fullWidth
-              onChange={(e) => {
-                this.setDescription(e.target.value);
-              }}
-            />
-            <DemoContainer components={["MobileTimePicker"]}>
-              <DemoItem label="Start Time">
-                <MobileTimePicker
-                  value={moment(this.state.start)}
-                  minutesStep={5}
-                  onChange={(date) => this.handleStartTime(date)}
-                />
-              </DemoItem>
-              <DemoItem label="End Time">
-                <MobileTimePicker
-                  value={moment(this.state.end)}
-                  minutesStep={5}
-                  onChange={(date) => this.handleEndTime(date)}
-                />
-              </DemoItem>
-            </DemoContainer>
-          </DialogContent>
+          <div style={{ width: "40vW", height: "80vH" }}>
+            <DialogTitle>
+              <p>
+                Vista del horario establecido
+              </p>
+            </DialogTitle>
+            <DialogContent>
+              <TextField
+                label="Title"
+                margin="dense"
+                value={this.state.title}
+                fullWidth
+                onChange={(e) => {
+                  this.setTitle(e.target.value);
+                }}
+              />
+              <br />
+              <TextField
+                label="Description"
+                multiline
+                minRows={2}
+                maxRows={4}
+                margin="dense"
+                value={this.state.desc}
+                fullWidth
+                onChange={(e) => {
+                  this.setDescription(e.target.value);
+                }}
+              />
+              <DemoContainer components={["MobileTimePicker"]}>
+                <DemoItem label="Start Time">
+                  <MobileTimePicker
+                    value={moment(this.state.start)}
+                    minutesStep={5}
+                    onChange={(date) => this.handleStartTime(date)}
+                  />
+                </DemoItem>
+                <DemoItem label="End Time">
+                  <MobileTimePicker
+                    value={moment(this.state.end)}
+                    minutesStep={5}
+                    onChange={(date) => this.handleEndTime(date)}
+                  />
+                </DemoItem>
+              </DemoContainer>
+            </DialogContent>
+          </div>
           <DialogActions>
             <Button label="Cancel" primary={"false"} onClick={this.handleClose}>
               CANCEL
@@ -457,7 +515,7 @@ class CalendarAlt extends React.Component {
             >
               DELETE
             </Button>
-            <Button
+            {/* <Button
               label="Confirm Edit"
               secondary={"true"}
               onClick={() => {
@@ -465,7 +523,7 @@ class CalendarAlt extends React.Component {
               }}
             >
               CONFIRM EDIT
-            </Button>
+            </Button> */}
           </DialogActions>
         </Dialog>
       </div>

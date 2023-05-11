@@ -114,11 +114,11 @@ const TeacherView = () => {
   return (
     <Layout>
       <div className="w-full lg:px-6 pt-5">
-        <h4>Horarios fijos de consultas para todo el ciclo</h4>
+        <h4>Horarios programados por el catedrático</h4>
 
         <CalendarTeacher />
 
-        <div
+        {/* <div
           className="w-full px-6 pt-2 surface-100 border-round-md shadow-1"
           style={{ height: "27em" }}
         >
@@ -193,13 +193,13 @@ const TeacherView = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
-      <div className="m-0 px-6 pb-4">
+      {/* <div className="m-0 px-6 pb-4">
         <h4>Consultas programadas</h4>
         <Divider />
         <CalendarOld />
-      </div>
+      </div> */}
 
       {/* Zona de modales */}
 
