@@ -330,6 +330,12 @@ class CalendarAlt extends React.Component {
     );
   };
 
+  minuteConverter(time) {
+    const [h, m] = time.split(':');
+    const value = +h + m / 60;
+    return value.toFixed(2);
+ }
+
   render() {
     console.log("render()");
 
