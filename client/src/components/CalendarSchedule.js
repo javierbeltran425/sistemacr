@@ -13,41 +13,35 @@ import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
 import { Dropdown } from "primereact/dropdown";
 import { ContextUsuario } from "../context/usuario";
+import { InputSwitch } from "primereact/inputswitch";
+import { InputNumber } from "primereact/inputnumber";
 import "../constants/usuario";
 import "../styles/Calendar.css";
 import "moment/locale/es";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-
-// constantes
-import { USUARIO_ROLES } from "../constants/usuario";
-import { SOLICITUDES_TIPOS_ARRAY } from "../constants/solicitudes";
+import Stack from "@mui/material/Stack";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 
 // servicios
-import { getMateriasByIdUsuario } from "../services/MateriasServices";
 import {
-  getHorariosUsuarioMateria,
-  getHorariosUsuario,
+  deleteHorariosUsuarioMateria,
+  registrarHorario,
 } from "../services/HorariosServices";
-import {
-  getSolicitudesUsuariosByIdUsuarioIdMateria,
-  getSolicitudesUsuariosByIdUsuario,
-  deleteSolicitud,
-  editSolicitud,
-} from "../services/SolicitudesServices";
-import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
+import { getMateriasByIdUsuario } from "../services/MateriasServices";
+import { getHorariosUsuario } from "../services/HorariosServices";
+import { USUARIO_ROLES } from "../constants/usuario";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 class CalendarAlt extends React.Component {
   static contextType = ContextUsuario;
@@ -65,37 +59,35 @@ class CalendarAlt extends React.Component {
     event: "Evento",
     noEventsInRange: "Na hay eventos este día.",
   };
-
   constructor() {
     super();
     this.state = {
       events: [],
-      backgroundEvents: [],
       title: "",
       start: "",
       end: "",
       desc: "",
-      tipo: "",
+      identificador: null,
       materias: [],
       materiaSeleccionada: null,
       openSlot: false,
       openEvent: false,
-      nombre: "",
-      email: "",
-      id_materia: null,
       clickedEvent: {},
+      recurrencia: 1,
+      recurrente: false,
+      showErrorAlert: false,
     };
     this.handleClose = this.handleClose.bind(this);
   }
 
   componentDidMount() {
     this.getMateriasByIdUsuario();
+    this.getHorariosUsuario();
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.materiaSeleccionada !== this.state.materiaSeleccionada) {
-      this.getHorariosUsuarioMateria();
-      this.getSolicitudesByIdUsuarioIdMateria();
+      null;
     }
   }
 
@@ -108,83 +100,36 @@ class CalendarAlt extends React.Component {
         console.error(err);
       });
       console.log(
-        "🚀 ~ file: CalendarStudent.js:109 ~ response ~ response:",
+        "🚀 ~ file: TeacherView.js:109 ~ response ~ response:",
         response
       );
       if (response.status === 200) {
-        if (response.data) {
+        this.setState({ materias: response.data });
+        if (response.data)
           this.setState({
-            materias: [
-              {
-                id_materia: -1,
-                id_profesor: -1,
-                nombre: "Todas mis materias",
-                uv: "",
-              },
-              ...response.data,
-            ],
             materiaSeleccionada: response.data[0],
+            title: response.data[0].nombre,
           });
-        }
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  getHorariosUsuarioMateria = async () => {
+  getHorariosUsuario = async () => {
     try {
       console.log("Materia seleccionada: ", this.state.materiaSeleccionada);
-      let response;
-      if (this.state.materiaSeleccionada.id_materia === -1) {
-        response = await getHorariosUsuario(
-          this.context.id_usuario,
-          this.state.materiaSeleccionada.id_materia
-        );
-      } else {
-        response = await getHorariosUsuarioMateria(
-          this.context.id_usuario,
-          this.state.materiaSeleccionada.id_materia
-        );
-      }
+      const response = await getHorariosUsuario(this.context.id_usuario).catch(
+        (err) => {
+          console.error(err);
+        }
+      );
       // console.log("🚀 ~ file: CalendarAlt.js:80 ~ CalendarAlt ~ response ~ response:", response)
 
       if (response.status === 200) {
         const json = response.data;
         console.log(
           "🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getHorariosUsuarioMateria= ~ json:",
-          json
-        );
-
-        json.forEach((element) => {
-          element.start = new Date(element.start);
-          element.end = new Date(element.end);
-        });
-        this.setState({ backgroundEvents: json });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  getSolicitudesByIdUsuarioIdMateria = async () => {
-    try {
-      let response;
-      if (this.state.materiaSeleccionada.id_materia === -1) {
-        response = await getSolicitudesUsuariosByIdUsuario(
-          this.context.id_usuario,
-          this.state.materiaSeleccionada.id_materia
-        );
-      } else {
-        response = await getSolicitudesUsuariosByIdUsuarioIdMateria(
-          this.context.id_usuario,
-          this.state.materiaSeleccionada.id_materia
-        );
-      }
-      if (response.status === 200) {
-        const json = response.data;
-        console.log(
-          "🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getSolicitudesByIdUsuarioIdMateria= ~ json:",
           json
         );
 
@@ -209,7 +154,6 @@ class CalendarAlt extends React.Component {
   handleSlotSelected(slotInfo) {
     console.log("Real slotInfo", slotInfo);
     this.setState({
-      title: "",
       desc: "",
       start: slotInfo.start,
       end: slotInfo.end,
@@ -218,27 +162,24 @@ class CalendarAlt extends React.Component {
   }
 
   handleEventSelected(event) {
-    console.log("event", event);
+    console.log("event aaa", event);
     this.setState({
       openEvent: true,
       clickedEvent: event,
+      id_usuario: event.id_usuario,
       id_materia: event.id_materia,
       start: event.start,
       end: event.end,
       title: event.title,
       desc: event.desc,
-      tipo: event.tipo,
-      nombre: event.nombre,
-      email: event.email,
+      identificador: event.identificador,
     });
+
+    console.log("event after select: ", this.state);
   }
 
   setTitle(e) {
     this.setState({ title: e });
-  }
-
-  setTipo(e) {
-    this.setState({ tipo: e });
   }
 
   setDescription(e) {
@@ -253,109 +194,105 @@ class CalendarAlt extends React.Component {
     this.setState({ end: new Date(date) });
   }
 
-  // Onclick callback function that pushes new appointment into events array.
-  async setNewAppointment() {
-    const { start, end, title, desc, tipo } = this.state;
-    const id_usuario = this.context.id_usuario;
-    const id_profesor = this.state.materiaSeleccionada.id_profesor;
-    const id_materia = this.state.materiaSeleccionada.id_materia;
+  resetRecurrencia() {
+    this.setState({ recurrencia: 1 });
+  }
 
-    const data = {
-      id_usuario: id_usuario,
-      id_profesor: id_profesor,
-      id_materia: id_materia,
-      title: title,
-      description: desc,
-      tipo: tipo,
-      start: start,
-      end: end,
-    };
+  // Onclick callback function that pushes new appointment into events array.
+  async setNewHorario() {
+    const { start, end, title, desc } = this.state;
+    const id_usuario = this.context.id_usuario;
+
+    let cadena = "";
+    const caracteresPermitidos = "0123456789";
+
+    for (let i = 0; i < 8; i++) {
+      const indice = Math.floor(Math.random() * caracteresPermitidos.length);
+      cadena += caracteresPermitidos.charAt(indice);
+    }
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/solicitudes/createsolicitud`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+      let startDate = new Date(start);
+      let endDate = new Date(end);
+
+      for (let i = 0; i < this.state.recurrencia; i++) {
+        if (i > 0) {
+          startDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+          endDate = new Date(endDate.getTime() + 7 * 24 * 60 * 60 * 1000);
         }
-      );
-      if (response.status === 200) {
-        console.log("Ok!");
-        const json = await response.json();
-        let appointment = {
-          id: json[0].id_solicitud,
-          id_usuario,
-          id_profesor,
-          id_materia,
-          title,
-          start,
-          end,
-          desc,
-          tipo,
+        const data = {
+          id_usuario: id_usuario,
+          id_materia: this.state.materiaSeleccionada.id_materia,
+          identificador: parseInt(cadena),
+          title: title,
+          description: desc,
+          start: startDate,
+          end: endDate,
         };
-        let events = this.state.events.slice();
-        events.push(appointment);
-        // localStorage.setItem("cachedEvents", JSON.stringify(events));
-        this.setState({ events });
+
+        const response = await registrarHorario(data).catch((err) => {
+          console.error(err);
+        });
+        console.log(
+          "🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:",
+          response
+        );
       }
     } catch (error) {
       console.error(error);
     }
+    this.getHorariosUsuario();
   }
 
   //  Updates Existing Appointments Title and/or Description
-  async updateEvent() {
-    const { title, desc, tipo, start, end, events, clickedEvent } = this.state;
+  updateEvent() {
+    const { title, desc, start, end, events, clickedEvent } = this.state;
     const index = events.findIndex((event) => event === clickedEvent);
     const updatedEvent = events.slice();
     updatedEvent[index].title = title;
     updatedEvent[index].desc = desc;
     updatedEvent[index].start = start;
     updatedEvent[index].end = end;
-    updatedEvent[index].tipo = tipo;
     // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvent));
     this.setState({
       events: updatedEvent,
     });
-
-    const data = {
-      id_solicitud: updatedEvent[index].id,
-      title: title,
-      description: desc,
-      tipo: tipo,
-      start: start,
-      end: end,
-    };
-    const response = await editSolicitud(data).catch((err) => {
-      console.error(err);
-    });
-    console.log(
-      "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
-      response
-    );
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
-    let eventToDelete = this.state.events.find(
-      (event) => event["start"] === this.state.start
-    );
-    let updatedEvents = this.state.events.filter(
-      (event) => event["start"] !== this.state.start
-    );
-    // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvents));
-    this.setState({ events: updatedEvents });
-
-    console.log("Evento a eliminar: ", this.state.events);
-
-    const response = await deleteSolicitud(eventToDelete.id).catch((err) => {
+    const response = await deleteHorariosUsuarioMateria(
+      this.state.identificador
+    ).catch((err) => {
       console.error(err);
     });
     console.log(
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
+    if (response.status == 200) {
+      this.getHorariosUsuario();
+    }
+  }
+
+  infoHorario() {
+    let horarios = this.state.events.filter(
+      (item) => item.identificador == this.state.identificador
+    );
+    let max = moment(
+      Math.max(
+        ...horarios.map((item) => {
+          return item.start;
+        })
+      )
+    );
+    if (horarios.length > 1) {
+      return `Todo ${moment(this.state.start).format(
+        "dddd"
+      )} hasta el ${max.format("LL")}`;
+    } else {
+      return "Este horario no se repite";
+    }
   }
 
   concurrentEventExists = (slotInfo) => {
@@ -366,55 +303,58 @@ class CalendarAlt extends React.Component {
     );
   };
 
-  fitsOnSchedule = (slotInfo) => {
-    return this.state.backgroundEvents.some(
-      (item) => item.start <= slotInfo.start && slotInfo.end <= item.end
-    );
-  };
-
-  /*
-  minuteConverter(time) {
-    const [h, m] = time.split(':');
-    const value = +h + m / 60;
-    return value.toFixed(2);
- }
- */
-
   render() {
     console.log("render()");
 
-    const customSlotPropGetter = (date) => {
-      const backgroundEvents = this.state.backgroundEvents;
-      for (let i = 0; i < backgroundEvents.length; i++) {
-        if (
-          backgroundEvents[i].start <= date &&
-          date < backgroundEvents[i].end
-        ) {
-          return {
-            style: {
-              backgroundColor: "#C2F5DA",
-            },
-          };
-        }
-      }
-      return;
-    };
-
     const customEventPropGetter = (event) => {
-      if (event.id_usuario != this.context.id_usuario)
+      if (this.state.materiaSeleccionada.id_materia !== event.id_materia) {
         return {
           style: { backgroundColor: "#adb5bd", borderColor: "#adb5bd" },
         };
+      } else {
+        return {
+          style: { backgroundColor: "#95d5b2", borderColor: "#52b788" },
+        };
+      }
+    };
+
+    const handleCloseErrorAlert = (event, reason) => {
+      if (reason === "clickaway") {
+        return;
+      }
+
+      this.setState({ showErrorAlert: false });
     };
 
     return (
       <div id="Calendar">
+        <Stack spacing={2} sx={{ width: "100%" }}>
+          <Snackbar
+            open={this.state.showErrorAlert}
+            autoHideDuration={3000}
+            onClose={handleCloseErrorAlert}
+          >
+            <Alert
+              onClose={handleCloseErrorAlert}
+              severity="error"
+              sx={{ width: "100%" }}
+            >
+              Ya existe un horario en la franja seleccionada
+            </Alert>
+          </Snackbar>
+        </Stack>
         <div className="flex w-full justify-content-end mb-5 lg:mb-0">
           <Dropdown
             value={this.state.materiaSeleccionada}
             options={this.state.materias}
             optionLabel="nombre"
-            onChange={(e) => this.setState({ materiaSeleccionada: e.value })}
+            onChange={(e) => {
+              this.setState({
+                materiaSeleccionada: e.value,
+                title: e.value.nombre,
+              });
+              console.log(this.state.title);
+            }}
             placeholder="Seleccione una materia"
             emptyMessage="No hay datos"
             className="lg:hidden"
@@ -427,7 +367,11 @@ class CalendarAlt extends React.Component {
           <Tabs
             value={this.state.materiaSeleccionada}
             onChange={(e, element) => {
-              this.setState({ materiaSeleccionada: element });
+              this.setState({
+                materiaSeleccionada: element,
+                title: element.nombre,
+              });
+              console.log(this.state.title);
             }}
             variant="scrollable"
             scrollButtons
@@ -447,57 +391,35 @@ class CalendarAlt extends React.Component {
         <Calendar
           messages={this.messages}
           events={this.state.events}
+          backgroundEvents={this.state.backgroundEvents}
           views={["month", "week", "day", "agenda"]}
           defaultView="week"
           style={{ height: "80vh" }}
           defaultDate={new Date()}
-          //selectable
+          selectable
           timeslots={2}
           localizer={localizer}
           culture="es"
-          slotPropGetter={customSlotPropGetter}
-          eventPropGetter={null}
+          eventPropGetter={customEventPropGetter}
           showAllEvents={false}
           /*min={new Date(0, 0, 0, 6, 0, 0)}
           max={new Date(0, 0, 0, 23, 0, 0)}*/
-          onSelectEvent={(event) => {
-            this.handleEventSelected(event);
-          }}
-          /*onSelectSlot={(slotInfo) => {
-            !this.concurrentEventExists(slotInfo) &&
-            this.fitsOnSchedule(slotInfo)
-              ? this.handleSlotSelected(slotInfo)
-              : null;
-          }}*/
+          onSelectEvent={(event) => this.handleEventSelected(event)}
+          onSelectSlot={(slotInfo) =>
+            this.concurrentEventExists(slotInfo)
+              ? this.setState({ showErrorAlert: true })
+              : this.handleSlotSelected(slotInfo)
+          }
         />
 
         {/* Material-ui Modal for booking new appointment */}
         <Dialog open={this.state.openSlot} onClose={this.handleClose}>
-          <DialogTitle>
-            {`Solicita una reunión el ${moment(this.state.start).format(
-              "Do MMMM YYYY"
-            )}`}
+          <DialogTitle style={{ whiteSpace: "pre-line" }}>
+            {`Registra un nuevo horario para
+            ${this.state.title}`}
           </DialogTitle>
           <DialogContent>
-            <FormControl fullWidth sx={{ marginBottom: 0.5, marginTop: 1 }}>
-              <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Tipo"
-                defaultValue={SOLICITUDES_TIPOS.CONSULTA}
-                onChange={(e) => {
-                  this.setTipo(e.target.value);
-                }}
-              >
-                {SOLICITUDES_TIPOS_ARRAY.map((tipo) => (
-                  <MenuItem key={tipo} value={tipo}>
-                    {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
+            {/*<TextField
               label="Título"
               margin="dense"
               fullWidth
@@ -505,7 +427,7 @@ class CalendarAlt extends React.Component {
                 this.setTitle(e.target.value);
               }}
             />
-            <br />
+            <br />*/}
             <TextField
               label="Descripción"
               multiline
@@ -517,6 +439,37 @@ class CalendarAlt extends React.Component {
                 this.setDescription(e.target.value);
               }}
             />
+
+            <div className="w-full my-3">
+              <label className="text-sm">Horario recurrente</label>
+            </div>
+            <div className="grid">
+              <div className="col-3 card flex flex-column justify-content-center align-items-center my-4">
+                <InputSwitch
+                  checked={this.state.recurrente}
+                  onChange={(e) => {
+                    this.setState({ recurrente: e.value });
+
+                    if (this.state.recurrente === true) this.resetRecurrencia();
+                  }}
+                />
+              </div>
+              <div className="col-9 flex flex-column justify-content-center">
+                <label className="text-sm">Cantidad de semanas</label>
+                <InputNumber
+                  disabled={this.state.recurrente ? false : true}
+                  className="w-full"
+                  mode="decimal"
+                  showButtons
+                  min={1}
+                  max={100}
+                  value={this.state.recurrencia}
+                  onChange={(e) => {
+                    this.setState({ recurrencia: e.value });
+                  }}
+                />
+              </div>
+            </div>
             <DemoContainer components={["MobileTimePicker"]}>
               <DemoItem label="Hora de inicio">
                 <MobileTimePicker
@@ -546,10 +499,10 @@ class CalendarAlt extends React.Component {
               label="Submit"
               primary={"true"}
               onClick={() => {
-                this.setNewAppointment(), this.handleClose();
+                this.setNewHorario(), this.handleClose();
               }}
             >
-              ENVIAR
+              GUARDAR
             </Button>
           </DialogActions>
         </Dialog>
@@ -557,28 +510,10 @@ class CalendarAlt extends React.Component {
         {/* Material-ui Modal for booking existing appointment */}
         <Dialog open={this.state.openEvent} onClose={this.handleClose}>
           <DialogTitle>
-            {`Solicitud del ${moment(this.state.start).format("Do MMMM YYYY")}`}
+            <p>Vista del horario establecido</p>
           </DialogTitle>
           <DialogContent>
-            <FormControl fullWidth sx={{ marginBottom: 0.5, marginTop: 1 }}>
-              <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Tipo"
-                value={this.state.tipo}
-                onChange={(e) => {
-                  this.setTipo(e.target.value);
-                }}
-              >
-                {SOLICITUDES_TIPOS_ARRAY.map((tipo) => (
-                  <MenuItem key={tipo} value={tipo}>
-                    {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
+            {/*<TextField
               label="Título"
               margin="dense"
               value={this.state.title}
@@ -586,7 +521,7 @@ class CalendarAlt extends React.Component {
               onChange={(e) => {
                 this.setTitle(e.target.value);
               }}
-            />
+            />*/}
             <br />
             <TextField
               label="Descripción"
@@ -600,31 +535,13 @@ class CalendarAlt extends React.Component {
                 this.setDescription(e.target.value);
               }}
             />
-            <Card>
-              <CardContent>
-                <Typography
-                  sx={{ fontSize: 16 }}
-                  color="text.secondary"
-                  gutterBottom
-                >
-                  Enviada por:
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} variant="body2">
-                  {`Nombre: ${this.state.nombre}`}
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} variant="body2">
-                  {`Email: ${this.state.email}`}
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} variant="body2">
-                  {`Grupo: ${
-                    this.state.materias.find(
-                      (item) => item.id_materia == this.state.id_materia
-                    )?.nombre
-                  }`}
-                </Typography>
-              </CardContent>
-            </Card>
-            <DemoContainer components={["MobileTimePicker"]}>
+            <Typography variant="h6" gutterBottom sx={{ marginTop: 4 }}>
+              {this.infoHorario()}
+            </Typography>
+            <DemoContainer
+              components={["MobileTimePicker"]}
+              sx={{ marginTop: 4 }}
+            >
               <DemoItem label="Hora de inicio">
                 <MobileTimePicker
                   value={moment(this.state.start)}
@@ -652,17 +569,17 @@ class CalendarAlt extends React.Component {
                 this.deleteEvent(), this.handleClose();
               }}
             >
-              rechazar
+              BORRAR
             </Button>
-            <Button
+            {/* <Button
               label="Confirm Edit"
               secondary={"true"}
               onClick={() => {
                 this.updateEvent(), this.handleClose();
               }}
             >
-              GUARDAR CAMBIOS
-            </Button>
+              CONFIRM EDIT
+            </Button> */}
           </DialogActions>
         </Dialog>
       </div>

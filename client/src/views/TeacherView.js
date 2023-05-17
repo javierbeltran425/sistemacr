@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 // custom components imports
 import CalendarOld from "../components/Calendar(old)";
 import Layout from "../components/layout/Layout";
-import CalendarTeacher from "../components/CalendarTeacher";
+import CalendarSchedule from "../components/CalendarSchedule";
 
 // prime components
 import { InputText } from "primereact/inputtext";
@@ -116,7 +116,7 @@ const TeacherView = () => {
       <div className="w-full lg:px-6 pt-5">
         <h4>Horarios programados por el catedrático</h4>
 
-        <CalendarTeacher />
+        <CalendarSchedule />
 
         {/* <div
           className="w-full px-6 pt-2 surface-100 border-round-md shadow-1"

@@ -56,9 +56,23 @@ app.post("/solicitudes/createsolicitud", (req, res) => {
 });
 
 app.get(
-  "/solicitudes/getsolicitudesbyidusuarioidmateria/:id_usuario/:id_materia",
+  "/solicitudes/getsolicitudesbyidusuarioidmateria/:id_profesor/:id_materia",
   (req, res) => {
     solicitudes.getSolicitudesByIdUsuarioIdMateria(req, res);
+  }
+);
+
+app.get(
+  "/solicitudes/getsolicitudesusuariosbyidusuarioidmateria/:id_usuario/:id_materia",
+  (req, res) => {
+    solicitudes.getSolicitudesUsuariosByIdUsuarioIdMateria(req, res);
+  }
+);
+
+app.get(
+  "/solicitudes/getsolicitudesusuariosbyidusuario/:id_usuario",
+  (req, res) => {
+    solicitudes.getSolicitudesUsuariosByIdUsuario(req, res);
   }
 );
 
@@ -126,6 +140,10 @@ app.get(
     horarios.getHorariosByIdUsuarioIdMateria(req, res);
   }
 );
+
+app.get("/horarios/getmateriasidusuario/:id_usuario", (req, res) => {
+  horarios.getHorariosByIdUsuario(req, res);
+});
 
 app.put("/horarios/deletemateriasidusuarioidmateria/:id_evento", (req, res) => {
   horarios.deleteHorariosByIdUsuarioIdMateria(req, res);

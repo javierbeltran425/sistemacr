@@ -20,6 +20,9 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
 
 // constantes
 import { USUARIO_ROLES } from "../constants/usuario";
@@ -81,7 +84,6 @@ class CalendarAlt extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.materiaSeleccionada !== this.state.materiaSeleccionada) {
-      console.log("oh hello there");
       this.getHorariosUsuarioMateria();
       this.getSolicitudesByIdUsuarioIdMateria();
     }
@@ -101,8 +103,8 @@ class CalendarAlt extends React.Component {
       );
       if (response.status === 200) {
         this.setState({ materias: response.data });
-        if (this.state.materias)
-          this.setState({ materiaSeleccionada: this.state.materias[0] });
+        if (response.data)
+          this.setState({ materiaSeleccionada: response.data[0] });
       }
     } catch (error) {
       console.error(error);
@@ -110,14 +112,10 @@ class CalendarAlt extends React.Component {
   };
 
   getHorariosUsuarioMateria = async () => {
-    let id_usuario;
-    if (this.context.rol == USUARIO_ROLES.PROFESOR)
-      id_usuario = this.context.id_usuario;
-    else id_usuario = this.state.materiaSeleccionada.id_profesor;
     try {
       console.log("Materia seleccionada: ", this.state.materiaSeleccionada);
       const response = await getHorariosUsuarioMateria(
-        id_usuario,
+        this.state.materiaSeleccionada.id_profesor,
         this.state.materiaSeleccionada.id_materia
       ).catch((err) => {
         console.error(err);
@@ -181,6 +179,7 @@ class CalendarAlt extends React.Component {
       start: slotInfo.start,
       end: slotInfo.end,
       openSlot: true,
+      tipo: SOLICITUDES_TIPOS.CONSULTA,
     });
   }
 
@@ -330,11 +329,19 @@ class CalendarAlt extends React.Component {
     );
   };
 
+  fitsOnSchedule = (slotInfo) => {
+    return this.state.backgroundEvents.some(
+      (item) => item.start <= slotInfo.start && slotInfo.end <= item.end
+    );
+  };
+
+  /*
   minuteConverter(time) {
     const [h, m] = time.split(':');
     const value = +h + m / 60;
     return value.toFixed(2);
  }
+ */
 
   render() {
     console.log("render()");
@@ -387,7 +394,7 @@ class CalendarAlt extends React.Component {
 
     return (
       <div id="Calendar">
-        <div className="flex w-full justify-content-end mb-5">
+        <div className="flex w-full justify-content-end mb-5 lg:mb-0">
           <Dropdown
             value={this.state.materiaSeleccionada}
             options={this.state.materias}
@@ -395,8 +402,32 @@ class CalendarAlt extends React.Component {
             onChange={(e) => this.setState({ materiaSeleccionada: e.value })}
             placeholder="Seleccione una materia"
             emptyMessage="No hay datos"
+            className="lg:hidden"
           />
         </div>
+        <Box
+          sx={{ bgcolor: "background.paper", marginBottom: 5 }}
+          className="hidden lg:flex"
+        >
+          <Tabs
+            value={this.state.materiaSeleccionada}
+            onChange={(e, element) => {
+              this.setState({ materiaSeleccionada: element });
+            }}
+            variant="scrollable"
+            scrollButtons
+            allowScrollButtonsMobile
+            aria-label="scrollable force tabs example"
+          >
+            {this.state.materias.map((materia) => (
+              <Tab
+                value={materia}
+                key={materia.id_materia}
+                label={materia.nombre}
+              />
+            ))}
+          </Tabs>
+        </Box>
         {/* react-big-calendar library utilized to render calendar*/}
         <Calendar
           messages={this.messages}
@@ -420,9 +451,10 @@ class CalendarAlt extends React.Component {
               : console.log(event.id_usuario, this.context.id_usuario);
           }}
           onSelectSlot={(slotInfo) => {
-            this.concurrentEventExists(slotInfo)
-              ? null
-              : this.handleSlotSelected(slotInfo);
+            !this.concurrentEventExists(slotInfo) &&
+            this.fitsOnSchedule(slotInfo)
+              ? this.handleSlotSelected(slotInfo)
+              : null;
           }}
         />
 
@@ -437,10 +469,10 @@ class CalendarAlt extends React.Component {
             <FormControl fullWidth sx={{ marginBottom: 0.5, marginTop: 1 }}>
               <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
               <Select
+                value={this.state.tipo}
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 label="Tipo"
-                defaultValue={SOLICITUDES_TIPOS.CONSULTA}
                 onChange={(e) => {
                   this.setTipo(e.target.value);
                 }}

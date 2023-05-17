@@ -1,12 +1,18 @@
 import React, { useState } from "react";
+import { ContextUsuario } from "../context/usuario";
 
 //custom components
 import Layout from "../components/layout/Layout";
 import History from "../components/History";
-import Calendar from "../components/CalendarStudent";
+import CalendarStudent from "../components/CalendarStudent";
+import CalendarTeacher from "../components/CalendarTeacher";
 
 //prime components
 import { Dropdown } from "primereact/dropdown";
+
+//constants
+import "../constants/usuario";
+import { USUARIO_ROLES } from "../constants/usuario";
 
 const HomePage = () => {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
@@ -20,6 +26,7 @@ const HomePage = () => {
   ]);
   const tramites = ["Consulta", "Revision"];
   const [selectedTramite, setSelectedTramite] = useState("Consulta");
+  const usuario = React.useContext(ContextUsuario);
 
   return (
     <Layout>
@@ -50,7 +57,11 @@ const HomePage = () => {
                 */}
 
         <div className="mt-4">
-          <Calendar />
+          {usuario.rol === USUARIO_ROLES.PROFESOR ? (
+            <CalendarTeacher />
+          ) : (
+            <CalendarStudent />
+          )}
         </div>
       </div>
     </Layout>

@@ -62,6 +62,7 @@ function App() {
         >
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/teacher" element={<TeacherView />} />
             <Route path="/admin" element={<AdminView />} />
           </Routes>
