@@ -154,6 +154,7 @@ class CalendarAlt extends React.Component {
   handleSlotSelected(slotInfo) {
     console.log("Real slotInfo", slotInfo);
     this.setState({
+      title: this.state.materiaSeleccionada.nombre,
       desc: "",
       start: slotInfo.start,
       end: slotInfo.end,
@@ -351,7 +352,6 @@ class CalendarAlt extends React.Component {
             onChange={(e) => {
               this.setState({
                 materiaSeleccionada: e.value,
-                title: e.value.nombre,
               });
               console.log(this.state.title);
             }}
@@ -369,7 +369,6 @@ class CalendarAlt extends React.Component {
             onChange={(e, element) => {
               this.setState({
                 materiaSeleccionada: element,
-                title: element.nombre,
               });
               console.log(this.state.title);
             }}
@@ -405,11 +404,7 @@ class CalendarAlt extends React.Component {
           /*min={new Date(0, 0, 0, 6, 0, 0)}
           max={new Date(0, 0, 0, 23, 0, 0)}*/
           onSelectEvent={(event) => this.handleEventSelected(event)}
-          onSelectSlot={(slotInfo) =>
-            this.concurrentEventExists(slotInfo)
-              ? this.setState({ showErrorAlert: true })
-              : this.handleSlotSelected(slotInfo)
-          }
+          onSelectSlot={(slotInfo) => this.handleSlotSelected(slotInfo)}
         />
 
         {/* Material-ui Modal for booking new appointment */}
@@ -509,8 +504,9 @@ class CalendarAlt extends React.Component {
 
         {/* Material-ui Modal for booking existing appointment */}
         <Dialog open={this.state.openEvent} onClose={this.handleClose}>
-          <DialogTitle>
-            <p>Vista del horario establecido</p>
+          <DialogTitle whiteSpace={"pre-line"}>
+            <p>{`Vista del horario establecido para
+            ${this.state.title}`}</p>
           </DialogTitle>
           <DialogContent>
             {/*<TextField
