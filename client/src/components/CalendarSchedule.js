@@ -308,7 +308,7 @@ class CalendarAlt extends React.Component {
     console.log("render()");
 
     const customEventPropGetter = (event) => {
-      if (this.state.materiaSeleccionada.id_materia !== event.id_materia) {
+      if (this.state.materiaSeleccionada?.id_materia !== event?.id_materia) {
         return {
           style: { backgroundColor: "#adb5bd", borderColor: "#adb5bd" },
         };
