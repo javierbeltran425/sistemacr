@@ -357,6 +357,8 @@ class CalendarAlt extends React.Component {
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
+
+    this.envioNotificacionRechazo()
   }
 
   envioNotificacionRechazo = async () => {
