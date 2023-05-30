@@ -44,6 +44,7 @@ import {
   editSolicitud,
 } from "../services/SolicitudesServices";
 import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
+import { EnviaNotificacione } from "../services/NotificacionesServices";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
@@ -358,6 +359,28 @@ class CalendarAlt extends React.Component {
     );
   }
 
+  envioNotificacionRechazo = async () => {
+    try {
+      const body = {
+        sendemail: "htjavier621@gmail.com",
+        emailcontent: `
+          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <br/>
+          <p>Estimado estudiante, se le notifica que el catdrático ha rechazado su solicitud de espacio para consulta/rebición</p>
+          <p>Se recomienta ponerse en contacto con su catedrático para analizar más opciones</p>
+        `
+      }
+
+      const response = await EnviaNotificacione(body).catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:", response)
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   concurrentEventExists = (slotInfo) => {
     return this.state.events.some(
       (item) =>
@@ -463,12 +486,12 @@ class CalendarAlt extends React.Component {
           onSelectEvent={(event) => {
             this.handleEventSelected(event);
           }}
-          /*onSelectSlot={(slotInfo) => {
-            !this.concurrentEventExists(slotInfo) &&
-            this.fitsOnSchedule(slotInfo)
-              ? this.handleSlotSelected(slotInfo)
-              : null;
-          }}*/
+        /*onSelectSlot={(slotInfo) => {
+          !this.concurrentEventExists(slotInfo) &&
+          this.fitsOnSchedule(slotInfo)
+            ? this.handleSlotSelected(slotInfo)
+            : null;
+        }}*/
         />
 
         {/* Material-ui Modal for booking new appointment */}
@@ -616,11 +639,10 @@ class CalendarAlt extends React.Component {
                   {`Email: ${this.state.email}`}
                 </Typography>
                 <Typography sx={{ mb: 1.5 }} variant="body2">
-                  {`Grupo: ${
-                    this.state.materias.find(
-                      (item) => item.id_materia == this.state.id_materia
-                    )?.nombre
-                  }`}
+                  {`Grupo: ${this.state.materias.find(
+                    (item) => item.id_materia == this.state.id_materia
+                  )?.nombre
+                    }`}
                 </Typography>
               </CardContent>
             </Card>

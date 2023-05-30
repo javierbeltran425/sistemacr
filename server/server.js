@@ -16,6 +16,7 @@ const solicitudes = require("./modules/solicitudes");
 const carreras = require("./modules/carreras");
 const materias = require("./modules/materias");
 const horarios = require("./modules/horarios");
+const notificaciones = require("./modules/notificaciones");
 
 // AUTHENTICATION
 
@@ -150,3 +151,9 @@ app.put("/horarios/deletemateriasidusuarioidmateria/:id_evento", (req, res) => {
 });
 
 app.listen(port, () => console.log(`Server running on PORT ${port}`));
+
+// NOTIFICACIONES
+
+app.post("/notificaciones/envia/", (req, res) => {
+  notificaciones.mailer(req, res);
+});

@@ -14,7 +14,13 @@ const Header = () => {
   const [materias, setMaterias] = useState([]);
   const navigate = useNavigate();
   const [cookies, setCookie, removeCookie] = useCookies(null);
+  const [titulo, setTitulo] = useState('')
   const usuario = useContext(ContextUsuario);
+
+  useEffect(() => {
+    tituloHeader()
+  }, [])
+  
 
   const signOut = () => {
     removeCookie("id_usuario");
@@ -45,10 +51,36 @@ const Header = () => {
     });
   };
 
-  useEffect(() => {}, []);
+  const tituloHeader = () => {
+    const location = window.location.hash
+    console.log("🚀 ~ file: Header.js:50 ~ titulo ~ location:", location)
+
+    switch (location) {
+      case '/':
+        setTitulo('Panel de estudiantes')
+        break;
+
+      case '#/':
+        setTitulo('Panel de estudiantes')
+        break;
+
+      case '#/teacher':
+        setTitulo('Panel de catedraticos')
+        break;
+
+      default:
+        break;
+    }
+
+  }
+
+  useEffect(() => { }, []);
 
   return (
-    <div className="flex md:flex-row w-full h-2 px-6 justify-content-end align-items-center bg-gray-100 shadow-1">
+    <div className="flex md:flex-row w-full h-2 px-6 justify-content-between align-items-center bg-gray-100 shadow-1">
+      <div>
+        <p className="font-bold">{titulo}</p>
+      </div>
       {/* <div>
         <Button
           icon="pi pi-bars"
@@ -91,7 +123,7 @@ const Header = () => {
             Cerrar sesión
           </p>
         </div>
-        <Avatar label="N" size="large" />
+        <Avatar icon='pi pi-user' size="large" />
       </div>
     </div>
   );
