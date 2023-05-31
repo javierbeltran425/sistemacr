@@ -37,6 +37,7 @@ import {
   editSolicitud,
 } from "../services/SolicitudesServices";
 import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
+import { EnviaNotificacione } from "../services/NotificacionesServices";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
@@ -261,6 +262,8 @@ class CalendarAlt extends React.Component {
         events.push(appointment);
         // localStorage.setItem("cachedEvents", JSON.stringify(events));
         this.setState({ events });
+
+        this.envioNotificacionCrea()
       }
     } catch (error) {
       console.error(error);
@@ -297,6 +300,8 @@ class CalendarAlt extends React.Component {
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
+
+    this.envioNotificacionEdita()
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
@@ -319,6 +324,71 @@ class CalendarAlt extends React.Component {
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
+
+    this.envioNotificacionElimina()
+  }
+
+  envioNotificacionCrea = async () => {
+    try {
+      const body = {
+        sendemail: "htjavier621@gmail.com",
+        emailcontent: `
+          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <br/>
+          <p>Estimado docente, se le notifica que el estudiante   xxxxx  ha registrado una solicitud en sus horarios disponibles.</p>
+        `
+      }
+
+      const response = await EnviaNotificacione(body).catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:", response)
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  envioNotificacionEdita = async () => {
+    try {
+      const body = {
+        sendemail: "htjavier621@gmail.com",
+        emailcontent: `
+          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <br/>
+          <p>Estimado docente, se le notifica que el estudiante   xxxxx  ha modificado una solicitud en sus horarios disponibles.</p>
+        `
+      }
+
+      const response = await EnviaNotificacione(body).catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:", response)
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  envioNotificacionElimina = async () => {
+    try {
+      const body = {
+        sendemail: "htjavier621@gmail.com",
+        emailcontent: `
+          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <br/>
+          <p>Estimado docente, se le notifica que el estudiante   xxxxx  ha eliminado una solicitud en sus horarios disponibles.</p>
+        `
+      }
+
+      const response = await EnviaNotificacione(body).catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:", response)
+
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   concurrentEventExists = (slotInfo) => {

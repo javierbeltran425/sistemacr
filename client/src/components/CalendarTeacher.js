@@ -307,7 +307,7 @@ class CalendarAlt extends React.Component {
 
   //  Updates Existing Appointments Title and/or Description
   async updateEvent() {
-    const { title, desc, tipo, start, end, events, clickedEvent } = this.state;
+    const { title, desc, tipo, start, end, events, clickedEvent, email } = this.state;
     const index = events.findIndex((event) => event === clickedEvent);
     const updatedEvent = events.slice();
     updatedEvent[index].title = title;
@@ -335,6 +335,8 @@ class CalendarAlt extends React.Component {
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
+
+    this.envioNotificacionModifica(email)
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
@@ -368,8 +370,29 @@ class CalendarAlt extends React.Component {
         emailcontent: `
           <h1>Correo automatico del sistema de solicitudes DEI</h1>
           <br/>
-          <p>Estimado estudiante, se le notifica que el catdrático ha rechazado su solicitud de espacio para consulta/rebición</p>
+          <p>Estimado estudiante, se le notifica que el catedrático ha rechazado su solicitud de espacio para consulta/rebición</p>
           <p>Se recomienta ponerse en contacto con su catedrático para analizar más opciones</p>
+        `
+      }
+
+      const response = await EnviaNotificacione(body).catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:", response)
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  
+  envioNotificacionModifica = async (email) => {
+    try {
+      const body = {
+        sendemail: email,
+        emailcontent: `
+          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <br/>
+          <p>Estimado estudiante, se le notifica que el catedrático ha hecho una modificación en su solicitud.</p>
         `
       }
 
