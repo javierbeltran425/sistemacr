@@ -50,6 +50,10 @@ app.delete("/usuarios/removeusuariobyid/:id_usuario", (req, res) => {
   usuarios.removeUsuarioById(req, res);
 });
 
+app.post("/usuarios/usuarioinfo", (req, res) => {
+  usuarios.getUsuarioInfo(req, res);
+});
+
 // SOLICITUDES
 
 app.post("/solicitudes/createsolicitud", (req, res) => {

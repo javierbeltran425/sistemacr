@@ -23,6 +23,7 @@ import Select from "@mui/material/Select";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
+import { useCookies } from "react-cookie";
 
 // constantes
 import { USUARIO_ROLES } from "../constants/usuario";
@@ -38,6 +39,7 @@ import {
 } from "../services/SolicitudesServices";
 import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
 import { EnviaNotificacione } from "../services/NotificacionesServices";
+import { getInfoUsuario } from "../services/UsuariosService";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
@@ -93,6 +95,8 @@ class CalendarAlt extends React.Component {
   // función para recuperar las materias
   getMateriasByIdUsuario = async () => {
     try {
+      console.log('contenido del state', this.state);
+
       const response = await getMateriasByIdUsuario(
         this.context.id_usuario
       ).catch((err) => {
@@ -111,6 +115,22 @@ class CalendarAlt extends React.Component {
       console.error(error);
     }
   };
+
+  getInfUs = async (id_usuario) => {
+    try {
+      const body = {
+        id_usuario: id_usuario
+      }
+
+      const response = await getInfoUsuario(body).catch(err => {
+        console.error(err)
+      })
+      console.log("🚀 ~ file: CalendarTeacher.js:214 ~ CalendarAlt ~ response ~ getInfUs:", response)
+      
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   getHorariosUsuarioMateria = async () => {
     try {
@@ -219,7 +239,7 @@ class CalendarAlt extends React.Component {
 
   // Onclick callback function that pushes new appointment into events array.
   async setNewAppointment() {
-    const { start, end, title, desc, tipo } = this.state;
+    const { start, end, title, desc, tipo, email } = this.state;
     const id_usuario = this.context.id_usuario;
     const id_profesor = this.state.materiaSeleccionada.id_profesor;
     const id_materia = this.state.materiaSeleccionada.id_materia;
@@ -263,7 +283,17 @@ class CalendarAlt extends React.Component {
         // localStorage.setItem("cachedEvents", JSON.stringify(events));
         this.setState({ events });
 
-        this.envioNotificacionCrea()
+        const response2 = await getInfoUsuario({ id_usuario: this.state.materiaSeleccionada.id_profesor}).catch(err => {
+          console.error(err);
+        })
+        console.log("🚀 ~ file: CalendarStudent.js:288 ~ CalendarAlt ~ response ~ response:", response2)
+        
+        const response3 = await getInfoUsuario({ id_usuario: this.context.id_usuario}).catch(err => {
+          console.error(err);
+        })
+        console.log("🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:", response3)
+
+        this.envioNotificacionCrea(response2.data[0].email, response3.data[0].nombre)
       }
     } catch (error) {
       console.error(error);
@@ -272,7 +302,7 @@ class CalendarAlt extends React.Component {
 
   //  Updates Existing Appointments Title and/or Description
   async updateEvent() {
-    const { title, desc, tipo, start, end, events, clickedEvent } = this.state;
+    const { title, desc, tipo, start, end, events, clickedEvent, email } = this.state;
     const index = events.findIndex((event) => event === clickedEvent);
     const updatedEvent = events.slice();
     updatedEvent[index].title = title;
@@ -301,11 +331,22 @@ class CalendarAlt extends React.Component {
       response
     );
 
-    this.envioNotificacionEdita()
+    const response2 = await getInfoUsuario({ id_usuario: this.state.materiaSeleccionada.id_profesor}).catch(err => {
+      console.error(err);
+    })
+
+    const response3 = await getInfoUsuario({ id_usuario: this.context.id_usuario}).catch(err => {
+      console.error(err);
+    })
+    console.log("🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:", response3)
+
+    this.envioNotificacionEdita(response2.data[0].email, response3.data[0].nombre)
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
+    const { email } = this.state
+
     let eventToDelete = this.state.events.find(
       (event) => event["start"] === this.state.start
     );
@@ -325,17 +366,27 @@ class CalendarAlt extends React.Component {
       response
     );
 
-    this.envioNotificacionElimina()
+    const response2 = await getInfoUsuario({ id_usuario: this.state.materiaSeleccionada.id_profesor}).catch(err => {
+      console.error(err);
+    })
+
+    const response3 = await getInfoUsuario({ id_usuario: this.context.id_usuario}).catch(err => {
+      console.error(err);
+    })
+    console.log("🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:", response3)
+
+    this.envioNotificacionElimina(response2.data[0].email, response3.data[0].nombre)
   }
 
-  envioNotificacionCrea = async () => {
+  envioNotificacionCrea = async (email, nombre) => {
     try {
+      
       const body = {
-        sendemail: "htjavier621@gmail.com",
+        sendemail: email,
         emailcontent: `
           <h1>Correo automatico del sistema de solicitudes DEI</h1>
           <br/>
-          <p>Estimado docente, se le notifica que el estudiante   xxxxx  ha registrado una solicitud en sus horarios disponibles.</p>
+          <p>Estimado docente, se le notifica que el estudiante  ${nombre}  ha registrado una solicitud en sus horarios disponibles.</p>
         `
       }
 
@@ -349,14 +400,14 @@ class CalendarAlt extends React.Component {
     }
   }
 
-  envioNotificacionEdita = async () => {
+  envioNotificacionEdita = async (email, nombre) => {
     try {
       const body = {
-        sendemail: "htjavier621@gmail.com",
+        sendemail: email,
         emailcontent: `
           <h1>Correo automatico del sistema de solicitudes DEI</h1>
           <br/>
-          <p>Estimado docente, se le notifica que el estudiante   xxxxx  ha modificado una solicitud en sus horarios disponibles.</p>
+          <p>Estimado docente, se le notifica que el estudiante  ${nombre}  ha modificado una solicitud en sus horarios disponibles.</p>
         `
       }
 
@@ -370,14 +421,14 @@ class CalendarAlt extends React.Component {
     }
   }
 
-  envioNotificacionElimina = async () => {
+  envioNotificacionElimina = async (email, nombre) => {
     try {
       const body = {
-        sendemail: "htjavier621@gmail.com",
+        sendemail: email,
         emailcontent: `
           <h1>Correo automatico del sistema de solicitudes DEI</h1>
           <br/>
-          <p>Estimado docente, se le notifica que el estudiante   xxxxx  ha eliminado una solicitud en sus horarios disponibles.</p>
+          <p>Estimado docente, se le notifica que el estudiante  ${nombre}  ha eliminado una solicitud en sus horarios disponibles.</p>
         `
       }
 

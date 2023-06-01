@@ -147,10 +147,26 @@ const removeUsuarioById = async function (req, res) {
   }
 };
 
+const getUsuarioInfo = async (req, res) => {
+  const { id_usuario } = req.body;
+
+  try {
+    const responseUsuarioInfo = await knex("usuarios")
+      .select("email", "nombre")
+      .from("usuarios")
+      .where({ id_usuario: id_usuario })
+
+    res.json(responseUsuarioInfo)
+  } catch (error) {
+    res.status(400).send(error)
+  }
+}
+
 module.exports = {
   getAllUsuarios,
   getRolById,
   createUsuario,
   editUsuario,
   removeUsuarioById,
+  getUsuarioInfo
 };

@@ -23,7 +23,7 @@ const login = async function (req, res) {
   const { email, password } = req.body;
   try {
     const usuario = await knex
-      .select("id_usuario", "email", "hashed_password")
+      .select("id_usuario", "email", "hashed_password", "nombre")
       .from("usuarios")
       .where({ email: email });
 
@@ -37,6 +37,7 @@ const login = async function (req, res) {
       res.json({
         id_usuario: usuario[0].id_usuario,
         email: usuario[0].email,
+        nombre: usuario[0].nombre,
         token,
       });
     } else {

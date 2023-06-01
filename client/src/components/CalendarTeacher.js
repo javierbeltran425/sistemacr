@@ -341,6 +341,7 @@ class CalendarAlt extends React.Component {
 
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
+    const { email } = this.state;
     let eventToDelete = this.state.events.find(
       (event) => event["start"] === this.state.start
     );
@@ -360,13 +361,13 @@ class CalendarAlt extends React.Component {
       response
     );
 
-    this.envioNotificacionRechazo()
+    this.envioNotificacionRechazo(email)
   }
 
-  envioNotificacionRechazo = async () => {
+  envioNotificacionRechazo = async (email) => {
     try {
       const body = {
-        sendemail: "htjavier621@gmail.com",
+        sendemail: email,
         emailcontent: `
           <h1>Correo automatico del sistema de solicitudes DEI</h1>
           <br/>
