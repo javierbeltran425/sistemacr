@@ -22,6 +22,7 @@ import Login from "./views/Login";
 import HomePage from "./views/HomePage";
 import TeacherView from "./views/TeacherView";
 import AdminView from "./views/AdminView";
+import HistoryView from "./views/HistoryView";
 
 //constants
 
@@ -64,6 +65,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/teacher" element={<TeacherView />} />
             <Route path="/admin" element={<AdminView />} />
+            <Route path="/history" element={<HistoryView />} />
           </Routes>
         </ContextUsuario.Provider>
       ) : (
