@@ -94,6 +94,18 @@ const createUsuario = async function (req, res) {
   }
 };
 
+const bulkCreateUsuario = async function (req, res) { 
+try{
+ 
+  const newUsuarios = await knex.batchInsert('usuarios', req.body, 1000).returning("id_usuario").then(
+      
+  );
+} catch (error) {
+  res.status(400).send(error);
+  console.error(error);
+}
+};
+
 const editUsuario = async function (req, res) {
   const { id_usuario, id_carrera, email, nombre, rol, password, materias } =
     req.body;
@@ -166,6 +178,7 @@ module.exports = {
   getAllUsuarios,
   getRolById,
   createUsuario,
+  bulkCreateUsuario,
   editUsuario,
   removeUsuarioById,
   getUsuarioInfo

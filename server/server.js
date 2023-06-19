@@ -42,6 +42,11 @@ app.post("/usuarios/createusuario", (req, res) => {
   usuarios.createUsuario(req, res);
 });
 
+app.post("/usuarios/bulkcreateusuario", (req, res) => {
+  console.log("#Here");
+  usuarios.bulkCreateUsuario(req, res);
+});
+
 app.put("/usuarios/editusuario", (req, res) => {
   usuarios.editUsuario(req, res);
 });
