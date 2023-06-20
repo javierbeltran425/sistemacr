@@ -22,6 +22,7 @@ import Select from "@mui/material/Select";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
+import { useCookies } from "react-cookie";
 import Typography from "@mui/material/Typography";
 
 // constantes
@@ -237,7 +238,7 @@ class CalendarAlt extends React.Component {
 
   // Onclick callback function that pushes new appointment into events array.
   async setNewAppointment() {
-    const { start, end, title, desc, tipo } = this.state;
+    const { start, end, title, desc, tipo, email } = this.state;
     const id_usuario = this.context.id_usuario;
     const id_materia = this.state.seccionSeleccionada.id_materia;
     const id_seccion = this.state.seccionSeleccionada.id_seccion;
@@ -313,7 +314,7 @@ class CalendarAlt extends React.Component {
 
   //  Updates Existing Appointments Title and/or Description
   async updateEvent() {
-    const { title, desc, tipo, start, end, events, clickedEvent } = this.state;
+    const { title, desc, tipo, start, end, events, clickedEvent, email } = this.state;
     const index = events.findIndex((event) => event === clickedEvent);
     const updatedEvent = events.slice();
     updatedEvent[index].title = title;
@@ -366,6 +367,8 @@ class CalendarAlt extends React.Component {
 
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
+    const { email } = this.state
+
     let eventToDelete = this.state.events.find(
       (event) => event["start"] === this.state.start
     );

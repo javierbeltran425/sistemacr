@@ -97,6 +97,25 @@ const createUsuario = async function (req, res) {
   }
 };
 
+const bulkCreateUsuario = async function (req, res) {
+  for (let i = 0; i < req.body.length; i++) {
+    const salt = bcrypt.genSaltSync(10);
+    req.body[i].hashed_password = bcrypt.hashSync(
+      req.body[i].hashed_password,
+      salt
+    );
+  }
+
+  try {
+    const newUsuarios = await knex.batchInsert("usuarios", req.body, 1000);
+    res.json(newUsuarios);
+  } catch (error) {
+    res.status(400).send(error);
+    console.log(error);
+    console.error(error);
+  }
+};
+
 const editUsuario = async function (req, res) {
   const { id_usuario, id_carrera, email, nombre, rol, password, materias } =
     req.body;
@@ -173,6 +192,7 @@ module.exports = {
   getAllUsuarios,
   getRolById,
   createUsuario,
+  bulkCreateUsuario,
   editUsuario,
   removeUsuarioById,
   getUsuarioInfo,

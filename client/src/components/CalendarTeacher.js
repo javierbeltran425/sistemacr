@@ -335,6 +335,7 @@ class CalendarAlt extends React.Component {
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
     const { email } = this.state;
+    const { email } = this.state;
     let eventToDelete = this.state.events.find(
       (event) => event["start"] === this.state.start
     );

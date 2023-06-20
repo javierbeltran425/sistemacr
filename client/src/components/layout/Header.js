@@ -88,6 +88,9 @@ const Header = () => {
             <p className="cursor-pointer hover:text-blue-500" onClick={() => {
               navigate('/')
             }} >Solicitudes</p>
+            <p className="cursor-pointer hover:text-blue-500" onClick={() => {
+              navigate('/upload')
+            }} >Importar Estudiantes</p>
           </div>
         )
     
