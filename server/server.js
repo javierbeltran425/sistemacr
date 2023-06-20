@@ -43,7 +43,6 @@ app.post("/usuarios/createusuario", (req, res) => {
 });
 
 app.post("/usuarios/bulkcreateusuario", (req, res) => {
-  console.log("#Here");
   usuarios.bulkCreateUsuario(req, res);
 });
 

@@ -29,11 +29,6 @@ export default function Table({ columns, data }) {
   // Render the UI for your table
   return (
     <>
-      <input
-        value={filterInput}
-        onChange={handleFilterChange}
-        placeholder={"Search name"}
-      />
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map(headerGroup => (

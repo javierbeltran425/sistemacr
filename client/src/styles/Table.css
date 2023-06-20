@@ -1,11 +1,17 @@
 table {
     border-spacing: 0;
+    margin: 0;
     border: 1px solid #ededed;
-    min-width: '50rem';
+    width: 100%;
   }
   table tr:last-child td {
     border-bottom: 0;
   }
+
+  h4 {
+    font-size: 30px;
+  }
+
   table th,
   table td {
     margin: 0;

@@ -13,8 +13,9 @@ function Upload() {
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
   let files;
-  let pResults;
- 
+  let enableButton = true;
+  let jsonArray;
+  
 
   const columns = useMemo(
     () => [
@@ -23,23 +24,19 @@ function Upload() {
         columns: [
           {
             Header: "Nombre",
-            accessor: "name"
+            accessor: "nombre"
           },
           {
             Header: "Email",
             accessor: "email"
           },
           {
-            Header: "Usuario",
-            accessor: "username"
-          },
-          {
             Header: "Carrera",
-            accessor: "company"
+            accessor: "carrera"
           },
           {
             Header: "Rol",
-            accessor: "role"
+            accessor: "rol"
           }
         ]
       }
@@ -47,27 +44,56 @@ function Upload() {
     []
   );
 
+String.prototype.pick = function(min, max) {
+    var n, chars = '';
 
-async function createBulkUser(data){
-    console.log(data);
-
-    try {
-      
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/bulkcreateusuario`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
-      if (resp.status === 200) {
-        console.log("Ok!");
-      }
-    } catch (error) {
-      console.error(error);
+    if (typeof max === 'undefined') {
+        n = min;
+    } else {
+        n = min + Math.floor(Math.random() * (max - min + 1));
     }
+
+    for (var i = 0; i < n; i++) {
+        chars += this.charAt(Math.floor(Math.random() * this.length));
+    }
+
+    return chars;
+};
+
+
+String.prototype.shuffle = function() {
+  var array = this.split('');
+  var tmp, current, top = array.length;
+
+  if (top) while (--top) {
+      current = Math.floor(Math.random() * (top + 1));
+      tmp = array[current];
+      array[current] = array[top];
+      array[top] = tmp;
   }
+
+  return array.join('');
+};
+
+function generateStartingPass(){
+  let specials = '!@#$%^&*()_+{}:"<>?\|[];\',./`~';
+  let lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  let uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let numbers = '0123456789';
+
+  let all = specials + lowercase + uppercase + numbers;
+
+  let password = '';
+  password += specials.pick(1);
+  password += lowercase.pick(1);
+  password += uppercase.pick(1);
+  password += all.pick(3, 10);
+  password += numbers.pick(1);
+  password = password.shuffle();
+
+  return password;
+}
+
 
 function mergeCSVs(csv){
   for(let i = 1; i < csv.length; i++) {
@@ -80,9 +106,12 @@ function mergeCSVs(csv){
   return result;
 }
 
-async function sendJson(text){
-  const jsonArray = await csv().fromString(text);
-  console.log(jsonArray);
+async function sendJson(){
+  
+  for(let i = 0; i < jsonArray.length; i++) {
+    jsonArray[i].hashed_password = generateStartingPass();
+  }
+
   try {
     const resp = await fetch(
       `${process.env.REACT_APP_SERVER_URL}/usuarios/bulkcreateusuario`,
@@ -94,12 +123,18 @@ async function sendJson(text){
     );
 
     if (resp.status === 200) {
-      console.log("Ok!");
+      window.alert("Alumnos importados exitosamente.");
     }
     
   } catch (error) {
     console.error(error);
   }
+}
+
+async function showImport(theData){
+  jsonArray = await csv().fromString(theData);
+  setData(jsonArray);
+  enableButton = false;
 }
 
 async function readFile() {
@@ -121,7 +156,7 @@ async function readFile() {
     .filter(line => line.trim() !== "")
     .join("\n"); mergeCSVs(fileContents);
 
-    sendJson(result);
+    showImport(result);
    
 })
 
@@ -131,7 +166,7 @@ async function readFile() {
     <Layout>
   
 <div className="w-full lg:px-6 pt-5">
-  <h4>Importar Estudiantes</h4>
+  <center><h4>Importar Estudiantes</h4></center>
 
     <div className="Upload">
       <div>
@@ -151,12 +186,12 @@ async function readFile() {
       )}
 
       <label className="btn btn-default">
-        <input type="file" multiple="multiple" id="fileUpload"/>
+        <input type="file" onChange ={readFile} multiple="multiple" id="fileUpload"/>
       </label>
 
       <button
         className="btn btn-success"
-        onClick={readFile}
+        onClick={sendJson}
       >
         Upload
       </button>
