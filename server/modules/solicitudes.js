@@ -3,8 +3,8 @@ const knex = require("../db");
 const createSolicitud = async function (req, res) {
   const {
     id_usuario,
-    id_profesor,
     id_materia,
+    id_seccion,
     title,
     description,
     tipo,
@@ -17,8 +17,8 @@ const createSolicitud = async function (req, res) {
       .returning("id_solicitud")
       .insert({
         id_usuario: id_usuario,
-        id_profesor: id_profesor,
         id_materia: id_materia,
+        id_seccion: id_seccion,
         titulo: title,
         descripcion: description,
         tipo: tipo,
@@ -33,16 +33,16 @@ const createSolicitud = async function (req, res) {
   }
 };
 
-const getSolicitudesByIdUsuarioIdMateria = async function (req, res) {
-  const { id_profesor, id_materia } = req.params;
+const getSolicitudesByIdUsuarioIdSeccion = async function (req, res) {
+  const { id_usuario, id_seccion } = req.params;
   console.log(req.params);
   try {
     const solicitudes = await knex
       .select(
         "id_solicitud as id",
         "id_usuario",
-        "id_profesor",
         "id_materia",
+        "id_seccion",
         "titulo as title",
         "hora_inicio as start",
         "hora_final as end",
@@ -50,8 +50,8 @@ const getSolicitudesByIdUsuarioIdMateria = async function (req, res) {
         "tipo"
       )
       .from("solicitudes")
-      .where({ id_profesor: id_profesor })
-      .andWhere({ id_materia: id_materia });
+      .where({ id_usuario: id_usuario })
+      .andWhere({ id_seccion: id_seccion });
     res.json(solicitudes);
   } catch (error) {
     res.status(400).send(error);
@@ -59,16 +59,15 @@ const getSolicitudesByIdUsuarioIdMateria = async function (req, res) {
   }
 };
 
-const getSolicitudesUsuariosByIdUsuarioIdMateria = async function (req, res) {
-  const { id_usuario, id_materia } = req.params;
-  console.log(req.params);
+const getSolicitudesUsuariosByIdSeccion = async function (req, res) {
+  const { id_seccion } = req.body;
   try {
     const solicitudes = await knex
       .select(
         "solicitudes.id_solicitud as id",
         "solicitudes.id_usuario",
-        "solicitudes.id_profesor",
         "solicitudes.id_materia",
+        "solicitudes.id_seccion",
         "solicitudes.titulo as title",
         "solicitudes.hora_inicio as start",
         "solicitudes.hora_final as end",
@@ -78,36 +77,7 @@ const getSolicitudesUsuariosByIdUsuarioIdMateria = async function (req, res) {
         "usuarios.email"
       )
       .from("solicitudes")
-      .where({ id_profesor: id_usuario })
-      .andWhere({ id_materia: id_materia })
-      .join("usuarios", "usuarios.id_usuario", "solicitudes.id_usuario");
-    res.json(solicitudes);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
-
-const getSolicitudesUsuariosByIdUsuario = async function (req, res) {
-  const { id_usuario } = req.params;
-  console.log(req.params);
-  try {
-    const solicitudes = await knex
-      .select(
-        "solicitudes.id_solicitud as id",
-        "solicitudes.id_usuario",
-        "solicitudes.id_profesor",
-        "solicitudes.id_materia",
-        "solicitudes.titulo as title",
-        "solicitudes.hora_inicio as start",
-        "solicitudes.hora_final as end",
-        "solicitudes.descripcion as desc",
-        "solicitudes.tipo",
-        "usuarios.nombre",
-        "usuarios.email"
-      )
-      .from("solicitudes")
-      .where({ id_profesor: id_usuario })
+      .whereIn("id_seccion", id_seccion)
       .join("usuarios", "usuarios.id_usuario", "solicitudes.id_usuario");
     res.json(solicitudes);
   } catch (error) {
@@ -150,9 +120,8 @@ const deleteSolicitud = async function (req, res) {
 
 module.exports = {
   createSolicitud,
-  getSolicitudesByIdUsuarioIdMateria,
-  getSolicitudesUsuariosByIdUsuarioIdMateria,
-  getSolicitudesUsuariosByIdUsuario,
+  getSolicitudesByIdUsuarioIdSeccion,
+  getSolicitudesUsuariosByIdSeccion,
   deleteSolicitud,
   editSolicitud,
 };

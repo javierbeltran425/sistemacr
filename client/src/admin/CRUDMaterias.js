@@ -20,6 +20,7 @@ const CRUDmaterias = () => {
     id_materia: "",
     nombre: "",
     uv: "",
+    numsecciones: null,
   });
   const [carreras, setCarreras] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -39,7 +40,6 @@ const CRUDmaterias = () => {
             method: "DELETE",
           }
         );
-        const json = await resp.json();
         if (resp.status == 200) {
           console.log("Ok!");
           getAllMaterias();
@@ -68,7 +68,12 @@ const CRUDmaterias = () => {
         `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
       );
       const json = await resp.json();
-      setCarreras(json);
+      if (json.length > 0) {
+        json.sort(function (a, b) {
+          return a.nombre.localeCompare(b.nombre);
+        });
+        setCarreras(json);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -77,8 +82,14 @@ const CRUDmaterias = () => {
   const columns = [
     { id: "id_materia", label: "ID", minWidth: 10, align: "left" },
     { id: "nombre", label: "Nombre", minWidth: 170, align: "left" },
-    { id: "uv", label: "UVs", minWidth: 170, align: "left" },
+    { id: "uv", label: "UVs", minWidth: 10, align: "left" },
     { id: "carreras", label: "Carreras", minWidth: 170, align: "left" },
+    {
+      id: "numsecciones",
+      label: "Número de secciones",
+      minWidth: 170,
+      align: "left",
+    },
   ];
 
   const handleChangePage = (event, newPage) => {
@@ -176,6 +187,7 @@ const CRUDmaterias = () => {
                                     id_materia: row.id_materia,
                                     nombre: row.nombre,
                                     uv: row.uv,
+                                    numsecciones: row.numsecciones,
                                   });
                                   setMode("edit");
                                   handleOpen();

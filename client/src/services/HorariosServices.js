@@ -8,17 +8,17 @@ export const registrarHorario = async (data) => {
   });
 };
 
-export const getHorariosUsuarioMateria = async (id_usuario, id_materia) => {
+export const getHorariosByIdSeccion = async (id_seccion) => {
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_SERVER_URL}/horarios/getmateriasidusuarioidmateria/${id_usuario}/${id_materia}`,
+    url: `${process.env.REACT_APP_SERVER_URL}/horarios/gethorariosbyidseccion/${id_seccion}`,
   });
 };
 
-export const getHorariosUsuario = async (id_usuario) => {
+export const getHorariosByIdUsuario = async (id_usuario) => {
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_SERVER_URL}/horarios/getmateriasidusuario/${id_usuario}`,
+    url: `${process.env.REACT_APP_SERVER_URL}/horarios/gethorariosbyidusuario/${id_usuario}`,
   });
 };
 

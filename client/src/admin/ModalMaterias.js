@@ -10,8 +10,9 @@ import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import Chip from "@mui/material/Chip";
 import OutlinedInput from "@mui/material/OutlinedInput";
+import PropTypes from "prop-types";
 
-const ModalCarreras = ({
+const ModalMaterias = ({
   mode,
   showModal,
   handleOpen,
@@ -25,6 +26,7 @@ const ModalCarreras = ({
     id_materia: editMode ? materiaToEdit.id_materia : "",
     nombre: editMode ? materiaToEdit.nombre : "",
     uv: editMode ? materiaToEdit.uv : 0,
+    numsecciones: editMode ? materiaToEdit.numsecciones : 1,
     carreras: [],
   });
 
@@ -128,10 +130,28 @@ const ModalCarreras = ({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h4" component="h2">
+          <Typography
+            id="modal-modal-title"
+            variant="h4"
+            component="h2"
+            sx={{ marginBottom: 2 }}
+          >
             {editMode ? "Editando materia..." : "Nueva materia"}
           </Typography>
           <form>
+            {!editMode && (
+              <FormControl fullWidth>
+                <TextField
+                  id="filled-basic"
+                  label="ID"
+                  variant="filled"
+                  name="id_materia"
+                  value={newMateria.id_materia}
+                  onChange={handleChange}
+                  sx={{ my: 2 }}
+                />
+              </FormControl>
+            )}
             <FormControl fullWidth>
               <TextField
                 id="filled-basic"
@@ -140,7 +160,7 @@ const ModalCarreras = ({
                 name="nombre"
                 value={newMateria.nombre}
                 onChange={handleChange}
-                sx={{ m: 2 }}
+                sx={{ my: 2 }}
               />
             </FormControl>
             <FormControl fullWidth>
@@ -150,12 +170,13 @@ const ModalCarreras = ({
                 variant="filled"
                 name="uv"
                 type="number"
+                InputProps={{ inputProps: { min: "0", max: "10" } }}
                 value={newMateria.uv}
                 onChange={handleChange}
-                sx={{ m: 2 }}
+                sx={{ my: 2 }}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ my: 1 }}>
+            <FormControl fullWidth sx={{ my: 2 }}>
               <InputLabel id="demo-multiple-chip-label">Carreras</InputLabel>
               <Select
                 labelId="demo-multiple-chip-label"
@@ -200,10 +221,25 @@ const ModalCarreras = ({
                   </MenuItem>
                 ))}
               </Select>
-              <br />
+            </FormControl>
+            <FormControl fullWidth>
+              <TextField
+                id="filled-basic"
+                label="Número de secciones"
+                variant="filled"
+                name="numsecciones"
+                type="number"
+                InputProps={{ inputProps: { min: "1", max: "10" } }}
+                value={newMateria.numsecciones}
+                onChange={handleChange}
+                sx={{ my: 2 }}
+              />
+            </FormControl>
+            <FormControl fullWidth sx={{ my: 2 }}>
               <Button
                 type="submit"
                 onClick={editMode ? editMateria : createMateria}
+                sx={{ mx: "auto" }}
               >
                 Guardar
               </Button>
@@ -215,4 +251,14 @@ const ModalCarreras = ({
   );
 };
 
-export default ModalCarreras;
+export default ModalMaterias;
+
+ModalMaterias.propTypes = {
+  mode: PropTypes.string,
+  showModal: PropTypes.bool,
+  handleOpen: PropTypes.func,
+  handleClose: PropTypes.func,
+  getAllMaterias: PropTypes.func,
+  materiaToEdit: PropTypes.object,
+  carreras: PropTypes.array,
+};

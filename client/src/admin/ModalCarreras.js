@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import FormControl from "@mui/material/FormControl";
+import PropTypes from "prop-types";
 
 const ModalCarreras = ({
   mode,
@@ -97,10 +98,28 @@ const ModalCarreras = ({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h4" component="h2">
+          <Typography
+            id="modal-modal-title"
+            variant="h4"
+            component="h2"
+            sx={{ marginBottom: 2 }}
+          >
             {mode == "edit" ? "Editando carrera..." : "Nueva carrera"}
           </Typography>
           <form>
+            {!editMode && (
+              <FormControl fullWidth>
+                <TextField
+                  id="filled-basic"
+                  label="ID"
+                  variant="filled"
+                  name="id_carrera"
+                  value={newCarrera.id_carrera}
+                  onChange={handleChange}
+                  sx={{ my: 2 }}
+                />
+              </FormControl>
+            )}
             <FormControl fullWidth>
               <TextField
                 id="filled-basic"
@@ -109,7 +128,7 @@ const ModalCarreras = ({
                 name="nombre"
                 value={newCarrera.nombre}
                 onChange={handleChange}
-                sx={{ m: 2 }}
+                sx={{ my: 2 }}
               />
             </FormControl>
             <FormControl fullWidth>
@@ -120,13 +139,14 @@ const ModalCarreras = ({
                 name="facultad"
                 value={newCarrera.facultad}
                 onChange={handleChange}
-                sx={{ m: 2 }}
+                sx={{ my: 2 }}
               />
             </FormControl>
-            <FormControl sx={{ m: 1, width: 300 }}>
+            <FormControl fullWidth sx={{ my: 2 }}>
               <Button
                 type="submit"
                 onClick={editMode ? editCarrera : createCarrera}
+                sx={{ mx: "auto" }}
               >
                 Guardar
               </Button>
@@ -139,3 +159,12 @@ const ModalCarreras = ({
 };
 
 export default ModalCarreras;
+
+ModalCarreras.propTypes = {
+  mode: PropTypes.string,
+  showModal: PropTypes.bool,
+  handleOpen: PropTypes.func,
+  handleClose: PropTypes.func,
+  getAllCarreras: PropTypes.func,
+  carreraToEdit: PropTypes.object,
+};

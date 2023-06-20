@@ -42,6 +42,7 @@ const Login = () => {
       setCookie("id_usuario", data.id_usuario);
       setCookie("email", data.email);
       setCookie("authToken", data.token);
+      setCookie("nombre", data.nombre)
       window.location.reload();
     }
   };

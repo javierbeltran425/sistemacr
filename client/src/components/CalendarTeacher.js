@@ -11,7 +11,6 @@ import TextField from "@mui/material/TextField";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
-import { Dropdown } from "primereact/dropdown";
 import { ContextUsuario } from "../context/usuario";
 import "../constants/usuario";
 import "../styles/Calendar.css";
@@ -28,18 +27,16 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 
 // constantes
-import { USUARIO_ROLES } from "../constants/usuario";
 import { SOLICITUDES_TIPOS_ARRAY } from "../constants/solicitudes";
 
 // servicios
-import { getMateriasByIdUsuario } from "../services/MateriasServices";
+import { getSeccionesByIdUsuario } from "../services/Secciones";
 import {
-  getHorariosUsuarioMateria,
-  getHorariosUsuario,
+  getHorariosByIdSeccion,
+  getHorariosByIdUsuario,
 } from "../services/HorariosServices";
 import {
-  getSolicitudesUsuariosByIdUsuarioIdMateria,
-  getSolicitudesUsuariosByIdUsuario,
+  getSolicitudesUsuariosByIdSeccion,
   deleteSolicitud,
   editSolicitud,
 } from "../services/SolicitudesServices";
@@ -77,33 +74,33 @@ class CalendarAlt extends React.Component {
       end: "",
       desc: "",
       tipo: "",
-      materias: [],
-      materiaSeleccionada: null,
+      secciones: [],
+      seccionSeleccionada: null,
       openSlot: false,
       openEvent: false,
       nombre: "",
       email: "",
-      id_materia: null,
+      id_seccion: null,
       clickedEvent: {},
     };
     this.handleClose = this.handleClose.bind(this);
   }
 
   componentDidMount() {
-    this.getMateriasByIdUsuario();
+    this.getSeccionesByIdUsuario();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.materiaSeleccionada !== this.state.materiaSeleccionada) {
-      this.getHorariosUsuarioMateria();
-      this.getSolicitudesByIdUsuarioIdMateria();
+    if (prevState.seccionSeleccionada !== this.state.seccionSeleccionada) {
+      this.getHorariosByIdSeccion();
+      this.getSolicitudes();
     }
   }
 
   // función para recuperar las materias
-  getMateriasByIdUsuario = async () => {
+  getSeccionesByIdUsuario = async () => {
     try {
-      const response = await getMateriasByIdUsuario(
+      const response = await getSeccionesByIdUsuario(
         this.context.id_usuario
       ).catch((err) => {
         console.error(err);
@@ -115,16 +112,17 @@ class CalendarAlt extends React.Component {
       if (response.status === 200) {
         if (response.data) {
           this.setState({
-            materias: [
+            secciones: [
               {
                 id_materia: -1,
+                id_seccion: -1,
                 id_profesor: -1,
                 nombre: "Todas mis materias",
                 uv: "",
               },
               ...response.data,
             ],
-            materiaSeleccionada: response.data[0],
+            seccionSeleccionada: response.data[0],
           });
         }
       }
@@ -133,19 +131,15 @@ class CalendarAlt extends React.Component {
     }
   };
 
-  getHorariosUsuarioMateria = async () => {
+  getHorariosByIdSeccion = async () => {
     try {
-      console.log("Materia seleccionada: ", this.state.materiaSeleccionada);
+      console.log("Materia seleccionada: ", this.state.seccionSeleccionada);
       let response;
-      if (this.state.materiaSeleccionada.id_materia === -1) {
-        response = await getHorariosUsuario(
-          this.context.id_usuario,
-          this.state.materiaSeleccionada.id_materia
-        );
+      if (this.state.seccionSeleccionada.id_seccion === -1) {
+        response = await getHorariosByIdUsuario(this.context.id_usuario);
       } else {
-        response = await getHorariosUsuarioMateria(
-          this.context.id_usuario,
-          this.state.materiaSeleccionada.id_materia
+        response = await getHorariosByIdSeccion(
+          this.state.seccionSeleccionada.id_seccion
         );
       }
       // console.log("🚀 ~ file: CalendarAlt.js:80 ~ CalendarAlt ~ response ~ response:", response)
@@ -168,19 +162,17 @@ class CalendarAlt extends React.Component {
     }
   };
 
-  getSolicitudesByIdUsuarioIdMateria = async () => {
+  getSolicitudes = async () => {
     try {
       let response;
-      if (this.state.materiaSeleccionada.id_materia === -1) {
-        response = await getSolicitudesUsuariosByIdUsuario(
-          this.context.id_usuario,
-          this.state.materiaSeleccionada.id_materia
-        );
+      if (this.state.seccionSeleccionada.id_seccion === -1) {
+        response = await getSolicitudesUsuariosByIdSeccion({
+          id_seccion: this.state.secciones.map((e) => e.id_seccion),
+        });
       } else {
-        response = await getSolicitudesUsuariosByIdUsuarioIdMateria(
-          this.context.id_usuario,
-          this.state.materiaSeleccionada.id_materia
-        );
+        response = await getSolicitudesUsuariosByIdSeccion({
+          id_seccion: [this.state.seccionSeleccionada.id_seccion],
+        });
       }
       if (response.status === 200) {
         const json = response.data;
@@ -223,7 +215,6 @@ class CalendarAlt extends React.Component {
     this.setState({
       openEvent: true,
       clickedEvent: event,
-      id_materia: event.id_materia,
       start: event.start,
       end: event.end,
       title: event.title,
@@ -231,6 +222,7 @@ class CalendarAlt extends React.Component {
       tipo: event.tipo,
       nombre: event.nombre,
       email: event.email,
+      id_seccion: event.id_seccion,
     });
   }
 
@@ -258,13 +250,13 @@ class CalendarAlt extends React.Component {
   async setNewAppointment() {
     const { start, end, title, desc, tipo } = this.state;
     const id_usuario = this.context.id_usuario;
-    const id_profesor = this.state.materiaSeleccionada.id_profesor;
-    const id_materia = this.state.materiaSeleccionada.id_materia;
+    const id_materia = this.state.seccionSeleccionada.id_seccion;
+    const id_seccion = this.seccionSeleccionada.id_seccion;
 
     const data = {
       id_usuario: id_usuario,
-      id_profesor: id_profesor,
       id_materia: id_materia,
+      id_seccion: id_seccion,
       title: title,
       description: desc,
       tipo: tipo,
@@ -287,8 +279,8 @@ class CalendarAlt extends React.Component {
         let appointment = {
           id: json[0].id_solicitud,
           id_usuario,
-          id_profesor,
           id_materia,
+          id_seccion,
           title,
           start,
           end,
@@ -307,7 +299,8 @@ class CalendarAlt extends React.Component {
 
   //  Updates Existing Appointments Title and/or Description
   async updateEvent() {
-    const { title, desc, tipo, start, end, events, clickedEvent } = this.state;
+    const { title, desc, tipo, start, end, events, clickedEvent, email } =
+      this.state;
     const index = events.findIndex((event) => event === clickedEvent);
     const updatedEvent = events.slice();
     updatedEvent[index].title = title;
@@ -335,10 +328,13 @@ class CalendarAlt extends React.Component {
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
+
+    this.envioNotificacionModifica(email);
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
+    const { email } = this.state;
     let eventToDelete = this.state.events.find(
       (event) => event["start"] === this.state.start
     );
@@ -358,30 +354,55 @@ class CalendarAlt extends React.Component {
       response
     );
 
-    this.envioNotificacionRechazo()
+    this.envioNotificacionRechazo(email);
   }
 
-  envioNotificacionRechazo = async () => {
+  envioNotificacionRechazo = async (email) => {
     try {
       const body = {
-        sendemail: "htjavier621@gmail.com",
+        sendemail: email,
         emailcontent: `
           <h1>Correo automatico del sistema de solicitudes DEI</h1>
           <br/>
-          <p>Estimado estudiante, se le notifica que el catdrático ha rechazado su solicitud de espacio para consulta/rebición</p>
+          <p>Estimado estudiante, se le notifica que el catedrático ha rechazado su solicitud de espacio para consulta/rebición</p>
           <p>Se recomienta ponerse en contacto con su catedrático para analizar más opciones</p>
-        `
-      }
+        `,
+      };
 
-      const response = await EnviaNotificacione(body).catch(err => {
+      const response = await EnviaNotificacione(body).catch((err) => {
         console.error(err);
-      })
-      console.log("🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:", response)
-
+      });
+      console.log(
+        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
+        response
+      );
     } catch (error) {
       console.error(error);
     }
-  }
+  };
+
+  envioNotificacionModifica = async (email) => {
+    try {
+      const body = {
+        sendemail: email,
+        emailcontent: `
+          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <br/>
+          <p>Estimado estudiante, se le notifica que el catedrático ha hecho una modificación en su solicitud.</p>
+        `,
+      };
+
+      const response = await EnviaNotificacione(body).catch((err) => {
+        console.error(err);
+      });
+      console.log(
+        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
+        response
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   concurrentEventExists = (slotInfo) => {
     return this.state.events.some(
@@ -425,49 +446,67 @@ class CalendarAlt extends React.Component {
       return;
     };
 
-    const customEventPropGetter = (event) => {
-      if (event.id_usuario != this.context.id_usuario)
-        return {
-          style: { backgroundColor: "#adb5bd", borderColor: "#adb5bd" },
-        };
-    };
-
     return (
       <div id="Calendar">
-        <div className="flex w-full justify-content-end mb-5 lg:mb-0">
-          <Dropdown
-            value={this.state.materiaSeleccionada}
-            options={this.state.materias}
-            optionLabel="nombre"
-            onChange={(e) => this.setState({ materiaSeleccionada: e.value })}
-            placeholder="Seleccione una materia"
-            emptyMessage="No hay datos"
-            className="lg:hidden"
-          />
-        </div>
+        <Box
+          sx={{ minWidth: 120, maxWidth: "80%" }}
+          className="flex w-full justify-content-end mb-5 lg:mb-0 mx-auto"
+        >
+          <FormControl fullWidth className="lg:hidden">
+            <InputLabel id="demo-simple-select-label"></InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={this.state?.seccionSeleccionada}
+              label=""
+              onChange={(value) =>
+                this.setState({
+                  seccionSeleccionada: value.target.value,
+                })
+              }
+            >
+              {this.state.secciones.map((seccion) => (
+                <MenuItem key={seccion.id_seccion} value={seccion}>
+                  {`${seccion.nombre} (Sección ${seccion.numero})`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
         <Box
           sx={{ bgcolor: "background.paper", marginBottom: 5 }}
           className="hidden lg:flex"
         >
           <Tabs
-            value={this.state.materiaSeleccionada}
+            value={this.state.seccionSeleccionada}
             onChange={(e, element) => {
-              this.setState({ materiaSeleccionada: element });
+              this.setState({
+                seccionSeleccionada: element,
+              });
             }}
             variant="scrollable"
             scrollButtons
             allowScrollButtonsMobile
             aria-label="scrollable force tabs example"
           >
-            {this.state.materias.map((materia) => (
+            {this.state.secciones.map((seccion) => (
               <Tab
-                value={materia}
-                key={materia.id_materia}
-                label={materia.nombre}
+                value={seccion}
+                key={seccion.id_seccion}
+                label={
+                  <div>
+                    <Typography>{seccion.nombre}</Typography>
+                    <Typography sx={{ textTransform: "none" }}>
+                      Sección {seccion.numero}
+                    </Typography>
+                  </div>
+                }
               />
             ))}
           </Tabs>
         </Box>
+
         {/* react-big-calendar library utilized to render calendar*/}
         <Calendar
           messages={this.messages}
@@ -488,7 +527,7 @@ class CalendarAlt extends React.Component {
           onSelectEvent={(event) => {
             this.handleEventSelected(event);
           }}
-        /*onSelectSlot={(slotInfo) => {
+          /*onSelectSlot={(slotInfo) => {
           !this.concurrentEventExists(slotInfo) &&
           this.fitsOnSchedule(slotInfo)
             ? this.handleSlotSelected(slotInfo)
@@ -641,10 +680,17 @@ class CalendarAlt extends React.Component {
                   {`Email: ${this.state.email}`}
                 </Typography>
                 <Typography sx={{ mb: 1.5 }} variant="body2">
-                  {`Grupo: ${this.state.materias.find(
-                    (item) => item.id_materia == this.state.id_materia
-                  )?.nombre
-                    }`}
+                  {`Grupo: ${
+                    this.state.secciones.find(
+                      (item) => item.id_seccion == this.state.id_seccion
+                    )?.nombre
+                  } (Sección 
+                  ${
+                    this.state.secciones.find(
+                      (item) => item.id_seccion == this.state.id_seccion
+                    )?.numero
+                  }
+                  )`}
                 </Typography>
               </CardContent>
             </Card>

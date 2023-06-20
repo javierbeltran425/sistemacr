@@ -8,13 +8,14 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
-import Chip from "@mui/material/Chip";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import "../constants/usuario";
-import { USUARIO_ROLES, USUARIO_ROLES_ARRAY } from "../constants/usuario";
+import { USUARIO_ROLES_ARRAY } from "../constants/usuario";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import PropTypes from "prop-types";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Chip from "@mui/material/Chip";
 
 const ModalUsuarios = ({
   mode,
@@ -25,7 +26,6 @@ const ModalUsuarios = ({
   usuarioToEdit,
   carreras,
   materias,
-  profesores,
 }) => {
   const editMode = mode === "edit" ? true : false;
 
@@ -114,12 +114,6 @@ const ModalUsuarios = ({
         `${process.env.REACT_APP_SERVER_URL}/materias/getmateriasbyidusuario/${newUsuario.id_usuario}`
       );
       const json = await resp.json();
-      var arr1 = [];
-      var arr2 = [];
-      json.forEach((element) => {
-        arr1.push(element.id_materia);
-        arr2.push(element.id_profesor);
-      });
       setNewMaterias(json);
     } catch (error) {
       console.error(error);
@@ -148,10 +142,14 @@ const ModalUsuarios = ({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h4" component="h2">
+          <Typography
+            id="modal-modal-title"
+            variant="h4"
+            component="h2"
+            sx={{ marginBottom: 2 }}
+          >
             {editMode ? "Editando usuario..." : "Nuevo usuario"}
           </Typography>
-          <br />
           <form>
             {!editMode && (
               <FormControl fullWidth>
@@ -162,7 +160,7 @@ const ModalUsuarios = ({
                   name="email"
                   value={newUsuario.email}
                   onChange={handleChange}
-                  sx={{ m: 1 }}
+                  sx={{ my: 1 }}
                 />
               </FormControl>
             )}
@@ -174,7 +172,7 @@ const ModalUsuarios = ({
                 name="nombre"
                 value={newUsuario.nombre}
                 onChange={handleChange}
-                sx={{ m: 1 }}
+                sx={{ my: 1 }}
               />
             </FormControl>
             {!editMode && (
@@ -186,7 +184,7 @@ const ModalUsuarios = ({
                   name="password"
                   value={newUsuario.password}
                   onChange={handleChange}
-                  sx={{ m: 1 }}
+                  sx={{ my: 1 }}
                 />
               </FormControl>
             )}
@@ -228,82 +226,37 @@ const ModalUsuarios = ({
                 ))}
               </Select>
             </FormControl>
-            <br />
-            <br />
-            {/*
-            <FormControl sx={{ m: 1, width: 300 }}>
-              <InputLabel id="demo-multiple-chip-label">Materias</InputLabel>
-              <Select
-                labelId="demo-multiple-chip-label"
-                id="demo-multiple-chip"
-                multiple
-                name="materias"
-                value={newUsuario.materias}
-                onChange={handleChange}
-                input={
-                  <OutlinedInput id="select-multiple-chip" label="Materias" />
-                }
-                renderValue={(selected) => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip
-                        key={value}
-                        label={
-                          materias.find((materia) => {
-                            return materia.id_materia == value;
-                          }).nombre
-                        }
-                      />
-                    ))}
-                  </Box>
-                )}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 48 * 4.5 + 8,
-                      width: 250,
-                    },
-                  },
-                }}
-              >
-                {materias.map((materia) => (
-                  <MenuItem
-                    key={materia.id_materia}
-                    value={materia.id_materia}
-                    style={null}
-                  >
-                    {materia.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-                <br />
-                */}
             <Typography
               id="modal-modal-title"
               variant="h6"
-              sx={{ textAlign: "center" }}
+              sx={{ textAlign: "center", marginTop: 2 }}
             >
               Materias
             </Typography>
-            {newMaterias.map((materia, index) => (
+            {newMaterias.map((newMateria, index) => (
               <div
-                key={materia.id_materia}
+                key={newMateria.id_materia}
                 style={{ display: "flex", alignItems: "center" }}
               >
-                <FormControl fullWidth sx={{ m: 1 }}>
+                <FormControl fullWidth sx={{ my: 1 }}>
                   <InputLabel id="demo-simple-select-label">Materia</InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     name="materias"
-                    value={materia.id_materia}
+                    value={newMateria.id_materia}
                     label="Materia"
                     onChange={(e) => {
                       let arr = [...newMaterias];
                       arr[index].id_materia = e.target.value;
-                      arr[index].id_profesor = null;
+                      arr[index].arrsecciones = [];
                       setNewMaterias(arr);
+                      console.log(
+                        materias.find(
+                          (materia) =>
+                            materia.id_materia == newMateria.id_materia
+                        ).id_materia
+                      );
                     }}
                   >
                     {materias.map((element) => (
@@ -318,46 +271,82 @@ const ModalUsuarios = ({
                     ))}
                   </Select>
                 </FormControl>
-                {newUsuario.rol != USUARIO_ROLES.PROFESOR && (
-                  <FormControl fullWidth sx={{ m: 1 }}>
-                    <InputLabel id="demo-simple-select-label">
-                      Profesor
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      name="profesores"
-                      value={materia.id_profesor}
-                      label="Profesor"
-                      onChange={(e) => {
-                        let arr = [...newMaterias];
-                        arr[index].id_profesor = e.target.value;
-                        setNewMaterias(arr);
-                      }}
-                    >
-                      {profesores
-                        .filter((profesor) => {
-                          return profesor.id_materia.includes(
-                            materia.id_materia
-                          );
-                        })
-                        .map((element) => (
-                          <MenuItem
-                            key={element.id_usuario}
-                            value={element.id_usuario}
-                            style={null}
-                          >
-                            {element.nombre}
-                          </MenuItem>
+
+                <FormControl fullWidth sx={{ my: 2 }}>
+                  <InputLabel id="demo-multiple-chip-label">
+                    Secciones
+                  </InputLabel>
+                  <Select
+                    labelId="demo-multiple-chip-label"
+                    id="demo-multiple-chip"
+                    multiple
+                    name="arrsecciones"
+                    value={newMateria.arrsecciones}
+                    onChange={(e) => {
+                      let arr = [...newMaterias];
+                      arr[index].arrsecciones = e.target.value;
+                      setNewMaterias(arr);
+                    }}
+                    input={
+                      <OutlinedInput
+                        id="select-multiple-chip"
+                        label="Secciones"
+                      />
+                    }
+                    renderValue={(selected) => (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 0.5,
+                          maxHeight: 3,
+                        }}
+                      >
+                        {selected.sort().map((value) => (
+                          <Chip
+                            key={value}
+                            label={
+                              materias
+                                .find(
+                                  (e) => e.id_materia == newMateria.id_materia
+                                )
+                                .arrsecciones.find((e) => e.id_seccion == value)
+                                .numero
+                            }
+                          />
                         ))}
-                    </Select>
-                  </FormControl>
-                )}
+                      </Box>
+                    )}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 48 * 4.5 + 8,
+                          width: 250,
+                        },
+                      },
+                    }}
+                  >
+                    {materias
+                      .find(
+                        (materia) => materia.id_materia == newMateria.id_materia
+                      )
+                      ?.arrsecciones.map((e) => (
+                        <MenuItem
+                          key={e.id_seccion}
+                          value={e.id_seccion}
+                          style={null}
+                        >
+                          {`Sección ${e.numero}`}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+
                 <FormControl style={null}>
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={(e) => {
+                    onClick={() => {
                       setNewMaterias((newMaterias) =>
                         newMaterias.filter((s, i) => i != index)
                       );
@@ -376,9 +365,7 @@ const ModalUsuarios = ({
                       ...newMaterias,
                       {
                         id_materia: null,
-                        id_profesor: null,
-                        nombre: "",
-                        uv: null,
+                        arrsecciones: [],
                       },
                     ]);
                   }}
@@ -388,11 +375,11 @@ const ModalUsuarios = ({
                 </IconButton>
               </FormControl>
             </div>
-            <FormControl fullWidth>
+            <FormControl fullWidth sx={{ my: 1 }}>
               <Button
                 type="submit"
                 onClick={editMode ? editUsuario : createUsuario}
-                sx={{ mt: 1 }}
+                sx={{ mx: "auto" }}
               >
                 Guardar
               </Button>
@@ -405,3 +392,14 @@ const ModalUsuarios = ({
 };
 
 export default ModalUsuarios;
+
+ModalUsuarios.propTypes = {
+  mode: PropTypes.string,
+  showModal: PropTypes.bool,
+  handleOpen: PropTypes.func,
+  handleClose: PropTypes.func,
+  getAllUsuarios: PropTypes.func,
+  usuarioToEdit: PropTypes.object,
+  carreras: PropTypes.array,
+  materias: PropTypes.array,
+};

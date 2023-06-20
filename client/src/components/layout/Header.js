@@ -16,6 +16,7 @@ const Header = () => {
   const [cookies, setCookie, removeCookie] = useCookies(null);
   const [titulo, setTitulo] = useState('')
   const usuario = useContext(ContextUsuario);
+  console.log("🚀 ~ file: Header.js:19 ~ Header ~ usuario:", usuario)
 
   useEffect(() => {
     tituloHeader()
@@ -26,6 +27,7 @@ const Header = () => {
     removeCookie("id_usuario");
     removeCookie("email");
     removeCookie("authToken");
+    removeCookie("nombre");
     window.location.reload();
   };
 
@@ -55,16 +57,12 @@ const Header = () => {
     const location = window.location.hash
     console.log("🚀 ~ file: Header.js:50 ~ titulo ~ location:", location)
 
-    switch (location) {
-      case '/':
+    switch (usuario.rol) {
+      case 'estudiante':
         setTitulo('Panel de estudiantes')
         break;
 
-      case '#/':
-        setTitulo('Panel de estudiantes')
-        break;
-
-      case '#/teacher':
+      case 'profesor':
         setTitulo('Panel de catedraticos')
         break;
 
@@ -74,6 +72,30 @@ const Header = () => {
 
   }
 
+  const headerTemplate = () => {
+    switch (usuario.rol) {
+      case 'estudiante':
+        return (
+          <></>
+        )
+
+      case 'profesor':
+        return (
+          <div className="flex flex-row gap-6">
+            <p className="cursor-pointer hover:text-blue-500" onClick={() => {
+              navigate('/teacher')
+            }} >Definición de horarios</p>
+            <p className="cursor-pointer hover:text-blue-500" onClick={() => {
+              navigate('/')
+            }} >Solicitudes</p>
+          </div>
+        )
+    
+      default:
+        break;
+    }
+  }
+
   useEffect(() => { }, []);
 
   return (
@@ -81,6 +103,8 @@ const Header = () => {
       <div>
         <p className="font-bold">{titulo}</p>
       </div>
+
+      {headerTemplate()}
       {/* <div>
         <Button
           icon="pi pi-bars"
@@ -115,7 +139,7 @@ const Header = () => {
       </div> */}
       <div className="flex gap-2 p-2 align-items-center">
         <div>
-          <h5 className="p-0 m-0">{usuario.email}</h5>
+          <h5 className="p-0 m-0">{cookies.nombre}</h5>
           <p
             onClick={signOut}
             className="p-0 m-0 text-right text-blue-500 cursor-pointer"

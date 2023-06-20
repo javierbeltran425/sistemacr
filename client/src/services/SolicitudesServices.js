@@ -1,29 +1,21 @@
 import axios from "axios";
 
-export const getSolicitudesByIdUsuarioIdMateria = async (
-  id_profesor,
-  id_materia
-) => {
-  return axios({
-    method: "GET",
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesbyidusuarioidmateria/${id_profesor}/${id_materia}`,
-  });
-};
-
-export const getSolicitudesUsuariosByIdUsuarioIdMateria = async (
+export const getSolicitudesByIdUsuarioIdSeccion = async (
   id_usuario,
-  id_materia
+  id_seccion
 ) => {
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesusuariosbyidusuarioidmateria/${id_usuario}/${id_materia}`,
+
+    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesbyidusuarioidseccion/${id_usuario}/${id_seccion}`,
   });
 };
 
-export const getSolicitudesUsuariosByIdUsuario = async (id_usuario) => {
+export const getSolicitudesUsuariosByIdSeccion = async (data) => {
   return axios({
-    method: "GET",
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesusuariosbyidusuario/${id_usuario}`,
+    method: "POST",
+    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesusuariosbyidseccion`,
+    data,
   });
 };
 
