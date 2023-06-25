@@ -38,7 +38,7 @@ const notificaciones = require("./modules/notificaciones");
 // });
 
 // client.initialize();
- 
+
 
 // AUTHENTICATION
 
@@ -98,22 +98,22 @@ app.post("/solicitudes/getsolicitudesusuariosbyidseccion", (req, res) => {
 });
 
 app.get("/solicitudes/getsolicitudesreporte", (req, res) => {
-    solicitudes.getAllSolicitudes(req, res);
-  });
+  solicitudes.getAllSolicitudes(req, res);
+});
 
-  pp.get(
-    "/solicitudes/getsolicitudesusuariosbyidusuarioidmateria/:id_usuario/:id_materia",
-    (req, res) => {
-      solicitudes.getSolicitudesUsuariosByIdUsuarioIdMateria(req, res);
-    }
-  );
-  
-  app.get(
-    "/solicitudes/getsolicitudesusuariosbyidusuario/:id_usuario",
-    (req, res) => {
-      solicitudes.getSolicitudesUsuariosByIdUsuario(req, res);
-    }
-  );
+app.get(
+  "/solicitudes/getsolicitudesusuariosbyidusuarioidmateria/:id_usuario/:id_materia",
+  (req, res) => {
+    solicitudes.getSolicitudesUsuariosByIdUsuarioIdMateria(req, res);
+  }
+);
+
+app.get(
+  "/solicitudes/getsolicitudesusuariosbyidusuario/:id_usuario",
+  (req, res) => {
+    solicitudes.getSolicitudesUsuariosByIdUsuario(req, res);
+  }
+);
 
 app.put("/solicitudes/editsolicitud", (req, res) => {
   solicitudes.editSolicitud(req, res);
@@ -204,3 +204,5 @@ app.post("/notificaciones/envia/", (req, res) => {
 app.post("/notificaciones/whatsapp/", (req, res) => {
   notificaciones.whatsappMail(req, res)
 })
+
+app.listen(port, () => console.log(`Server running on PORT ${port}`));
