@@ -14,7 +14,6 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import ModalUsuarios from "./ModalUsuarios";
 import "../constants/usuario";
-import { USUARIO_ROLES } from "../constants/usuario";
 
 const CRUDusuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -44,7 +43,6 @@ const CRUDusuarios = () => {
             method: "DELETE",
           }
         );
-        const json = await resp.json();
         if (resp.status == 200) {
           console.log("Ok!");
           getAllUsuarios();
@@ -127,9 +125,6 @@ const CRUDusuarios = () => {
           usuarioToEdit={usuarioToEdit}
           carreras={carreras}
           materias={materias}
-          profesores={usuarios.filter((usuarios) => {
-            return usuarios.rol == USUARIO_ROLES.PROFESOR;
-          })}
         />
       )}
       <Card sx={{ minWidth: 275 }}>

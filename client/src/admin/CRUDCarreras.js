@@ -38,7 +38,6 @@ const CRUDcarreras = () => {
             method: "DELETE",
           }
         );
-        const json = await resp.json();
         if (resp.status == 200) {
           console.log("Ok!");
           getAllCarreras();

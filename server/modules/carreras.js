@@ -29,10 +29,11 @@ const getCarrerasByIdMateria = async function (req, res) {
 };
 
 const createCarrera = async function (req, res) {
-  const { nombre, facultad } = req.body;
+  const { id_carrera, nombre, facultad } = req.body;
 
   try {
     const newCarrera = await knex("carreras").insert({
+      id_carrera: id_carrera,
       nombre: nombre,
       facultad: facultad,
     });

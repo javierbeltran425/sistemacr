@@ -59,18 +59,18 @@ export default function AdminView() {
             aria-label="basic tabs example"
           >
             <Tab label="usuarios" {...a11yProps(0)} />
-            <Tab label="carreras" {...a11yProps(1)} />
-            <Tab label="materias" {...a11yProps(2)} />
+            <Tab label="materias" {...a11yProps(1)} />
+            <Tab label="carreras" {...a11yProps(2)} />
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
           <CRUDusuarios />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <CRUDCarreras />
+          <CRUDMaterias />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          <CRUDMaterias />
+          <CRUDCarreras />
         </TabPanel>
       </Box>
     </Layout>

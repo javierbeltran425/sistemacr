@@ -16,6 +16,7 @@ const solicitudes = require("./modules/solicitudes");
 const carreras = require("./modules/carreras");
 const materias = require("./modules/materias");
 const horarios = require("./modules/horarios");
+const secciones = require("./modules/secciones");
 const notificaciones = require("./modules/notificaciones");
 
 // CONEXION CON WHATSAPP
@@ -63,6 +64,10 @@ app.post("/usuarios/createusuario", (req, res) => {
   usuarios.createUsuario(req, res);
 });
 
+app.post("/usuarios/bulkcreateusuario", (req, res) => {
+  usuarios.bulkCreateUsuario(req, res);
+});
+
 app.put("/usuarios/editusuario", (req, res) => {
   usuarios.editUsuario(req, res);
 });
@@ -82,29 +87,33 @@ app.post("/solicitudes/createsolicitud", (req, res) => {
 });
 
 app.get(
-  "/solicitudes/getsolicitudesbyidusuarioidmateria/:id_profesor/:id_materia",
+  "/solicitudes/getsolicitudesbyidusuarioidseccion/:id_usuario/:id_seccion",
   (req, res) => {
-    solicitudes.getSolicitudesByIdUsuarioIdMateria(req, res);
+    solicitudes.getSolicitudesByIdUsuarioIdSeccion(req, res);
   }
 );
 
-app.get(
-  "/solicitudes/getsolicitudesusuariosbyidusuarioidmateria/:id_usuario/:id_materia",
-  (req, res) => {
-    solicitudes.getSolicitudesUsuariosByIdUsuarioIdMateria(req, res);
-  }
-);
-
-app.get(
-  "/solicitudes/getsolicitudesusuariosbyidusuario/:id_usuario",
-  (req, res) => {
-    solicitudes.getSolicitudesUsuariosByIdUsuario(req, res);
-  }
-);
+app.post("/solicitudes/getsolicitudesusuariosbyidseccion", (req, res) => {
+  solicitudes.getSolicitudesUsuariosByIdSeccion(req, res);
+});
 
 app.get("/solicitudes/getsolicitudesreporte", (req, res) => {
     solicitudes.getAllSolicitudes(req, res);
   });
+
+  pp.get(
+    "/solicitudes/getsolicitudesusuariosbyidusuarioidmateria/:id_usuario/:id_materia",
+    (req, res) => {
+      solicitudes.getSolicitudesUsuariosByIdUsuarioIdMateria(req, res);
+    }
+  );
+  
+  app.get(
+    "/solicitudes/getsolicitudesusuariosbyidusuario/:id_usuario",
+    (req, res) => {
+      solicitudes.getSolicitudesUsuariosByIdUsuario(req, res);
+    }
+  );
 
 app.put("/solicitudes/editsolicitud", (req, res) => {
   solicitudes.editSolicitud(req, res);
@@ -168,14 +177,11 @@ app.post("/horarios/creahorario", (req, res) => {
   horarios.createHorario(req, res);
 });
 
-app.get(
-  "/horarios/getmateriasidusuarioidmateria/:id_usuario/:id_materia",
-  (req, res) => {
-    horarios.getHorariosByIdUsuarioIdMateria(req, res);
-  }
-);
+app.get("/horarios/gethorariosbyidseccion/:id_seccion", (req, res) => {
+  horarios.getHorariosByIdSeccion(req, res);
+});
 
-app.get("/horarios/getmateriasidusuario/:id_usuario", (req, res) => {
+app.get("/horarios/getHorariosByIdUsuario/:id_usuario", (req, res) => {
   horarios.getHorariosByIdUsuario(req, res);
 });
 
@@ -183,7 +189,11 @@ app.put("/horarios/deletemateriasidusuarioidmateria/:id_evento", (req, res) => {
   horarios.deleteHorariosByIdUsuarioIdMateria(req, res);
 });
 
-app.listen(port, () => console.log(`Server running on PORT ${port}`));
+// SECCIONES
+
+app.get("/secciones/getseccionesbyidusuario/:id_usuario", (req, res) => {
+  secciones.getSeccionesByIdUsuario(req, res);
+});
 
 // NOTIFICACIONES
 

@@ -11,7 +11,6 @@ import TextField from "@mui/material/TextField";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
-import { Dropdown } from "primereact/dropdown";
 import { ContextUsuario } from "../context/usuario";
 import { InputSwitch } from "primereact/inputswitch";
 import { InputNumber } from "primereact/inputnumber";
@@ -26,15 +25,18 @@ import Stack from "@mui/material/Stack";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { Toast } from 'primereact/toast';
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 
 // servicios
 import {
   deleteHorariosUsuarioMateria,
   registrarHorario,
 } from "../services/HorariosServices";
-import { getMateriasByIdUsuario } from "../services/MateriasServices";
-import { getHorariosUsuario } from "../services/HorariosServices";
-import { USUARIO_ROLES } from "../constants/usuario";
+import { getSeccionesByIdUsuario } from "../services/Secciones";
+import { getHorariosByIdUsuario } from "../services/HorariosServices";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
@@ -69,8 +71,8 @@ class CalendarAlt extends React.Component {
       end: "",
       desc: "",
       identificador: null,
-      materias: [],
-      materiaSeleccionada: null,
+      secciones: [],
+      seccionSeleccionada: null,
       openSlot: false,
       openEvent: false,
       clickedEvent: {},
@@ -82,20 +84,20 @@ class CalendarAlt extends React.Component {
   }
 
   componentDidMount() {
-    this.getMateriasByIdUsuario();
+    this.getSeccionesByIdUsuario();
     this.getHorariosUsuario();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.materiaSeleccionada !== this.state.materiaSeleccionada) {
+    if (prevState.seccionSeleccionada !== this.state.seccionSeleccionada) {
       null;
     }
   }
 
   // función para recuperar las materias
-  getMateriasByIdUsuario = async () => {
+  getSeccionesByIdUsuario = async () => {
     try {
-      const response = await getMateriasByIdUsuario(
+      const response = await getSeccionesByIdUsuario(
         this.context.id_usuario
       ).catch((err) => {
         console.error(err);
@@ -105,11 +107,10 @@ class CalendarAlt extends React.Component {
         response
       );
       if (response.status === 200) {
-        this.setState({ materias: response.data });
+        this.setState({ secciones: response.data });
         if (response.data)
           this.setState({
-            materiaSeleccionada: response.data[0],
-            title: response.data[0].nombre,
+            seccionSeleccionada: response.data[0],
           });
       }
     } catch (error) {
@@ -119,12 +120,12 @@ class CalendarAlt extends React.Component {
 
   getHorariosUsuario = async () => {
     try {
-      console.log("Materia seleccionada: ", this.state.materiaSeleccionada);
-      const response = await getHorariosUsuario(this.context.id_usuario).catch(
-        (err) => {
-          console.error(err);
-        }
-      );
+      console.log("Materia seleccionada: ", this.state.seccionSeleccionada);
+      const response = await getHorariosByIdUsuario(
+        this.context.id_usuario
+      ).catch((err) => {
+        console.error(err);
+      });
       // console.log("🚀 ~ file: CalendarAlt.js:80 ~ CalendarAlt ~ response ~ response:", response)
 
       if (response.status === 200) {
@@ -155,7 +156,11 @@ class CalendarAlt extends React.Component {
   handleSlotSelected(slotInfo) {
     console.log("Real slotInfo", slotInfo);
     this.setState({
-      title: this.state.materiaSeleccionada.nombre,
+      title:
+        this.state.seccionSeleccionada.nombre +
+        " (Sección " +
+        this.state.seccionSeleccionada.numero +
+        ")",
       desc: "",
       start: slotInfo.start,
       end: slotInfo.end,
@@ -164,12 +169,10 @@ class CalendarAlt extends React.Component {
   }
 
   handleEventSelected(event) {
-    console.log("event aaa", event);
+    console.log("event ", event);
     this.setState({
       openEvent: true,
       clickedEvent: event,
-      id_usuario: event.id_usuario,
-      id_materia: event.id_materia,
       start: event.start,
       end: event.end,
       title: event.title,
@@ -224,7 +227,8 @@ class CalendarAlt extends React.Component {
         }
         const data = {
           id_usuario: id_usuario,
-          id_materia: this.state.materiaSeleccionada.id_materia,
+          id_materia: this.state.seccionSeleccionada.id_materia,
+          id_seccion: this.state.seccionSeleccionada.id_seccion,
           identificador: parseInt(cadena),
           title: title,
           description: desc,
@@ -336,7 +340,7 @@ class CalendarAlt extends React.Component {
     console.log("render()");
 
     const customEventPropGetter = (event) => {
-      if (this.state.materiaSeleccionada?.id_materia !== event?.id_materia) {
+      if (this.state.seccionSeleccionada?.id_materia !== event?.id_materia) {
         return {
           style: { backgroundColor: "#adb5bd", borderColor: "#adb5bd" },
         };
@@ -373,48 +377,66 @@ class CalendarAlt extends React.Component {
             </Alert>
           </Snackbar>
         </Stack>
-        <div className="flex w-full justify-content-end mb-5 lg:mb-0">
-          <Dropdown
-            value={this.state.materiaSeleccionada}
-            options={this.state.materias}
-            optionLabel="nombre"
-            onChange={(e) => {
-              this.setState({
-                materiaSeleccionada: e.value,
-              });
-              console.log(this.state.title);
-            }}
-            placeholder="Seleccione una materia"
-            emptyMessage="No hay datos"
-            className="lg:hidden"
-          />
-        </div>
+
+        <Box
+          sx={{ minWidth: 120, maxWidth: "80%" }}
+          className="flex w-full justify-content-end mb-5 lg:mb-0 mx-auto"
+        >
+          <FormControl fullWidth className="lg:hidden">
+            <InputLabel id="demo-simple-select-label"></InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={this.state?.seccionSeleccionada}
+              label=""
+              onChange={(value) =>
+                this.setState({
+                  seccionSeleccionada: value.target.value,
+                })
+              }
+            >
+              {this.state.secciones.map((seccion) => (
+                <MenuItem key={seccion.id_seccion} value={seccion}>
+                  {`${seccion.nombre} (Sección ${seccion.numero})`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
         <Box
           sx={{ bgcolor: "background.paper", marginBottom: 5 }}
           className="hidden lg:flex"
         >
           <Tabs
-            value={this.state.materiaSeleccionada}
+            value={this.state.seccionSeleccionada}
             onChange={(e, element) => {
               this.setState({
-                materiaSeleccionada: element,
+                seccionSeleccionada: element,
               });
-              console.log(this.state.title);
             }}
             variant="scrollable"
             scrollButtons
             allowScrollButtonsMobile
             aria-label="scrollable force tabs example"
           >
-            {this.state.materias.map((materia) => (
+            {this.state.secciones.map((seccion) => (
               <Tab
-                value={materia}
-                key={materia.id_materia}
-                label={materia.nombre}
+                value={seccion}
+                key={seccion.id_seccion}
+                label={
+                  <div>
+                    <Typography>{seccion.nombre}</Typography>
+                    <Typography sx={{ textTransform: "none" }}>
+                      Sección {seccion.numero}
+                    </Typography>
+                  </div>
+                }
               />
             ))}
           </Tabs>
         </Box>
+
         {/* react-big-calendar library utilized to render calendar*/}
         <Calendar
           messages={this.messages}

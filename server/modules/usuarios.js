@@ -11,9 +11,7 @@ const getAllUsuarios = async function (req, res) {
         "usuarios.nombre",
         "usuarios.rol",
         knex.raw("STRING_AGG(DISTINCT carreras.nombre, '\n') as carrera"),
-        knex.raw(
-          "STRING_AGG(CONCAT(materias.nombre, ' (', usuariosxmaterias.id_profesor, ')'), '\n') as materias"
-        ),
+        knex.raw("STRING_AGG(DISTINCT materias.nombre,  '\n') as materias"),
         knex.raw("ARRAY_AGG(materias.id_materia) as id_materia")
       )
       .from("usuarios")
@@ -56,7 +54,6 @@ const createUsuario = async function (req, res) {
     req.body;
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
-  console.log(materias);
 
   try {
     const newUsuario = await knex("usuarios").returning("id_usuario").insert({
@@ -69,27 +66,52 @@ const createUsuario = async function (req, res) {
 
     if (materias.length == 0) return res.json(newUsuario);
 
+    let fieldsToInsert = [];
+    let fieldsToUpdate = [];
+
+    materias.forEach((materia) => {
+      materia.arrsecciones.forEach((id_seccion) => {
+        fieldsToInsert.push({
+          id_usuario: newUsuario[0].id_usuario,
+          id_materia: materia.id_materia,
+          id_seccion: id_seccion,
+        });
+      });
+
+      if (rol == "profesor") {
+        materia.arrsecciones.forEach((e) => fieldsToUpdate.push(e));
+      }
+    });
+
     if (rol == "profesor") {
-      const fieldsToInsert = materias.map((materia) => ({
-        id_usuario: newUsuario[0].id_usuario,
-        id_materia: materia.id_materia,
-      }));
-
       await knex("usuariosxmaterias").insert(fieldsToInsert);
-    } else {
-      const fieldsToInsert = materias.map((materia) => ({
-        id_usuario: newUsuario[0].id_usuario,
-        id_materia: materia.id_materia,
-        id_profesor: materia.id_profesor,
-      }));
-      console.log(fieldsToInsert);
-
-      await knex("usuariosxmaterias").insert(fieldsToInsert);
+      await knex("secciones")
+        .whereIn("id_seccion", fieldsToUpdate)
+        .update({ id_profesor: newUsuario[0].id_usuario });
     }
 
     res.json(newUsuario);
   } catch (error) {
     res.status(400).send(error);
+    console.error(error);
+  }
+};
+
+const bulkCreateUsuario = async function (req, res) {
+  for (let i = 0; i < req.body.length; i++) {
+    const salt = bcrypt.genSaltSync(10);
+    req.body[i].hashed_password = bcrypt.hashSync(
+      req.body[i].hashed_password,
+      salt
+    );
+  }
+
+  try {
+    const newUsuarios = await knex.batchInsert("usuarios", req.body, 1000);
+    res.json(newUsuarios);
+  } catch (error) {
+    res.status(400).send(error);
+    console.log(error);
     console.error(error);
   }
 };
@@ -103,28 +125,32 @@ const editUsuario = async function (req, res) {
       .where({ id_usuario: id_usuario })
       .update({ nombre: nombre, rol: rol, id_carrera: id_carrera });
 
-    const removeCurrentMaterias = await knex("usuariosxmaterias")
-      .where({ id_usuario: id_usuario })
-      .del();
+    await knex("usuariosxmaterias").where({ id_usuario: id_usuario }).del();
 
     if (materias.length == 0) return res.json(editedUsuario);
 
+    let fieldsToInsert = [];
+    let fieldsToUpdate = [];
+
+    materias.forEach((materia) => {
+      materia.arrsecciones.forEach((id_seccion) => {
+        fieldsToInsert.push({
+          id_usuario: id_usuario,
+          id_materia: materia.id_materia,
+          id_seccion: id_seccion,
+        });
+      });
+
+      if (rol == "profesor") {
+        materia.arrsecciones.forEach((e) => fieldsToUpdate.push(e));
+      }
+    });
+
     if (rol == "profesor") {
-      const fieldsToInsert = materias.map((materia) => ({
-        id_usuario: id_usuario,
-        id_materia: materia.id_materia,
-      }));
-
       await knex("usuariosxmaterias").insert(fieldsToInsert);
-    } else {
-      const fieldsToInsert = materias.map((materia) => ({
-        id_usuario: id_usuario,
-        id_materia: materia.id_materia,
-        id_profesor: materia.id_profesor,
-      }));
-      console.log(fieldsToInsert);
-
-      await knex("usuariosxmaterias").insert(fieldsToInsert);
+      await knex("secciones")
+        .whereIn("id_seccion", fieldsToUpdate)
+        .update({ id_profesor: id_usuario });
     }
 
     res.json(editedUsuario);
@@ -154,19 +180,20 @@ const getUsuarioInfo = async (req, res) => {
     const responseUsuarioInfo = await knex("usuarios")
       .select("id_usuario", "email", "nombre")
       .from("usuarios")
-      .where({ id_usuario: id_usuario })
+      .where({ id_usuario: id_usuario });
 
-    res.json(responseUsuarioInfo)
+    res.json(responseUsuarioInfo);
   } catch (error) {
-    res.status(400).send(error)
+    res.status(400).send(error);
   }
-}
+};
 
 module.exports = {
   getAllUsuarios,
   getRolById,
   createUsuario,
+  bulkCreateUsuario,
   editUsuario,
   removeUsuarioById,
-  getUsuarioInfo
+  getUsuarioInfo,
 };
