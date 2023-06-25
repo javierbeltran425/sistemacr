@@ -27,6 +27,45 @@ const mailer = async function (req, res) {
     res.json(info)
 }
 
+const whatsappMail = function (req, res) {
+    const { to } = req.body
+
+    var botId = '113381458451143';
+    var phoneNbr = to;
+    var bearerToken = 'EAANef7SZBzsMBAOvZAAZBrsI9w9ZCRtP8YUBOUZAmXgpNfrZA6kViZBI95gS1YQGKYWKCMQHFKI5j8shT1QkcbUkZAZCN9SZA69p3S97cllt8K7frfvZC6rPcLpTQb3SQhJpHJkcY1FqMZABdfQc8emXZAXQeWdYrwEKTl0J4RAgzPtWJClm7VXgidcvwmBEzomW7zzaKgFaITYR4KgGzXafRWLFl';
+
+    var url = 'https://graph.facebook.com/v17.0/' + botId + '/messages';
+    var data = {
+        messaging_product: 'whatsapp',
+        to: phoneNbr,
+        type: 'template',
+        template: {
+            name: 'hello_world',
+            language: { code: 'en_US' }
+        }
+    };
+
+    var postReq = {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + bearerToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data),
+        json: true
+    };
+
+    fetch(url, postReq)
+        .then(data => {
+            res.json(data.json())
+        })
+        .then(res => {
+            console.log(res)
+        })
+        .catch(error => console.log(error));
+}
+
 module.exports = {
-    mailer
+    mailer,
+    whatsappMail
 }

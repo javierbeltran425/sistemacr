@@ -33,6 +33,7 @@ CREATE TABLE solicitudes (
   tipo VARCHAR(255),
   hora_inicio VARCHAR(255),
   hora_final VARCHAR(255),
+  estado VARCHAR(255),
   CONSTRAINT fk_usuario FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
   CONSTRAINT fk_profesor FOREIGN KEY (id_profesor) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
   CONSTRAINT fk_materia FOREIGN KEY (id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE

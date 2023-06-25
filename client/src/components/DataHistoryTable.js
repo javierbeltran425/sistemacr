@@ -4,76 +4,24 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
 
-export default function ExportDemo() {
-    const [products, setProducts] = useState([
-        {
-            id: '1000',
-            code: 'f230fh0g3',
-            name: 'Bamboo Watch',
-            description: 'Product Description',
-            image: 'bamboo-watch.jpg',
-            price: 65,
-            category: 'Accessories',
-            quantity: 24,
-            inventoryStatus: 'INSTOCK',
-            rating: 5
-        },
-        {
-            id: '1000',
-            code: 'f230fh0g3',
-            name: 'Bamboo Watch',
-            description: 'Product Description',
-            image: 'bamboo-watch.jpg',
-            price: 65,
-            category: 'Accessories',
-            quantity: 24,
-            inventoryStatus: 'INSTOCK',
-            rating: 5
-        },
-        {
-            id: '1000',
-            code: 'f230fh0g3',
-            name: 'Bamboo Watch',
-            description: 'Product Description',
-            image: 'bamboo-watch.jpg',
-            price: 65,
-            category: 'Accessories',
-            quantity: 24,
-            inventoryStatus: 'INSTOCK',
-            rating: 5
-        },
-        {
-            id: '1000',
-            code: 'f230fh0g3',
-            name: 'Bamboo Watch',
-            description: 'Product Description',
-            image: 'bamboo-watch.jpg',
-            price: 65,
-            category: 'Accessories',
-            quantity: 24,
-            inventoryStatus: 'INSTOCK',
-            rating: 5
-        },
-        {
-            id: '1000',
-            code: 'f230fh0g3',
-            name: 'Bamboo Watch',
-            description: 'Product Description',
-            image: 'bamboo-watch.jpg',
-            price: 65,
-            category: 'Accessories',
-            quantity: 24,
-            inventoryStatus: 'INSTOCK',
-            rating: 5
-        },
-    ]);
+export default function ExportDemo(props) {
+    const [products, setProducts] = useState([]);
     const dt = useRef(null);
 
+    useEffect(() => {
+        props.historyData && setProducts(props.historyData)
+    }, [props.historyData])
+    
+
     const cols = [
-        { field: 'code', header: 'Code' },
-        { field: 'name', header: 'Name' },
-        { field: 'category', header: 'Category' },
-        { field: 'quantity', header: 'Quantity' }
+        { field: 'nombreAlumno', header: 'Nombre del alumno' },
+        { field: 'correoAlumno', header: 'Correo del alumno' },
+        { field: 'nombreProfesor', header: 'Nombre del profesor' },
+        { field: 'correoProfesor', header: 'Correo del profesor' },
+        { field: 'titulo', header: 'Titulo' },
+        { field: 'descripcion', header: 'Descripción' },
+        { field: 'tipo', header: 'Tipo' },
+        { field: 'estado', header: 'Estado' }
     ];
 
     const exportColumns = cols.map((col) => ({ title: col.header, dataKey: col.field }));
@@ -134,7 +82,7 @@ export default function ExportDemo() {
 
             <DataTable ref={dt} value={products} header={header} tableStyle={{ minWidth: '50rem' }}>
                 {cols.map((col, index) => (
-                    <Column key={index} field={col.field} header={col.header} />
+                    <Column filter key={index} field={col.field} header={col.header} />
                 ))}
             </DataTable>
         </div>

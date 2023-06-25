@@ -152,7 +152,7 @@ const getUsuarioInfo = async (req, res) => {
 
   try {
     const responseUsuarioInfo = await knex("usuarios")
-      .select("email", "nombre")
+      .select("id_usuario", "email", "nombre")
       .from("usuarios")
       .where({ id_usuario: id_usuario })
 

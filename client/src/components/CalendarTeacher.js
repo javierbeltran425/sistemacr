@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
@@ -26,6 +26,7 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import { Toast } from 'primereact/toast';
 
 // constantes
 import { USUARIO_ROLES } from "../constants/usuario";
@@ -42,6 +43,7 @@ import {
   getSolicitudesUsuariosByIdUsuario,
   deleteSolicitud,
   editSolicitud,
+  actualizaEstadoSolicitud,
 } from "../services/SolicitudesServices";
 import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
 import { EnviaNotificacione } from "../services/NotificacionesServices";
@@ -50,8 +52,10 @@ moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
 
+
 class CalendarAlt extends React.Component {
   static contextType = ContextUsuario;
+
   messages = {
     allDay: "Todo el día",
     previous: "Anterior",
@@ -194,7 +198,7 @@ class CalendarAlt extends React.Component {
           element.end = new Date(element.end);
         });
 
-        this.setState({ events: json });
+        this.setState({ events: json.filter(soli => soli.estado === 'PENDIENTE') });
       }
     } catch (error) {
       console.error(error);
@@ -299,6 +303,10 @@ class CalendarAlt extends React.Component {
         events.push(appointment);
         // localStorage.setItem("cachedEvents", JSON.stringify(events));
         this.setState({ events });
+
+        this.showSuccess('El horario ha sido registrado con éxito')
+      } else {
+        this.showError('Ha ocurrido un error al momento de registrar el horario')
       }
     } catch (error) {
       console.error(error);
@@ -336,7 +344,13 @@ class CalendarAlt extends React.Component {
       response
     );
 
-    this.envioNotificacionModifica(email)
+    if(response.status === 200){
+      this.envioNotificacionModifica(email)
+      this.showSuccess('El evento ha sido actualizado con éxito')
+    } else {
+      this.showError('Ha ocurrido un error al actualizar el evento')
+    }
+
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
@@ -360,8 +374,13 @@ class CalendarAlt extends React.Component {
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
-
-    this.envioNotificacionRechazo(email)
+    
+    if(response.status === 200) {
+      this.envioNotificacionRechazo(email)
+      this.showSuccess('El evento ha sido eliminado con éxito')
+    } else {
+      this.showError('Ha ocurrido un error al eliminar el evento')
+    }
   }
 
   envioNotificacionRechazo = async (email) => {
@@ -407,6 +426,45 @@ class CalendarAlt extends React.Component {
     }
   }
 
+  actualizarSolicitudEstado = async (estado) => {
+    try {
+      console.log('evento a actualizar su estado: ', this.state.events);
+
+      const body = {
+        id_solicitud: this.state.events[0].id,
+        estado: estado
+      }
+
+      const response = await actualizaEstadoSolicitud(body).catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: CalendarTeacher.js:420 ~ CalendarAlt ~ response ~ response:", response)
+
+      if(response.status === 200) {
+
+        this.showSuccess('La solicitud ha sido respondida')
+        this.getSolicitudesByIdUsuarioIdMateria()
+  
+        const { email } = this.state;
+  
+        switch (estado) {
+          case 'RECHAZADO':
+            this.envioNotificacionRechazo(email)
+            break;
+        
+          default:
+            break;
+        }
+
+      } else {
+        this.showError('Ha ocurrido un error al responder la solicitud')
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   concurrentEventExists = (slotInfo) => {
     return this.state.events.some(
       (item) =>
@@ -420,6 +478,24 @@ class CalendarAlt extends React.Component {
       (item) => item.start <= slotInfo.start && slotInfo.end <= item.end
     );
   };
+
+  showSuccess(message) {
+    this.toast.show({
+      severity: "success",
+      summary: "Éxito",
+      detail: message,
+      life: 3000, // Tiempo de duración del mensaje en milisegundos
+    });
+  }
+
+  showError(message) {
+    this.toast.show({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 3000, // Tiempo de duración del mensaje en milisegundos
+    });
+  }
 
   /*
   minuteConverter(time) {
@@ -458,6 +534,7 @@ class CalendarAlt extends React.Component {
 
     return (
       <div id="Calendar">
+        <Toast ref={(el) => (this.toast = el)} />
         <div className="flex w-full justify-content-end mb-5 lg:mb-0">
           <Dropdown
             value={this.state.materiaSeleccionada}
@@ -697,7 +774,7 @@ class CalendarAlt extends React.Component {
               label="Delete"
               secondary={"true"}
               onClick={() => {
-                this.deleteEvent(), this.handleClose();
+                this.actualizarSolicitudEstado('RECHAZADO'), this.handleClose();
               }}
             >
               rechazar
@@ -710,6 +787,25 @@ class CalendarAlt extends React.Component {
               }}
             >
               GUARDAR CAMBIOS
+            </Button>
+            <Button
+              label="Confirm Edit"
+              secondary={"true"}
+              onClick={() => {
+                this.actualizarSolicitudEstado('AUSENTE'), this.handleClose();
+              }}
+            >
+              AUSENTE
+            </Button>
+            <Button
+              label="Confirm Edit"
+              secondary={"true"}
+              onClick={() => {
+                // this.updateEvent(), this.handleClose();
+                this.actualizarSolicitudEstado('ATENDIDO'), this.handleClose();
+              }}
+            >
+              ATENDIDO
             </Button>
           </DialogActions>
         </Dialog>

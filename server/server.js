@@ -18,6 +18,27 @@ const materias = require("./modules/materias");
 const horarios = require("./modules/horarios");
 const notificaciones = require("./modules/notificaciones");
 
+// CONEXION CON WHATSAPP
+// const qrcode = require('qrcode-terminal');
+
+// const { Client, LocalAuth } = require('whatsapp-web.js');
+
+// const client = new Client({
+//     authStrategy: new LocalAuth()
+// });
+
+
+// client.on('qr', qr => {
+//     qrcode.generate(qr, {small: true});
+// });
+
+// client.on('ready', () => {
+//     console.log('Conexión con WhatsApp exitosa!');
+// });
+
+// client.initialize();
+ 
+
 // AUTHENTICATION
 
 app.post("/auth/signup", (req, res) => {
@@ -81,12 +102,20 @@ app.get(
   }
 );
 
+app.get("/solicitudes/getsolicitudesreporte", (req, res) => {
+    solicitudes.getAllSolicitudes(req, res);
+  });
+
 app.put("/solicitudes/editsolicitud", (req, res) => {
   solicitudes.editSolicitud(req, res);
 });
 
 app.put("/solicitudes/deletesolicitud/:id_solicitud", (req, res) => {
   solicitudes.deleteSolicitud(req, res);
+});
+
+app.post("/solicitudes/actualizaestado", (req, res) => {
+  solicitudes.actualizaEstadoSolicitud(req, res);
 });
 
 // CARRERAS
@@ -161,3 +190,7 @@ app.listen(port, () => console.log(`Server running on PORT ${port}`));
 app.post("/notificaciones/envia/", (req, res) => {
   notificaciones.mailer(req, res);
 });
+
+app.post("/notificaciones/whatsapp/", (req, res) => {
+  notificaciones.whatsappMail(req, res)
+})

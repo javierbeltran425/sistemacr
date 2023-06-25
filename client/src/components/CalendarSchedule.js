@@ -25,6 +25,7 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import { Toast } from 'primereact/toast';
 
 // servicios
 import {
@@ -238,6 +239,12 @@ class CalendarAlt extends React.Component {
           "🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:",
           response
         );
+
+        if(response.status === 200) {
+          this.showSuccess('El evento ha sido registrado con éxito')
+        } else {
+          this.showError('Ha ocurrido un problema al registrar el evento')
+        }
       }
     } catch (error) {
       console.error(error);
@@ -273,6 +280,9 @@ class CalendarAlt extends React.Component {
     );
     if (response.status == 200) {
       this.getHorariosUsuario();
+      this.showSuccess('El evento ha sido eliminado con éxito')
+    } else {
+      this.showError('Ha ocurrido un problema al eliminar el evento')
     }
   }
 
@@ -304,6 +314,24 @@ class CalendarAlt extends React.Component {
     );
   };
 
+  showSuccess(message) {
+    this.toast.show({
+      severity: "success",
+      summary: "Éxito",
+      detail: message,
+      life: 3000, // Tiempo de duración del mensaje en milisegundos
+    });
+  }
+
+  showError(message) {
+    this.toast.show({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 3000, // Tiempo de duración del mensaje en milisegundos
+    });
+  }
+
   render() {
     console.log("render()");
 
@@ -329,6 +357,7 @@ class CalendarAlt extends React.Component {
 
     return (
       <div id="Calendar">
+        <Toast ref={(el) => (this.toast = el)} />
         <Stack spacing={2} sx={{ width: "100%" }}>
           <Snackbar
             open={this.state.showErrorAlert}
