@@ -19,6 +19,27 @@ const horarios = require("./modules/horarios");
 const secciones = require("./modules/secciones");
 const notificaciones = require("./modules/notificaciones");
 
+// CONEXION CON WHATSAPP
+// const qrcode = require('qrcode-terminal');
+
+// const { Client, LocalAuth } = require('whatsapp-web.js');
+
+// const client = new Client({
+//     authStrategy: new LocalAuth()
+// });
+
+
+// client.on('qr', qr => {
+//     qrcode.generate(qr, {small: true});
+// });
+
+// client.on('ready', () => {
+//     console.log('Conexión con WhatsApp exitosa!');
+// });
+
+// client.initialize();
+
+
 // AUTHENTICATION
 
 app.post("/auth/signup", (req, res) => {
@@ -76,12 +97,34 @@ app.post("/solicitudes/getsolicitudesusuariosbyidseccion", (req, res) => {
   solicitudes.getSolicitudesUsuariosByIdSeccion(req, res);
 });
 
+app.get("/solicitudes/getsolicitudesreporte", (req, res) => {
+  solicitudes.getAllSolicitudes(req, res);
+});
+
+app.get(
+  "/solicitudes/getsolicitudesusuariosbyidusuarioidmateria/:id_usuario/:id_materia",
+  (req, res) => {
+    solicitudes.getSolicitudesUsuariosByIdUsuarioIdMateria(req, res);
+  }
+);
+
+app.get(
+  "/solicitudes/getsolicitudesusuariosbyidusuario/:id_usuario",
+  (req, res) => {
+    solicitudes.getSolicitudesUsuariosByIdUsuario(req, res);
+  }
+);
+
 app.put("/solicitudes/editsolicitud", (req, res) => {
   solicitudes.editSolicitud(req, res);
 });
 
 app.put("/solicitudes/deletesolicitud/:id_solicitud", (req, res) => {
   solicitudes.deleteSolicitud(req, res);
+});
+
+app.post("/solicitudes/actualizaestado", (req, res) => {
+  solicitudes.actualizaEstadoSolicitud(req, res);
 });
 
 // CARRERAS
@@ -157,5 +200,9 @@ app.get("/secciones/getseccionesbyidusuario/:id_usuario", (req, res) => {
 app.post("/notificaciones/envia/", (req, res) => {
   notificaciones.mailer(req, res);
 });
+
+app.post("/notificaciones/whatsapp/", (req, res) => {
+  notificaciones.whatsappMail(req, res)
+})
 
 app.listen(port, () => console.log(`Server running on PORT ${port}`));

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
@@ -23,6 +23,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { useCookies } from "react-cookie";
+import { Toast } from "primereact/toast";
 import Typography from "@mui/material/Typography";
 
 // constantes
@@ -46,6 +47,7 @@ const localizer = momentLocalizer(moment);
 
 class CalendarAlt extends React.Component {
   static contextType = ContextUsuario;
+
   messages = {
     allDay: "Todo el día",
     previous: "Anterior",
@@ -121,13 +123,11 @@ class CalendarAlt extends React.Component {
         id_usuario: id_usuario,
       };
 
-      const response = await getInfoUsuario(body).catch((err) => {
-        console.error(err);
-      });
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:214 ~ CalendarAlt ~ response ~ getInfUs:",
-        response
-      );
+      const response = await getInfoUsuario(body).catch(err => {
+        console.error(err)
+      })
+      console.log("🚀 ~ file: CalendarTeacher.js:214 ~ CalendarAlt ~ response ~ getInfUs:", response)
+
     } catch (error) {
       console.error(error);
     }
@@ -178,7 +178,7 @@ class CalendarAlt extends React.Component {
           element.end = new Date(element.end);
         });
 
-        this.setState({ events: json });
+        this.setState({ events: json.filter(soli => soli.estado === 'PENDIENTE') });
       }
     } catch (error) {
       console.error(error);
@@ -282,19 +282,12 @@ class CalendarAlt extends React.Component {
         // localStorage.setItem("cachedEvents", JSON.stringify(events));
         this.setState({ events });
 
-        const response2 = await getInfoUsuario({
-          id_usuario: this.state.seccionSeleccionada.id_profesor,
-        }).catch((err) => {
+        const response2 = await getInfoUsuario({ id_usuario: this.state.materiaSeleccionada.id_profesor }).catch(err => {
           console.error(err);
-        });
-        console.log(
-          "🚀 ~ file: CalendarStudent.js:288 ~ CalendarAlt ~ response ~ response:",
-          response2
-        );
+        })
+        console.log("🚀 ~ file: CalendarStudent.js:288 ~ CalendarAlt ~ response ~ response:", response2)
 
-        const response3 = await getInfoUsuario({
-          id_usuario: this.context.id_usuario,
-        }).catch((err) => {
+        const response3 = await getInfoUsuario({ id_usuario: this.context.id_usuario }).catch(err => {
           console.error(err);
         });
         console.log(
@@ -302,10 +295,11 @@ class CalendarAlt extends React.Component {
           response3
         );
 
-        this.envioNotificacionCrea(
-          response2.data[0].email,
-          response3.data[0].nombre
-        );
+        this.envioNotificacionCrea(response2.data[0].email, response3.data[0].nombre)
+
+        this.showSuccess('Su solicitud ha sido registrada con éxito')
+      } else {
+        this.showError('Ha ocurrido un error al registrar su solicitud')
       }
     } catch (error) {
       console.error(error);
@@ -344,26 +338,23 @@ class CalendarAlt extends React.Component {
       response
     );
 
-    const response2 = await getInfoUsuario({
-      id_usuario: this.state.seccionSeleccionada.id_profesor,
-    }).catch((err) => {
-      console.error(err);
-    });
+    if(response.status === 200){
+      const response2 = await getInfoUsuario({ id_usuario: this.state.materiaSeleccionada.id_profesor }).catch(err => {
+        console.error(err);
+      })
+  
+      const response3 = await getInfoUsuario({ id_usuario: this.context.id_usuario }).catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:", response3)
+  
+      this.envioNotificacionEdita(response2.data[0].email, response3.data[0].nombre)
 
-    const response3 = await getInfoUsuario({
-      id_usuario: this.context.id_usuario,
-    }).catch((err) => {
-      console.error(err);
-    });
-    console.log(
-      "🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:",
-      response3
-    );
+      this.showSuccess('Su solicitud ha sido modificada con éxito')
+    } else {
+      this.showError('Ha ocurrido un error en la modificación de su solicitud')
+    }
 
-    this.envioNotificacionEdita(
-      response2.data[0].email,
-      response3.data[0].nombre
-    );
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
@@ -388,31 +379,27 @@ class CalendarAlt extends React.Component {
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
-
-    const response2 = await getInfoUsuario({
-      id_usuario: this.state.seccionSeleccionada.id_profesor,
-    }).catch((err) => {
-      console.error(err);
-    });
-
-    const response3 = await getInfoUsuario({
-      id_usuario: this.context.id_usuario,
-    }).catch((err) => {
-      console.error(err);
-    });
-    console.log(
-      "🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:",
-      response3
-    );
-
-    this.envioNotificacionElimina(
-      response2.data[0].email,
-      response3.data[0].nombre
-    );
+    
+    if(response.status === 200){
+      const response2 = await getInfoUsuario({ id_usuario: this.state.materiaSeleccionada.id_profesor }).catch(err => {
+        console.error(err);
+      })
+  
+      const response3 = await getInfoUsuario({ id_usuario: this.context.id_usuario }).catch(err => {
+        console.error(err);
+      })
+      console.log("🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:", response3)
+  
+      this.envioNotificacionElimina(response2.data[0].email, response3.data[0].nombre)
+      this.showSuccess('Su solicitud ha sido eliminada con éxito')
+    } else {
+      this.showError('Ha ocurrido un problema para eliminar su solicitud')
+    }
   }
 
   envioNotificacionCrea = async (email, nombre) => {
     try {
+
       const body = {
         sendemail: email,
         emailcontent: `
@@ -502,6 +489,24 @@ class CalendarAlt extends React.Component {
  }
  */
 
+  showSuccess(message) {
+    this.toast.show({
+      severity: "success",
+      summary: "Éxito",
+      detail: message,
+      life: 3000, // Tiempo de duración del mensaje en milisegundos
+    });
+  }
+
+  showError(message) {
+    this.toast.show({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 3000, // Tiempo de duración del mensaje en milisegundos
+    });
+  }
+
   render() {
     console.log("render()");
 
@@ -553,6 +558,7 @@ class CalendarAlt extends React.Component {
 
     return (
       <div id="Calendar">
+        <Toast ref={(el) => (this.toast = el)} />
         <Box
           sx={{ minWidth: 120, maxWidth: "80%" }}
           className="flex w-full justify-content-end mb-5 lg:mb-0 mx-auto"
@@ -636,7 +642,7 @@ class CalendarAlt extends React.Component {
           }}
           onSelectSlot={(slotInfo) => {
             !this.concurrentEventExists(slotInfo) &&
-            this.fitsOnSchedule(slotInfo)
+              this.fitsOnSchedule(slotInfo)
               ? this.handleSlotSelected(slotInfo)
               : null;
           }}

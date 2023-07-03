@@ -1,79 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Button } from "primereact/button";
-import { Tooltip } from "primereact/tooltip";
+import React, { useState, useEffect, useRef } from 'react';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Button } from 'primereact/button';
+import { Tooltip } from 'primereact/tooltip';
 
-export default function ExportDemo() {
-  const [products, setProducts] = useState([
-    {
-      id: "1000",
-      code: "f230fh0g3",
-      name: "Bamboo Watch",
-      description: "Product Description",
-      image: "bamboo-watch.jpg",
-      price: 65,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-    },
-    {
-      id: "1000",
-      code: "f230fh0g3",
-      name: "Bamboo Watch",
-      description: "Product Description",
-      image: "bamboo-watch.jpg",
-      price: 65,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-    },
-    {
-      id: "1000",
-      code: "f230fh0g3",
-      name: "Bamboo Watch",
-      description: "Product Description",
-      image: "bamboo-watch.jpg",
-      price: 65,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-    },
-    {
-      id: "1000",
-      code: "f230fh0g3",
-      name: "Bamboo Watch",
-      description: "Product Description",
-      image: "bamboo-watch.jpg",
-      price: 65,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-    },
-    {
-      id: "1000",
-      code: "f230fh0g3",
-      name: "Bamboo Watch",
-      description: "Product Description",
-      image: "bamboo-watch.jpg",
-      price: 65,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-    },
-  ]);
-  const dt = useRef(null);
+export default function ExportDemo(props) {
+    const [products, setProducts] = useState([]);
+    const dt = useRef(null);
+
+    useEffect(() => {
+      props.historyData && setProducts(props.historyData)
+  }, [props.historyData])
+  
 
   const cols = [
-    { field: "code", header: "Code" },
-    { field: "name", header: "Name" },
-    { field: "category", header: "Category" },
-    { field: "quantity", header: "Quantity" },
+      { field: 'nombreAlumno', header: 'Nombre del alumno' },
+      { field: 'correoAlumno', header: 'Correo del alumno' },
+      { field: 'nombreProfesor', header: 'Nombre del profesor' },
+      { field: 'correoProfesor', header: 'Correo del profesor' },
+      { field: 'titulo', header: 'Titulo' },
+      { field: 'descripcion', header: 'Descripción' },
+      { field: 'tipo', header: 'Tipo' },
+      { field: 'estado', header: 'Estado' }
   ];
 
   const exportColumns = cols.map((col) => ({
@@ -127,48 +75,23 @@ export default function ExportDemo() {
     });
   };
 
-  const header = (
-    <div className="flex align-items-center justify-content-end gap-2">
-      <Button
-        type="button"
-        icon="pi pi-file"
-        rounded
-        onClick={() => exportCSV(false)}
-        data-pr-tooltip="CSV"
-      />
-      <Button
-        type="button"
-        icon="pi pi-file-excel"
-        severity="success"
-        rounded
-        onClick={exportExcel}
-        data-pr-tooltip="XLS"
-      />
-      <Button
-        type="button"
-        icon="pi pi-file-pdf"
-        severity="warning"
-        rounded
-        onClick={exportPdf}
-        data-pr-tooltip="PDF"
-      />
-    </div>
-  );
+    const header = (
+        <div className="flex align-items-center justify-content-end gap-2">
+            <Button type="button" icon="pi pi-file" rounded onClick={() => exportCSV(false)} data-pr-tooltip="CSV" />
+            <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
+            <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" />
+        </div>
+    );
 
-  return (
-    <div className="card">
-      <Tooltip target=".export-buttons>button" position="bottom" />
+    return (
+        <div className="card">
+            <Tooltip target=".export-buttons>button" position="bottom" />
 
-      <DataTable
-        ref={dt}
-        value={products}
-        header={header}
-        tableStyle={{ minWidth: "50rem" }}
-      >
-        {cols.map((col, index) => (
-          <Column key={index} field={col.field} header={col.header} />
-        ))}
-      </DataTable>
-    </div>
-  );
+            <DataTable ref={dt} value={products} header={header} tableStyle={{ minWidth: '50rem' }}>
+                {cols.map((col, index) => (
+                    <Column filter key={index} field={col.field} header={col.header} />
+                ))}
+            </DataTable>
+        </div>
+    );
 }

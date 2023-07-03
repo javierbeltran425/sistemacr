@@ -42,6 +42,7 @@ CREATE TABLE solicitudes (
   estado VARCHAR(50) DEFAULT 'pendiente',
   hora_inicio VARCHAR(255),
   hora_final VARCHAR(255),
+  estado VARCHAR(255),
   CONSTRAINT fk_usuario FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
   CONSTRAINT fk_materia FOREIGN KEY (id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE,
   CONSTRAINT fk_seccion FOREIGN KEY (id_seccion) REFERENCES secciones(id_seccion) ON DELETE CASCADE

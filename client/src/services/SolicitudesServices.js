@@ -33,3 +33,18 @@ export const editSolicitud = async (data) => {
     data,
   });
 };
+
+export const actualizaEstadoSolicitud = async (data) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/actualizaestado`,
+    data,
+  });
+};
+
+export const getReporte = async () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesreporte`,
+  });
+};

@@ -13,6 +13,7 @@ import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
 import { Dropdown } from "primereact/dropdown";
 import { ContextUsuario } from "../context/usuario";
+import { Toast } from 'primereact/toast';
 import "../constants/usuario";
 import "../styles/CalendarAlt.css";
 
@@ -232,6 +233,10 @@ class CalendarAlt extends React.Component {
       );
       if (response.status === 200) {
         console.log("Ok!");
+
+        this.showSuccess('Evento registrado con éxito')
+      } else {
+        this.showError('Ha ocurrido un erro al registrar el evento')
       }
     } catch (error) {
       console.error(error);
@@ -276,6 +281,12 @@ class CalendarAlt extends React.Component {
           "🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:",
           response
         );
+
+        if(response.status === 200){
+          this.showSuccess('Horario registrado con éxito')
+        } else {
+          this.showError('Ha ocurrido un error al registrar el horario')
+        }
       }
 
       // const response = await fetch(
@@ -361,6 +372,30 @@ class CalendarAlt extends React.Component {
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
+
+    if(response.status === 200) {
+      this.showSuccess('El evento ha sido eliminado con éxito')
+    } else {
+      this.showError('Ha ocurrido un error al eliminar el evento')
+    }
+  }
+
+  showSuccess(message) {
+    this.toast.show({
+      severity: "success",
+      summary: "Éxito",
+      detail: message,
+      life: 3000, // Tiempo de duración del mensaje en milisegundos
+    });
+  }
+
+  showError(message) {
+    this.toast.show({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 3000, // Tiempo de duración del mensaje en milisegundos
+    });
   }
 
   render() {
@@ -396,6 +431,7 @@ class CalendarAlt extends React.Component {
 
     return (
       <div id="Calendar">
+        <Toast ref={(el) => (this.toast = el)} />
         <div className="flex w-full justify-content-end mb-5">
           <Dropdown
             value={this.state.materiaSeleccionada}

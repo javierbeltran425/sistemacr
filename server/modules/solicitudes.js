@@ -24,6 +24,7 @@ const createSolicitud = async function (req, res) {
         tipo: tipo,
         hora_inicio: start,
         hora_final: end,
+        estado: "PENDIENTE"
       });
     console.log(newSolicitud);
     res.json(newSolicitud);
@@ -88,6 +89,28 @@ const getSolicitudesUsuariosByIdSeccion = async function (req, res) {
   }
 };
 
+const getAllSolicitudes = async (req, res) => {
+  try {
+
+    const solicitudes = await knex
+      .select(
+        "solicitudes.id_usuario",
+        "solicitudes.id_profesor",
+        "solicitudes.id_materia",
+        "solicitudes.titulo",
+        "solicitudes.descripcion",
+        "solicitudes.tipo",
+        "solicitudes.estado",
+      )
+      .from("solicitudes")      
+      
+    res.json(solicitudes);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
 const editSolicitud = async function (req, res) {
   const { id_solicitud, title, description, tipo, start, end } = req.body;
   try {
@@ -100,6 +123,21 @@ const editSolicitud = async function (req, res) {
         hora_inicio: start,
         hora_final: end,
         estado: "aceptada",
+      });
+    res.json(updatedSolicitud);
+  } catch (error) {
+    res.status(400).send(error);
+    console.error(error);
+  }
+};
+
+const actualizaEstadoSolicitud = async function (req, res) {
+  const { id_solicitud, estado } = req.body;
+  try {
+    const updatedSolicitud = await knex("solicitudes")
+      .where({ id_solicitud: id_solicitud })
+      .update({
+        estado: estado
       });
     res.json(updatedSolicitud);
   } catch (error) {
@@ -123,8 +161,10 @@ const deleteSolicitud = async function (req, res) {
 
 module.exports = {
   createSolicitud,
+  actualizaEstadoSolicitud,
   getSolicitudesByIdUsuarioIdSeccion,
   getSolicitudesUsuariosByIdSeccion,
   deleteSolicitud,
   editSolicitud,
+  getAllSolicitudes
 };
