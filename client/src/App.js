@@ -24,6 +24,7 @@ import TeacherView from "./views/TeacherView";
 import AdminView from "./views/AdminView";
 import HistoryView from "./views/HistoryView";
 import UploadView from "./views/UploadView";
+import RegisterView from "./views/RegisterView";
 
 //constants
 
@@ -68,6 +69,7 @@ function App() {
             <Route path="/admin" element={<AdminView />} />
             <Route path="/history" element={<HistoryView />} />
             <Route path="/upload" element={<UploadView />} />
+            <Route path="/register" element={<RegisterView />} />
           </Routes>
         </ContextUsuario.Provider>
       ) : (

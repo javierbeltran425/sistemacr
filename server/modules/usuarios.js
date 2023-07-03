@@ -83,8 +83,9 @@ const createUsuario = async function (req, res) {
       }
     });
 
+    await knex("usuariosxmaterias").insert(fieldsToInsert);
+
     if (rol == "profesor") {
-      await knex("usuariosxmaterias").insert(fieldsToInsert);
       await knex("secciones")
         .whereIn("id_seccion", fieldsToUpdate)
         .update({ id_profesor: newUsuario[0].id_usuario });
@@ -146,8 +147,9 @@ const editUsuario = async function (req, res) {
       }
     });
 
+    await knex("usuariosxmaterias").insert(fieldsToInsert);
+
     if (rol == "profesor") {
-      await knex("usuariosxmaterias").insert(fieldsToInsert);
       await knex("secciones")
         .whereIn("id_seccion", fieldsToUpdate)
         .update({ id_profesor: id_usuario });

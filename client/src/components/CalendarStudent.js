@@ -314,7 +314,8 @@ class CalendarAlt extends React.Component {
 
   //  Updates Existing Appointments Title and/or Description
   async updateEvent() {
-    const { title, desc, tipo, start, end, events, clickedEvent, email } = this.state;
+    const { title, desc, tipo, start, end, events, clickedEvent, email } =
+      this.state;
     const index = events.findIndex((event) => event === clickedEvent);
     const updatedEvent = events.slice();
     updatedEvent[index].title = title;
@@ -367,7 +368,7 @@ class CalendarAlt extends React.Component {
 
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
-    const { email } = this.state
+    const { email } = this.state;
 
     let eventToDelete = this.state.events.find(
       (event) => event["start"] === this.state.start

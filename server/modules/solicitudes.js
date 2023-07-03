@@ -47,7 +47,8 @@ const getSolicitudesByIdUsuarioIdSeccion = async function (req, res) {
         "hora_inicio as start",
         "hora_final as end",
         "descripcion as desc",
-        "tipo"
+        "tipo",
+        "estado"
       )
       .from("solicitudes")
       .where({ id_usuario: id_usuario })
@@ -73,6 +74,7 @@ const getSolicitudesUsuariosByIdSeccion = async function (req, res) {
         "solicitudes.hora_final as end",
         "solicitudes.descripcion as desc",
         "solicitudes.tipo",
+        "solicitudes.estado",
         "usuarios.nombre",
         "usuarios.email"
       )
@@ -97,6 +99,7 @@ const editSolicitud = async function (req, res) {
         tipo: tipo,
         hora_inicio: start,
         hora_final: end,
+        estado: "aceptada",
       });
     res.json(updatedSolicitud);
   } catch (error) {

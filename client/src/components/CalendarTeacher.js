@@ -335,7 +335,6 @@ class CalendarAlt extends React.Component {
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
     const { email } = this.state;
-    const { email } = this.state;
     let eventToDelete = this.state.events.find(
       (event) => event["start"] === this.state.start
     );
@@ -468,7 +467,9 @@ class CalendarAlt extends React.Component {
             >
               {this.state.secciones.map((seccion) => (
                 <MenuItem key={seccion.id_seccion} value={seccion}>
-                  {`${seccion.nombre} (Sección ${seccion.numero})`}
+                  {seccion.id_seccion != -1
+                    ? `${seccion.nombre} (Sección ${seccion.numero})`
+                    : `${seccion.nombre}`}
                 </MenuItem>
               ))}
             </Select>
@@ -498,9 +499,11 @@ class CalendarAlt extends React.Component {
                 label={
                   <div>
                     <Typography>{seccion.nombre}</Typography>
-                    <Typography sx={{ textTransform: "none" }}>
-                      Sección {seccion.numero}
-                    </Typography>
+                    {seccion.id_seccion != -1 && (
+                      <Typography sx={{ textTransform: "none" }}>
+                        Sección {seccion.numero}
+                      </Typography>
+                    )}
                   </div>
                 }
               />
