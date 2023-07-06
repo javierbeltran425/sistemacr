@@ -28,7 +28,7 @@ CREATE TABLE secciones (
   id_materia INT,
   id_profesor INT,
   CONSTRAINT fk_materia FOREIGN KEY(id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE,
-  CONSTRAINT fk_profesor FOREIGN KEY(id_profesor) REFERENCES usuarios(id_profesor) ON DELETE SET NULL
+  CONSTRAINT fk_profesor FOREIGN KEY(id_profesor) REFERENCES usuarios(id_usuario) ON DELETE SET NULL
 );
 
 CREATE TABLE solicitudes (

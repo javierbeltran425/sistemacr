@@ -30,7 +30,7 @@ import Typography from "@mui/material/Typography";
 import { SOLICITUDES_TIPOS_ARRAY } from "../constants/solicitudes";
 
 // servicios
-import { getSeccionesByIdUsuario } from "../services/Secciones";
+import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
 import { getHorariosByIdSeccion } from "../services/HorariosServices";
 import {
   getSolicitudesByIdUsuarioIdSeccion,
@@ -39,7 +39,7 @@ import {
 } from "../services/SolicitudesServices";
 import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
 import { EnviaNotificacione } from "../services/NotificacionesServices";
-import { getInfoUsuario } from "../services/UsuariosService";
+import { getInfoUsuario } from "../services/UsuariosServices";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
@@ -123,11 +123,13 @@ class CalendarAlt extends React.Component {
         id_usuario: id_usuario,
       };
 
-      const response = await getInfoUsuario(body).catch(err => {
-        console.error(err)
-      })
-      console.log("🚀 ~ file: CalendarTeacher.js:214 ~ CalendarAlt ~ response ~ getInfUs:", response)
-
+      const response = await getInfoUsuario(body).catch((err) => {
+        console.error(err);
+      });
+      console.log(
+        "🚀 ~ file: CalendarTeacher.js:214 ~ CalendarAlt ~ response ~ getInfUs:",
+        response
+      );
     } catch (error) {
       console.error(error);
     }
@@ -178,7 +180,9 @@ class CalendarAlt extends React.Component {
           element.end = new Date(element.end);
         });
 
-        this.setState({ events: json.filter(soli => soli.estado === 'PENDIENTE') });
+        this.setState({
+          events: json.filter((soli) => soli.estado === "PENDIENTE"),
+        });
       }
     } catch (error) {
       console.error(error);
@@ -282,12 +286,19 @@ class CalendarAlt extends React.Component {
         // localStorage.setItem("cachedEvents", JSON.stringify(events));
         this.setState({ events });
 
-        const response2 = await getInfoUsuario({ id_usuario: this.state.materiaSeleccionada.id_profesor }).catch(err => {
+        const response2 = await getInfoUsuario({
+          id_usuario: this.state.materiaSeleccionada.id_profesor,
+        }).catch((err) => {
           console.error(err);
-        })
-        console.log("🚀 ~ file: CalendarStudent.js:288 ~ CalendarAlt ~ response ~ response:", response2)
+        });
+        console.log(
+          "🚀 ~ file: CalendarStudent.js:288 ~ CalendarAlt ~ response ~ response:",
+          response2
+        );
 
-        const response3 = await getInfoUsuario({ id_usuario: this.context.id_usuario }).catch(err => {
+        const response3 = await getInfoUsuario({
+          id_usuario: this.context.id_usuario,
+        }).catch((err) => {
           console.error(err);
         });
         console.log(
@@ -295,11 +306,14 @@ class CalendarAlt extends React.Component {
           response3
         );
 
-        this.envioNotificacionCrea(response2.data[0].email, response3.data[0].nombre)
+        this.envioNotificacionCrea(
+          response2.data[0].email,
+          response3.data[0].nombre
+        );
 
-        this.showSuccess('Su solicitud ha sido registrada con éxito')
+        this.showSuccess("Su solicitud ha sido registrada con éxito");
       } else {
-        this.showError('Ha ocurrido un error al registrar su solicitud')
+        this.showError("Ha ocurrido un error al registrar su solicitud");
       }
     } catch (error) {
       console.error(error);
@@ -338,23 +352,32 @@ class CalendarAlt extends React.Component {
       response
     );
 
-    if(response.status === 200){
-      const response2 = await getInfoUsuario({ id_usuario: this.state.materiaSeleccionada.id_profesor }).catch(err => {
+    if (response.status === 200) {
+      const response2 = await getInfoUsuario({
+        id_usuario: this.state.materiaSeleccionada.id_profesor,
+      }).catch((err) => {
         console.error(err);
-      })
-  
-      const response3 = await getInfoUsuario({ id_usuario: this.context.id_usuario }).catch(err => {
-        console.error(err);
-      })
-      console.log("🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:", response3)
-  
-      this.envioNotificacionEdita(response2.data[0].email, response3.data[0].nombre)
+      });
 
-      this.showSuccess('Su solicitud ha sido modificada con éxito')
+      const response3 = await getInfoUsuario({
+        id_usuario: this.context.id_usuario,
+      }).catch((err) => {
+        console.error(err);
+      });
+      console.log(
+        "🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:",
+        response3
+      );
+
+      this.envioNotificacionEdita(
+        response2.data[0].email,
+        response3.data[0].nombre
+      );
+
+      this.showSuccess("Su solicitud ha sido modificada con éxito");
     } else {
-      this.showError('Ha ocurrido un error en la modificación de su solicitud')
+      this.showError("Ha ocurrido un error en la modificación de su solicitud");
     }
-
   }
 
   //  filters out specific event that is to be deleted and set that variable to state
@@ -379,27 +402,36 @@ class CalendarAlt extends React.Component {
       "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
       response
     );
-    
-    if(response.status === 200){
-      const response2 = await getInfoUsuario({ id_usuario: this.state.materiaSeleccionada.id_profesor }).catch(err => {
+
+    if (response.status === 200) {
+      const response2 = await getInfoUsuario({
+        id_usuario: this.state.materiaSeleccionada.id_profesor,
+      }).catch((err) => {
         console.error(err);
-      })
-  
-      const response3 = await getInfoUsuario({ id_usuario: this.context.id_usuario }).catch(err => {
+      });
+
+      const response3 = await getInfoUsuario({
+        id_usuario: this.context.id_usuario,
+      }).catch((err) => {
         console.error(err);
-      })
-      console.log("🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:", response3)
-  
-      this.envioNotificacionElimina(response2.data[0].email, response3.data[0].nombre)
-      this.showSuccess('Su solicitud ha sido eliminada con éxito')
+      });
+      console.log(
+        "🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:",
+        response3
+      );
+
+      this.envioNotificacionElimina(
+        response2.data[0].email,
+        response3.data[0].nombre
+      );
+      this.showSuccess("Su solicitud ha sido eliminada con éxito");
     } else {
-      this.showError('Ha ocurrido un problema para eliminar su solicitud')
+      this.showError("Ha ocurrido un problema para eliminar su solicitud");
     }
   }
 
   envioNotificacionCrea = async (email, nombre) => {
     try {
-
       const body = {
         sendemail: email,
         emailcontent: `
@@ -642,7 +674,7 @@ class CalendarAlt extends React.Component {
           }}
           onSelectSlot={(slotInfo) => {
             !this.concurrentEventExists(slotInfo) &&
-              this.fitsOnSchedule(slotInfo)
+            this.fitsOnSchedule(slotInfo)
               ? this.handleSlotSelected(slotInfo)
               : null;
           }}

@@ -31,7 +31,7 @@ import { Toast } from "primereact/toast";
 import { SOLICITUDES_TIPOS_ARRAY } from "../constants/solicitudes";
 
 // servicios
-import { getSeccionesByIdUsuario } from "../services/Secciones";
+import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
 import {
   getHorariosByIdSeccion,
   getHorariosByIdUsuario,
@@ -527,7 +527,6 @@ class CalendarAlt extends React.Component {
     return (
       <div id="Calendar">
         <Toast ref={(el) => (this.toast = el)} />
-
         <Box
           sx={{ minWidth: 120, maxWidth: "80%" }}
           className="flex w-full justify-content-end mb-5 lg:mb-0 mx-auto"

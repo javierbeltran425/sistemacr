@@ -24,7 +24,7 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import { Toast } from 'primereact/toast';
+import { Toast } from "primereact/toast";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -35,7 +35,7 @@ import {
   deleteHorariosUsuarioMateria,
   registrarHorario,
 } from "../services/HorariosServices";
-import { getSeccionesByIdUsuario } from "../services/Secciones";
+import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
 import { getHorariosByIdUsuario } from "../services/HorariosServices";
 
 moment.locale("es");
@@ -244,10 +244,10 @@ class CalendarAlt extends React.Component {
           response
         );
 
-        if(response.status === 200) {
-          this.showSuccess('El evento ha sido registrado con éxito')
+        if (response.status === 200) {
+          this.showSuccess("El evento ha sido registrado con éxito");
         } else {
-          this.showError('Ha ocurrido un problema al registrar el evento')
+          this.showError("Ha ocurrido un problema al registrar el evento");
         }
       }
     } catch (error) {
@@ -284,9 +284,9 @@ class CalendarAlt extends React.Component {
     );
     if (response.status == 200) {
       this.getHorariosUsuario();
-      this.showSuccess('El evento ha sido eliminado con éxito')
+      this.showSuccess("El evento ha sido eliminado con éxito");
     } else {
-      this.showError('Ha ocurrido un problema al eliminar el evento')
+      this.showError("Ha ocurrido un problema al eliminar el evento");
     }
   }
 

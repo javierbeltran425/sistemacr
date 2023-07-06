@@ -28,7 +28,6 @@ const notificaciones = require("./modules/notificaciones");
 //     authStrategy: new LocalAuth()
 // });
 
-
 // client.on('qr', qr => {
 //     qrcode.generate(qr, {small: true});
 // });
@@ -38,7 +37,6 @@ const notificaciones = require("./modules/notificaciones");
 // });
 
 // client.initialize();
-
 
 // AUTHENTICATION
 
@@ -54,6 +52,10 @@ app.post("/auth/login", (req, res) => {
 
 app.get("/usuarios/getallusuarios", (req, res) => {
   usuarios.getAllUsuarios(req, res);
+});
+
+app.get("/usuarios/getusuariobyid/:id_usuario", (req, res) => {
+  usuarios.getUsuarioById(req, res);
 });
 
 app.get("/usuarios/getrolbyid/:id_usuario", (req, res) => {
@@ -202,7 +204,7 @@ app.post("/notificaciones/envia/", (req, res) => {
 });
 
 app.post("/notificaciones/whatsapp/", (req, res) => {
-  notificaciones.whatsappMail(req, res)
-})
+  notificaciones.whatsappMail(req, res);
+});
 
 app.listen(port, () => console.log(`Server running on PORT ${port}`));

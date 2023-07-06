@@ -35,6 +35,42 @@ const getAllUsuarios = async function (req, res) {
   }
 };
 
+const getUsuarioById = async function (req, res) {
+  const { id_usuario } = req.body;
+  try {
+    const usuarios = await knex
+      .select(
+        "usuarios.id_usuario",
+        "usuarios.id_carrera",
+        "usuarios.email",
+        "usuarios.nombre",
+        "usuarios.rol",
+        knex.raw("STRING_AGG(DISTINCT carreras.nombre, '\n') as carrera"),
+        knex.raw("STRING_AGG(DISTINCT materias.nombre,  '\n') as materias"),
+        knex.raw("ARRAY_AGG(materias.id_materia) as id_materia")
+      )
+      .from("usuarios")
+      .where({ id_usuario: id_usuario })
+      .leftJoin("carreras", "usuarios.id_carrera", "carreras.id_carrera")
+      .leftJoin(
+        "usuariosxmaterias",
+        "usuarios.id_usuario",
+        "usuariosxmaterias.id_usuario"
+      )
+      .leftJoin(
+        "materias",
+        "materias.id_materia",
+        "usuariosxmaterias.id_materia"
+      )
+      .groupBy("usuarios.id_usuario")
+      .orderBy("usuarios.id_usuario", "desc");
+    res.json(usuarios);
+  } catch (error) {
+    res.status(400).send(error);
+    console.error(error);
+  }
+};
+
 const getRolById = async function (req, res) {
   const { id_usuario } = req.params;
   try {
@@ -192,6 +228,7 @@ const getUsuarioInfo = async (req, res) => {
 
 module.exports = {
   getAllUsuarios,
+  getUsuarioById,
   getRolById,
   createUsuario,
   bulkCreateUsuario,
