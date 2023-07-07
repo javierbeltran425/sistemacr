@@ -9,6 +9,8 @@ import BarChart from "../components/BarChart";
 // servicios
 import { getReporte } from "../services/SolicitudesServices";
 import { getInfoUsuario } from "../services/UsuariosServices";
+import { getMateriaById } from "../services/MateriasServices";
+import { getSeccionById } from "../services/SeccionesServices";
 
 const HistoryView = () => {
   const [historyData, setHistoryData] = useState([]);
@@ -80,18 +82,18 @@ const HistoryView = () => {
           history[i].correoAlumno = response2.data[0].email;
         }
 
-        const bodyProfesor = {
-          id_usuario: history[i].id_profesor,
-        };
-        const response3 = await getInfoUsuario(bodyProfesor);
-        console.log(
-          "🚀 ~ file: HistoryView.js:36 ~ obtieneDatosReporte ~ response3:",
-          response3
-        );
+        const response3 = await getMateriaById(history[i].id_materia);
+        console.log("🚀 ~ file: HistoryView.js:89 ~ obtieneDatosReporte ~ response3:", response3)
 
-        if (response3.status === 200) {
-          history[i].nombreProfesor = response3.data[0].nombre;
-          history[i].correoProfesor = response3.data[0].email;
+        if(response3.status === 200) {
+          history[i].nombreMateria = response3.data[0].nombre;
+        }
+
+        const response4 = await getSeccionById(history[i].id_seccion);
+        console.log("🚀 ~ file: HistoryView.js:93 ~ obtieneDatosReporte ~ response4:", response4)
+
+        if(response.status === 200) {
+          history[i].seccion = response4.data[0].numero
         }
 
         console.log("log de history: ", history);

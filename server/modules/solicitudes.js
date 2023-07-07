@@ -95,8 +95,8 @@ const getAllSolicitudes = async (req, res) => {
     const solicitudes = await knex
       .select(
         "solicitudes.id_usuario",
-        "solicitudes.id_profesor",
         "solicitudes.id_materia",
+        "solicitudes.id_seccion",
         "solicitudes.titulo",
         "solicitudes.descripcion",
         "solicitudes.tipo",

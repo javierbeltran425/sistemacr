@@ -63,6 +63,26 @@ const getMateriasByIdUsuario = async function (req, res) {
   }
 };
 
+const getMateriaById = async function (req, res) {
+  const { id_materia } = req.params
+
+  try {
+    const materia = await knex
+      .select(
+        "materias.id_materia",
+        "materias.nombre",
+        "materias.uv"
+      )
+      .from("materias")
+      .where({ id_materia: id_materia })
+
+    res.json(materia)
+  } catch (error) {
+    res.status(400).send(error)
+    console.error(error);
+  }
+}
+
 const createMateria = async function (req, res) {
   const { id_materia, nombre, uv, numsecciones, carreras } = req.body;
 
@@ -183,4 +203,5 @@ module.exports = {
   createMateria,
   removeMateriaById,
   editMateria,
+  getMateriaById,
 };

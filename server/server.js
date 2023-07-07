@@ -157,6 +157,10 @@ app.get("/materias/getallmaterias", (req, res) => {
   materias.getAllMaterias(req, res);
 });
 
+app.get("/materias/getMateriaById/:id_materia", (req, res) => {
+  materias.getMateriaById(req, res);
+});
+
 app.get("/materias/getmateriasbyidusuario/:id_usuario", (req, res) => {
   materias.getMateriasByIdUsuario(req, res);
 });
@@ -195,6 +199,10 @@ app.put("/horarios/deletemateriasidusuarioidmateria/:id_evento", (req, res) => {
 
 app.get("/secciones/getseccionesbyidusuario/:id_usuario", (req, res) => {
   secciones.getSeccionesByIdUsuario(req, res);
+});
+
+app.get("/secciones/getseccionbyId/:id_seccion", (req, res) => {
+  secciones.getSeccionById(req, res);
 });
 
 // NOTIFICACIONES
