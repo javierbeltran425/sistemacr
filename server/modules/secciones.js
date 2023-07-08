@@ -25,4 +25,22 @@ const getSeccionesByIdUsuario = async function (req, res) {
   }
 };
 
-module.exports = { getSeccionesByIdUsuario };
+const getSeccionById = async function(req,res) {
+  try {
+    const { id_seccion } = req.params
+
+    const seccion = await knex
+      .select(
+        "secciones.id_seccion",
+        "secciones.numero"
+      )
+      .from("secciones")
+      .where({ id_seccion: id_seccion })
+
+    res.json(seccion)
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+module.exports = { getSeccionesByIdUsuario, getSeccionById };

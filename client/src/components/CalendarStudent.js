@@ -287,7 +287,7 @@ class CalendarAlt extends React.Component {
         this.setState({ events });
 
         const response2 = await getInfoUsuario({
-          id_usuario: this.state.materiaSeleccionada.id_profesor,
+          id_usuario: this.state.seccionSeleccionada.id_profesor,
         }).catch((err) => {
           console.error(err);
         });
@@ -354,7 +354,7 @@ class CalendarAlt extends React.Component {
 
     if (response.status === 200) {
       const response2 = await getInfoUsuario({
-        id_usuario: this.state.materiaSeleccionada.id_profesor,
+        id_usuario: this.state.seccionSeleccionada.id_profesor,
       }).catch((err) => {
         console.error(err);
       });
@@ -405,7 +405,7 @@ class CalendarAlt extends React.Component {
 
     if (response.status === 200) {
       const response2 = await getInfoUsuario({
-        id_usuario: this.state.materiaSeleccionada.id_profesor,
+        id_usuario: this.state.seccionSeleccionada.id_profesor,
       }).catch((err) => {
         console.error(err);
       });

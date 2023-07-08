@@ -16,8 +16,8 @@ export default function ExportDemo(props) {
   const cols = [
       { field: 'nombreAlumno', header: 'Nombre del alumno' },
       { field: 'correoAlumno', header: 'Correo del alumno' },
-      { field: 'nombreProfesor', header: 'Nombre del profesor' },
-      { field: 'correoProfesor', header: 'Correo del profesor' },
+      { field: 'nombreMateria', header: 'Materia' },
+      { field: 'seccion', header: 'Seccion' },
       { field: 'titulo', header: 'Titulo' },
       { field: 'descripcion', header: 'Descripción' },
       { field: 'tipo', header: 'Tipo' },

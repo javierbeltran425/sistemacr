@@ -95,8 +95,8 @@ const getAllSolicitudes = async (req, res) => {
     const solicitudes = await knex
       .select(
         "solicitudes.id_usuario",
-        "solicitudes.id_profesor",
         "solicitudes.id_materia",
+        "solicitudes.id_seccion",
         "solicitudes.titulo",
         "solicitudes.descripcion",
         "solicitudes.tipo",
@@ -112,7 +112,7 @@ const getAllSolicitudes = async (req, res) => {
 
 
 const editSolicitud = async function (req, res) {
-  const { id_solicitud, title, description, tipo, start, end } = req.body;
+  const { id_solicitud, title, description, tipo, start, end, estado } = req.body;
   try {
     const updatedSolicitud = await knex("solicitudes")
       .where({ id_solicitud: id_solicitud })
@@ -122,7 +122,7 @@ const editSolicitud = async function (req, res) {
         tipo: tipo,
         hora_inicio: start,
         hora_final: end,
-        estado: "aceptada",
+        estado: estado,
       });
     res.json(updatedSolicitud);
   } catch (error) {
