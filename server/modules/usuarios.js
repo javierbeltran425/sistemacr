@@ -36,7 +36,7 @@ const getAllUsuarios = async function (req, res) {
 };
 
 const getUsuarioById = async function (req, res) {
-  const { id_usuario } = req.body;
+  const { id_usuario } = req.params;
   try {
     const usuarios = await knex
       .select(
@@ -50,7 +50,7 @@ const getUsuarioById = async function (req, res) {
         knex.raw("ARRAY_AGG(materias.id_materia) as id_materia")
       )
       .from("usuarios")
-      .where({ id_usuario: id_usuario })
+      .where({ "usuarios.id_usuario": id_usuario })
       .leftJoin("carreras", "usuarios.id_carrera", "carreras.id_carrera")
       .leftJoin(
         "usuariosxmaterias",
