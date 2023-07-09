@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
@@ -22,12 +22,20 @@ import Select from "@mui/material/Select";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import { useCookies } from "react-cookie";
+import Stack from "@mui/material/Stack";
 import { Toast } from "primereact/toast";
 import Typography from "@mui/material/Typography";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import SquareIcon from "@mui/icons-material/Square";
+import Divider from "@mui/material/Divider";
 
 // constantes
-import { SOLICITUDES_TIPOS_ARRAY } from "../constants/solicitudes";
+import {
+  SOLICITUDES_ESTADOS,
+  SOLICITUDES_TIPOS_ARRAY,
+} from "../constants/solicitudes";
 
 // servicios
 import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
@@ -40,6 +48,7 @@ import {
 import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
 import { EnviaNotificacione } from "../services/NotificacionesServices";
 import { getInfoUsuario } from "../services/UsuariosServices";
+import { Square } from "@mui/icons-material";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
@@ -247,6 +256,7 @@ class CalendarAlt extends React.Component {
     const id_usuario = this.context.id_usuario;
     const id_materia = this.state.seccionSeleccionada.id_materia;
     const id_seccion = this.state.seccionSeleccionada.id_seccion;
+    const estado = "PENDIENTE";
 
     const data = {
       id_usuario: id_usuario,
@@ -281,6 +291,7 @@ class CalendarAlt extends React.Component {
           end,
           desc,
           tipo,
+          estado,
         };
         let events = this.state.events.slice();
         events.push(appointment);
@@ -514,6 +525,17 @@ class CalendarAlt extends React.Component {
     );
   };
 
+  renderStatusSquare(estado) {
+    switch (estado) {
+      case SOLICITUDES_ESTADOS.RECHAZADO:
+        return <Square sx={{ color: "#D21312" }} />;
+      case SOLICITUDES_ESTADOS.ACEPTADO:
+        return <Square color="success" />;
+      default:
+        return <Square color="primary" />;
+    }
+  }
+
   /*
   minuteConverter(time) {
     const [h, m] = time.split(':');
@@ -588,10 +610,17 @@ class CalendarAlt extends React.Component {
           style: { backgroundColor: "#adb5bd", borderColor: "#adb5bd" },
         };
       } else {
-        if (event.estado == "RECHAZADO") {
-          return {
-            style: { backgroundColor: "#FFA48B", borderColor: "#FFA48B" },
-          };
+        switch (event.estado) {
+          case SOLICITUDES_ESTADOS.RECHAZADO:
+            return {
+              style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+            };
+          case SOLICITUDES_ESTADOS.ACEPTADO:
+            return {
+              style: { backgroundColor: "#17594a", borderColor: "#17594" },
+            };
+          default:
+            return;
         }
       }
     };
@@ -673,8 +702,8 @@ class CalendarAlt extends React.Component {
           slotPropGetter={customSlotPropGetter}
           eventPropGetter={customEventPropGetter}
           showAllEvents={true}
-          /*min={new Date(0, 0, 0, 6, 0, 0)}
-          max={new Date(0, 0, 0, 23, 0, 0)}*/
+          min={new Date(0, 0, 0, 6, 0, 0)}
+          //max={new Date(0, 0, 0, 23, 0, 0)}
           onSelectEvent={(event) => {
             event.id_usuario == this.context.id_usuario
               ? this.handleEventSelected(event)
@@ -751,13 +780,16 @@ class CalendarAlt extends React.Component {
               </DemoItem>
             </DemoContainer>
           </DialogContent>
-          <DialogActions>
+          <DialogActions
+            sx={{ display: "flex", justifyContent: "space-between" }}
+          >
             <Button
               label="Cancel"
               secondary={"true"}
               onClick={this.handleClose}
+              variant="outlined"
             >
-              CANCELAR
+              SALIR
             </Button>
             <Button
               label="Submit"
@@ -765,101 +797,101 @@ class CalendarAlt extends React.Component {
               onClick={() => {
                 this.setNewAppointment(), this.handleClose();
               }}
+              color="success"
+              variant="outlined"
             >
-              ENVIAR
+              ENVIAR SOLICITUD
             </Button>
           </DialogActions>
         </Dialog>
 
-        {/* Material-ui Modal for booking existing appointment */}
+        {/* Material-ui Modal for editing existing appointment */}
         <Dialog open={this.state.openEvent} onClose={this.handleClose}>
           <DialogTitle>
-            {`Editando una reunión el ${moment(this.state.start).format(
-              "Do MMMM YYYY"
-            )}`}
+            {this.state.title ? this.state.title : "(Sin título)"}
           </DialogTitle>
           <DialogContent>
-            <FormControl fullWidth sx={{ marginBottom: 0.5, marginTop: 1 }}>
-              <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Tipo"
-                value={this.state.tipo}
-                onChange={(e) => {
-                  this.setTipo(e.target.value);
-                }}
-              >
-                {SOLICITUDES_TIPOS_ARRAY.map((tipo) => (
-                  <MenuItem key={tipo} value={tipo}>
-                    {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              label="Título"
-              margin="dense"
-              value={this.state.title}
-              fullWidth
-              onChange={(e) => {
-                this.setTitle(e.target.value);
-              }}
-            />
-            <br />
-            <TextField
-              label="Descripción"
-              multiline
-              minRows={2}
-              maxRows={4}
-              margin="dense"
-              value={this.state.desc}
-              fullWidth
-              onChange={(e) => {
-                this.setDescription(e.target.value);
-              }}
-            />
-            <DemoContainer components={["MobileTimePicker"]}>
-              <DemoItem label="Hora de inicio">
-                <MobileTimePicker
-                  value={moment(this.state.start)}
-                  minutesStep={5}
-                  onChange={(date) => this.handleStartTime(date)}
-                />
-              </DemoItem>
-              <DemoItem label="Hora de finalización">
-                <MobileTimePicker
-                  value={moment(this.state.end)}
-                  minutesStep={5}
-                  onChange={(date) => this.handleEndTime(date)}
-                />
-              </DemoItem>
-            </DemoContainer>
-          </DialogContent>
-          <DialogActions>
-            <Button label="Cancel" primary={"false"} onClick={this.handleClose}>
-              CANCELAR
-            </Button>
-            {this.state.estado == "PENDIENTE" && (
-              <Button
-                label="Delete"
-                secondary={"true"}
-                onClick={() => {
-                  this.deleteEvent(), this.handleClose();
-                }}
-              >
-                BORRAR
-              </Button>
-            )}
-            <Button
-              label="Confirm Edit"
-              secondary={"true"}
-              onClick={() => {
-                this.updateEvent(), this.handleClose();
+            <List
+              sx={{
+                width: "100%",
+                maxWidth: 360,
+                bgcolor: "background.paper",
               }}
             >
-              GUARDAR CAMBIOS
-            </Button>
+              <ListItem>
+                <ListItemText primary="Estado" secondary={this.state.estado} />
+                {this.renderStatusSquare(this.state.estado)}
+              </ListItem>
+              <Divider variant="" component="li" />
+              <ListItem>
+                <ListItemText
+                  primary="Tipo"
+                  secondary={
+                    this.state.tipo.charAt(0).toUpperCase() +
+                    this.state.tipo.slice(1)
+                  }
+                />
+              </ListItem>
+              <Divider variant="" component="li" />
+              <ListItem>
+                <ListItemText
+                  primary="Descripción"
+                  secondary={this.state.desc}
+                />
+              </ListItem>
+              <Divider variant="" component="li" />
+              <ListItem>
+                <ListItemText
+                  primary="Fecha"
+                  secondary={`${moment(this.state.start).format(
+                    "Do MMMM YYYY"
+                  )} de ${moment(this.state.start).format("LT a")} a ${moment(
+                    this.state.end
+                  ).format("LT a")}`}
+                />
+              </ListItem>
+            </List>
+          </DialogContent>
+          <DialogActions
+            sx={{ display: "flex", justifyContent: "space-between" }}
+          >
+            <Stack direction="row">
+              <Button
+                label="Cancel"
+                primary={"false"}
+                onClick={this.handleClose}
+                variant="outlined"
+              >
+                SALIR
+              </Button>
+            </Stack>
+            <Stack direction="row">
+              {this.state.estado == SOLICITUDES_ESTADOS.PENDIENTE && (
+                <Button
+                  label="Delete"
+                  secondary={"true"}
+                  onClick={() => {
+                    this.deleteEvent(), this.handleClose();
+                  }}
+                  color="error"
+                  variant="outlined"
+                >
+                  ELIMINAR SOLICITUD
+                </Button>
+              )}
+              {/*<Button
+                label="Confirm Edit"
+                secondary={"true"}
+                onClick={() => {
+                  this.updateEvent(), this.handleClose();
+                }}
+                color="success"
+                variant="outlined"
+                sx={{ marginLeft: 1 }}
+              >
+                GUARDAR CAMBIOS
+              </Button>*/}
+            </Stack>
           </DialogActions>
         </Dialog>
       </div>
