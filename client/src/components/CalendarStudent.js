@@ -528,7 +528,7 @@ class CalendarAlt extends React.Component {
   renderStatusSquare(estado) {
     switch (estado) {
       case SOLICITUDES_ESTADOS.RECHAZADO:
-        return <Square sx={{ color: "#D21312" }} />;
+        return <Square sx={{ color: "#7E1717" }} />;
       case SOLICITUDES_ESTADOS.ACEPTADO:
         return <Square color="success" />;
       default:

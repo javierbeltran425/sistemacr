@@ -106,7 +106,7 @@ export default function SimpleContainer() {
           />
         </FormControl>
         <Typography sx={{ m: 3 }} variant="h6" component="div">
-          Materias
+          Estás inscrito en las asignaturas siguientes:
         </Typography>
         {secciones.map((seccion) => (
           <div
