@@ -33,7 +33,7 @@ import { SOLICITUDES_TIPOS_ARRAY } from "../constants/solicitudes";
 import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
 import { getHorariosByIdSeccion } from "../services/HorariosServices";
 import {
-  getSolicitudesByIdUsuarioIdSeccion,
+  getSolicitudesByIdSeccion,
   deleteSolicitud,
   editSolicitud,
 } from "../services/SolicitudesServices";
@@ -73,6 +73,7 @@ class CalendarAlt extends React.Component {
       end: "",
       desc: "",
       tipo: "",
+      estado: "",
       secciones: [],
       seccionSeleccionada: null,
       openSlot: false,
@@ -89,7 +90,7 @@ class CalendarAlt extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.seccionSeleccionada !== this.state.seccionSeleccionada) {
       this.getHorariosByIdSeccion();
-      this.getSolicitudesByIdUsuarioIdSeccion();
+      this.getSolicitudesByIdSeccion();
     }
   }
 
@@ -162,10 +163,9 @@ class CalendarAlt extends React.Component {
     }
   };
 
-  getSolicitudesByIdUsuarioIdSeccion = async () => {
+  getSolicitudesByIdSeccion = async () => {
     try {
-      const response = await getSolicitudesByIdUsuarioIdSeccion(
-        this.context.id_usuario,
+      const response = await getSolicitudesByIdSeccion(
         this.state.seccionSeleccionada.id_seccion
       );
       if (response.status === 200) {
@@ -181,7 +181,7 @@ class CalendarAlt extends React.Component {
         });
 
         this.setState({
-          events: json.filter((soli) => soli.estado === "PENDIENTE"),
+          events: json,
         });
       }
     } catch (error) {
@@ -217,6 +217,7 @@ class CalendarAlt extends React.Component {
       title: event.title,
       desc: event.desc,
       tipo: event.tipo,
+      estado: event.estado,
     });
   }
 
@@ -582,10 +583,17 @@ class CalendarAlt extends React.Component {
     };
 
     const customEventPropGetter = (event) => {
-      if (event.id_usuario != this.context.id_usuario)
+      if (event.id_usuario != this.context.id_usuario) {
         return {
           style: { backgroundColor: "#adb5bd", borderColor: "#adb5bd" },
         };
+      } else {
+        if (event.estado == "RECHAZADO") {
+          return {
+            style: { backgroundColor: "#FFA48B", borderColor: "#FFA48B" },
+          };
+        }
+      }
     };
 
     return (
@@ -676,7 +684,7 @@ class CalendarAlt extends React.Component {
             !this.concurrentEventExists(slotInfo) &&
             this.fitsOnSchedule(slotInfo)
               ? this.handleSlotSelected(slotInfo)
-              : null;
+              : this.showError("El horario seleccionado no está disponible.");
           }}
         />
 
@@ -832,15 +840,17 @@ class CalendarAlt extends React.Component {
             <Button label="Cancel" primary={"false"} onClick={this.handleClose}>
               CANCELAR
             </Button>
-            <Button
-              label="Delete"
-              secondary={"true"}
-              onClick={() => {
-                this.deleteEvent(), this.handleClose();
-              }}
-            >
-              BORRAR
-            </Button>
+            {this.state.estado == "PENDIENTE" && (
+              <Button
+                label="Delete"
+                secondary={"true"}
+                onClick={() => {
+                  this.deleteEvent(), this.handleClose();
+                }}
+              >
+                BORRAR
+              </Button>
+            )}
             <Button
               label="Confirm Edit"
               secondary={"true"}

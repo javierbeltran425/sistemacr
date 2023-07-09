@@ -24,7 +24,7 @@ const createSolicitud = async function (req, res) {
         tipo: tipo,
         hora_inicio: start,
         hora_final: end,
-        estado: "PENDIENTE"
+        estado: "PENDIENTE",
       });
     console.log(newSolicitud);
     res.json(newSolicitud);
@@ -34,7 +34,7 @@ const createSolicitud = async function (req, res) {
   }
 };
 
-const getSolicitudesByIdUsuarioIdSeccion = async function (req, res) {
+const getSolicitudesByIdSeccion = async function (req, res) {
   const { id_usuario, id_seccion } = req.params;
   console.log(req.params);
   try {
@@ -52,8 +52,7 @@ const getSolicitudesByIdUsuarioIdSeccion = async function (req, res) {
         "estado"
       )
       .from("solicitudes")
-      .where({ id_usuario: id_usuario })
-      .andWhere({ id_seccion: id_seccion });
+      .where({ id_seccion: id_seccion });
     res.json(solicitudes);
   } catch (error) {
     res.status(400).send(error);
@@ -91,7 +90,6 @@ const getSolicitudesUsuariosByIdSeccion = async function (req, res) {
 
 const getAllSolicitudes = async (req, res) => {
   try {
-
     const solicitudes = await knex
       .select(
         "solicitudes.id_usuario",
@@ -100,19 +98,19 @@ const getAllSolicitudes = async (req, res) => {
         "solicitudes.titulo",
         "solicitudes.descripcion",
         "solicitudes.tipo",
-        "solicitudes.estado",
+        "solicitudes.estado"
       )
-      .from("solicitudes")      
-      
+      .from("solicitudes");
+
     res.json(solicitudes);
   } catch (error) {
     console.error(error);
   }
 };
 
-
 const editSolicitud = async function (req, res) {
-  const { id_solicitud, title, description, tipo, start, end, estado } = req.body;
+  const { id_solicitud, title, description, tipo, start, end, estado } =
+    req.body;
   try {
     const updatedSolicitud = await knex("solicitudes")
       .where({ id_solicitud: id_solicitud })
@@ -137,7 +135,7 @@ const actualizaEstadoSolicitud = async function (req, res) {
     const updatedSolicitud = await knex("solicitudes")
       .where({ id_solicitud: id_solicitud })
       .update({
-        estado: estado
+        estado: estado,
       });
     res.json(updatedSolicitud);
   } catch (error) {
@@ -162,9 +160,9 @@ const deleteSolicitud = async function (req, res) {
 module.exports = {
   createSolicitud,
   actualizaEstadoSolicitud,
-  getSolicitudesByIdUsuarioIdSeccion,
+  getSolicitudesByIdSeccion,
   getSolicitudesUsuariosByIdSeccion,
   deleteSolicitud,
   editSolicitud,
-  getAllSolicitudes
+  getAllSolicitudes,
 };

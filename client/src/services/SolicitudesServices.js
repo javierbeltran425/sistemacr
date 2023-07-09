@@ -1,13 +1,10 @@
 import axios from "axios";
 
-export const getSolicitudesByIdUsuarioIdSeccion = async (
-  id_usuario,
-  id_seccion
-) => {
+export const getSolicitudesByIdSeccion = async (id_seccion) => {
   return axios({
     method: "GET",
 
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesbyidusuarioidseccion/${id_usuario}/${id_seccion}`,
+    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesbyidseccion/${id_seccion}`,
   });
 };
 

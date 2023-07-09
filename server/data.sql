@@ -39,7 +39,7 @@ CREATE TABLE solicitudes (
   titulo VARCHAR(255),
   descripcion VARCHAR(255),
   tipo VARCHAR(255),
-  estado VARCHAR(50) DEFAULT 'pendiente',
+  estado VARCHAR(50),
   hora_inicio VARCHAR(255),
   hora_final VARCHAR(255),
   ONSTRAINT fk_usuario FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,

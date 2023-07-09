@@ -190,7 +190,7 @@ class CalendarAlt extends React.Component {
         });
 
         this.setState({
-          events: json.filter((soli) => soli.estado === "PENDIENTE"),
+          events: json,
         });
       }
     } catch (error) {
@@ -298,7 +298,7 @@ class CalendarAlt extends React.Component {
         this.setState({ events });
 
         this.showSuccess("El horario ha sido registrado con éxito");
-        this.getSolicitudes()
+        this.getSolicitudes();
       } else {
         this.showError(
           "Ha ocurrido un error al momento de registrar el horario"
@@ -332,7 +332,7 @@ class CalendarAlt extends React.Component {
       tipo: tipo,
       start: start,
       end: end,
-      estado: "PENDIENTE"
+      estado: "PENDIENTE",
     };
     const response = await editSolicitud(data).catch((err) => {
       console.error(err);
@@ -345,7 +345,7 @@ class CalendarAlt extends React.Component {
     if (response.status === 200) {
       this.envioNotificacionModifica(email);
       this.showSuccess("El evento ha sido actualizado con éxito");
-      this.getSolicitudes()
+      this.getSolicitudes();
     } else {
       this.showError("Ha ocurrido un error al actualizar el evento");
     }
@@ -354,7 +354,10 @@ class CalendarAlt extends React.Component {
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
     const { email } = this.state;
-    console.log("🚀 ~ file: CalendarTeacher.js:354 ~ CalendarAlt ~ deleteEvent ~ email:", email)
+    console.log(
+      "🚀 ~ file: CalendarTeacher.js:354 ~ CalendarAlt ~ deleteEvent ~ email:",
+      email
+    );
     let eventToDelete = this.state.events.find(
       (event) => event["start"] === this.state.start
     );
@@ -377,7 +380,7 @@ class CalendarAlt extends React.Component {
     if (response.status === 200) {
       this.envioNotificacionRechazo(email);
       this.showSuccess("El evento ha sido eliminado con éxito");
-      this.getSolicitudes()
+      this.getSolicitudes();
     } else {
       this.showError("Ha ocurrido un error al eliminar el evento");
     }
@@ -452,7 +455,10 @@ class CalendarAlt extends React.Component {
         this.getSolicitudes();
 
         const { email } = this.state;
-        console.log("🚀 ~ file: CalendarTeacher.js:451 ~ CalendarAlt ~ actualizarSolicitudEstado= ~ email:", email)
+        console.log(
+          "🚀 ~ file: CalendarTeacher.js:451 ~ CalendarAlt ~ actualizarSolicitudEstado= ~ email:",
+          email
+        );
 
         switch (estado) {
           case "RECHAZADO":

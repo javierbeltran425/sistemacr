@@ -88,12 +88,9 @@ app.post("/solicitudes/createsolicitud", (req, res) => {
   solicitudes.createSolicitud(req, res);
 });
 
-app.get(
-  "/solicitudes/getsolicitudesbyidusuarioidseccion/:id_usuario/:id_seccion",
-  (req, res) => {
-    solicitudes.getSolicitudesByIdUsuarioIdSeccion(req, res);
-  }
-);
+app.get("/solicitudes/getsolicitudesbyidseccion/:id_seccion", (req, res) => {
+  solicitudes.getSolicitudesByIdSeccion(req, res);
+});
 
 app.post("/solicitudes/getsolicitudesusuariosbyidseccion", (req, res) => {
   solicitudes.getSolicitudesUsuariosByIdSeccion(req, res);

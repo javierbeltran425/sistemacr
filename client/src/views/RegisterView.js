@@ -53,80 +53,78 @@ export default function SimpleContainer() {
 
   return (
     <Layout>
-      <Container maxWidth="sm">
-        <Box
-          component="form"
-          sx={{
-            "& > :not(style)": { m: 1, width: "30ch" },
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-          noValidate
-          autoComplete="off"
+      <Box
+        component="form"
+        sx={{
+          "& > :not(style)": { width: "30ch" },
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+        noValidate
+        autoComplete="off"
+      >
+        <Typography
+          id="modal-modal-title"
+          variant="h5"
+          component="h5"
+          sx={{ textAlign: "center", marginTop: 5, marginBottom: 3 }}
         >
-          <Typography
-            id="modal-modal-title"
-            variant="h4"
-            component="h2"
-            sx={{ marginBottom: 2, textAlign: "center", margin: 2 }}
+          Verifica la información asociada a tu cuenta
+        </Typography>
+        <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
+          <TextField
+            id="filled-basic"
+            value={usuario.email}
+            label="Email"
+            variant="filled"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </FormControl>
+        <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
+          <TextField
+            id="filled-basic"
+            value={usuario.nombre}
+            label="Nombre"
+            variant="filled"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </FormControl>
+        <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
+          <TextField
+            id="filled-basic"
+            value={usuario.carrera}
+            label="Carrera"
+            variant="filled"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </FormControl>
+        <Typography sx={{ m: 3 }} variant="h6" component="div">
+          Materias
+        </Typography>
+        {secciones.map((seccion) => (
+          <div
+            key={seccion.id_materia}
+            className="flex justify-content-between m-2"
           >
-            Verifica la información asociada a tu cuenta
-          </Typography>
-          <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
-            <TextField
-              id="filled-basic"
-              value={usuario.email}
-              label="Email"
-              variant="filled"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </FormControl>
-          <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
-            <TextField
-              id="filled-basic"
-              value={usuario.nombre}
-              label="Nombre"
-              variant="filled"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </FormControl>
-          <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
-            <TextField
-              id="filled-basic"
-              value={usuario.carrera}
-              label="Carrera"
-              variant="filled"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </FormControl>
-          <Typography variant="h6" component="div">
-            Materias
-          </Typography>
-          {secciones.map((seccion) => (
-            <div
-              key={seccion.id_materia}
-              className="flex justify-content-between"
+            <Typography
+              sx={{ fontSize: 14 }}
+              color="text.secondary"
+              gutterBottom
             >
-              <Typography
-                sx={{ fontSize: 14 }}
-                color="text.secondary"
-                gutterBottom
-              >
-                {seccion.nombre}
-              </Typography>
-              <Typography variant="body2">Sección {seccion.numero}</Typography>
-            </div>
-          ))}
-          <Button>Activar mi cuenta</Button>
-        </Box>
-      </Container>
+              {seccion.nombre}
+            </Typography>
+            <Typography variant="body2">Sección {seccion.numero}</Typography>
+          </div>
+        ))}
+        <Button sx={{ marginTop: 3 }}>Activar mi cuenta</Button>
+      </Box>
     </Layout>
   );
 }
