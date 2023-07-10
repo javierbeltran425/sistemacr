@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
@@ -7,7 +7,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
@@ -22,13 +21,33 @@ import Select from "@mui/material/Select";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { Toast } from "primereact/toast";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import Divider from "@mui/material/Divider";
+import SquareRoundedIcon from "@mui/icons-material/SquareRounded";
+import { styled } from "@mui/material/styles";
+import Paper from "@mui/material/Paper";
+import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
+import Alert from "@mui/material/Alert";
+import IconButton from "@mui/material/IconButton";
+import Collapse from "@mui/material/Collapse";
+import CloseIcon from "@mui/icons-material/Close";
+import Zoom from "@mui/material/Zoom";
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: "center",
+  color: theme.palette.text.secondary,
+}));
 
 // constantes
-import { SOLICITUDES_TIPOS_ARRAY } from "../constants/solicitudes";
+import { SOLICITUDES_ESTADOS } from "../constants/solicitudes";
 
 // servicios
 import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
@@ -42,7 +61,6 @@ import {
   editSolicitud,
   actualizaEstadoSolicitud,
 } from "../services/SolicitudesServices";
-import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
 import { EnviaNotificacione } from "../services/NotificacionesServices";
 
 moment.locale("es");
@@ -84,6 +102,9 @@ class CalendarAlt extends React.Component {
       nombre: "",
       email: "",
       id_seccion: null,
+      estado: "",
+      timeIsChanged: false,
+      alertIsOpen: true,
       clickedEvent: {},
     };
     this.handleClose = this.handleClose.bind(this);
@@ -228,6 +249,8 @@ class CalendarAlt extends React.Component {
       nombre: event.nombre,
       email: event.email,
       id_seccion: event.id_seccion,
+      estado: event.estado,
+      timeIsChanged: false,
     });
   }
 
@@ -244,69 +267,11 @@ class CalendarAlt extends React.Component {
   }
 
   handleStartTime(date) {
-    this.setState({ start: new Date(date) });
+    this.setState({ start: new Date(date), timeIsChanged: true });
   }
 
   handleEndTime(date) {
-    this.setState({ end: new Date(date) });
-  }
-
-  // Onclick callback function that pushes new appointment into events array.
-  async setNewAppointment() {
-    const { start, end, title, desc, tipo } = this.state;
-    const id_usuario = this.context.id_usuario;
-    const id_materia = this.state.seccionSeleccionada.id_seccion;
-    const id_seccion = this.seccionSeleccionada.id_seccion;
-
-    const data = {
-      id_usuario: id_usuario,
-      id_materia: id_materia,
-      id_seccion: id_seccion,
-      title: title,
-      description: desc,
-      tipo: tipo,
-      start: start,
-      end: end,
-    };
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/solicitudes/createsolicitud`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
-      if (response.status === 200) {
-        console.log("Ok!");
-        const json = await response.json();
-        let appointment = {
-          id: json[0].id_solicitud,
-          id_usuario,
-          id_materia,
-          id_seccion,
-          title,
-          start,
-          end,
-          desc,
-          tipo,
-        };
-        let events = this.state.events.slice();
-        events.push(appointment);
-        // localStorage.setItem("cachedEvents", JSON.stringify(events));
-        this.setState({ events });
-
-        this.showSuccess("El horario ha sido registrado con éxito");
-        this.getSolicitudes();
-      } else {
-        this.showError(
-          "Ha ocurrido un error al momento de registrar el horario"
-        );
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    this.setState({ end: new Date(date), timeIsChanged: true });
   }
 
   //  Updates Existing Appointments Title and/or Description
@@ -438,7 +403,7 @@ class CalendarAlt extends React.Component {
       console.log("evento a actualizar su estado: ", this.state.events);
 
       const body = {
-        id_solicitud: this.state.events[0].id,
+        id_solicitud: this.state.clickedEvent.id,
         estado: estado,
       };
 
@@ -490,6 +455,17 @@ class CalendarAlt extends React.Component {
     );
   };
 
+  renderStatusSquare(estado) {
+    switch (estado) {
+      case SOLICITUDES_ESTADOS.RECHAZADO:
+        return <SquareRoundedIcon sx={{ color: "#7E1717" }} />;
+      case SOLICITUDES_ESTADOS.ACEPTADO:
+        return <SquareRoundedIcon color="success" />;
+      default:
+        return <SquareRoundedIcon color="primary" />;
+    }
+  }
+
   showSuccess(message) {
     this.toast.show({
       severity: "success",
@@ -534,6 +510,21 @@ class CalendarAlt extends React.Component {
         }
       }
       return;
+    };
+
+    const customEventPropGetter = (event) => {
+      switch (event.estado) {
+        case SOLICITUDES_ESTADOS.RECHAZADO:
+          return {
+            style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+          };
+        case SOLICITUDES_ESTADOS.ACEPTADO:
+          return {
+            style: { backgroundColor: "#17594a", borderColor: "#17594a" },
+          };
+        default:
+          return;
+      }
     };
 
     return (
@@ -615,10 +606,10 @@ class CalendarAlt extends React.Component {
           localizer={localizer}
           culture="es"
           slotPropGetter={customSlotPropGetter}
-          eventPropGetter={null}
+          eventPropGetter={customEventPropGetter}
           showAllEvents={false}
-          /*min={new Date(0, 0, 0, 6, 0, 0)}
-          max={new Date(0, 0, 0, 23, 0, 0)}*/
+          min={new Date(0, 0, 0, 6, 0, 0)}
+          //max={new Date(0, 0, 0, 23, 0, 0)}
           onSelectEvent={(event) => {
             this.handleEventSelected(event);
           }}
@@ -630,165 +621,110 @@ class CalendarAlt extends React.Component {
         }}*/
         />
 
-        {/* Material-ui Modal for booking new appointment */}
-        <Dialog open={this.state.openSlot} onClose={this.handleClose}>
-          <DialogTitle>
-            {`Solicita una reunión el ${moment(this.state.start).format(
-              "Do MMMM YYYY"
-            )}`}
-          </DialogTitle>
-          <DialogContent>
-            <FormControl fullWidth sx={{ marginBottom: 0.5, marginTop: 1 }}>
-              <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Tipo"
-                defaultValue={SOLICITUDES_TIPOS.CONSULTA}
-                onChange={(e) => {
-                  this.setTipo(e.target.value);
-                }}
-              >
-                {SOLICITUDES_TIPOS_ARRAY.map((tipo) => (
-                  <MenuItem key={tipo} value={tipo}>
-                    {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              label="Título"
-              margin="dense"
-              fullWidth
-              onChange={(e) => {
-                this.setTitle(e.target.value);
-              }}
-            />
-            <br />
-            <TextField
-              label="Descripción"
-              multiline
-              minRows={2}
-              maxRows={4}
-              margin="dense"
-              fullWidth
-              onChange={(e) => {
-                this.setDescription(e.target.value);
-              }}
-            />
-            <DemoContainer components={["MobileTimePicker"]}>
-              <DemoItem label="Hora de inicio">
-                <MobileTimePicker
-                  value={moment(this.state.start)}
-                  minutesStep={5}
-                  onChange={(date) => this.handleStartTime(date)}
-                />
-              </DemoItem>
-              <DemoItem label="Hora de finalización">
-                <MobileTimePicker
-                  value={moment(this.state.end)}
-                  minutesStep={5}
-                  onChange={(date) => this.handleEndTime(date)}
-                />
-              </DemoItem>
-            </DemoContainer>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              label="Cancel"
-              secondary={"true"}
-              onClick={this.handleClose}
-            >
-              CANCELAR
-            </Button>
-            <Button
-              label="Submit"
-              primary={"true"}
-              onClick={() => {
-                this.setNewAppointment(), this.handleClose();
-              }}
-            >
-              ENVIAR
-            </Button>
-          </DialogActions>
-        </Dialog>
-
         {/* Material-ui Modal for booking existing appointment */}
         <Dialog open={this.state.openEvent} onClose={this.handleClose}>
           <DialogTitle>
-            {`Solicitud del ${moment(this.state.start).format("Do MMMM YYYY")}`}
+            {this.state.title ? this.state.title : "(Sin título)"}
           </DialogTitle>
           <DialogContent>
-            <FormControl fullWidth sx={{ marginBottom: 0.5, marginTop: 1 }}>
-              <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Tipo"
-                value={this.state.tipo}
-                onChange={(e) => {
-                  this.setTipo(e.target.value);
-                }}
-              >
-                {SOLICITUDES_TIPOS_ARRAY.map((tipo) => (
-                  <MenuItem key={tipo} value={tipo}>
-                    {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              label="Título"
-              margin="dense"
-              value={this.state.title}
-              fullWidth
-              onChange={(e) => {
-                this.setTitle(e.target.value);
+            <List
+              sx={{
+                width: "100%",
+                maxWidth: 360,
+                bgcolor: "background.paper",
               }}
-            />
-            <br />
-            <TextField
-              label="Descripción"
-              multiline
-              minRows={2}
-              maxRows={4}
-              margin="dense"
-              value={this.state.desc}
-              fullWidth
-              onChange={(e) => {
-                this.setDescription(e.target.value);
-              }}
-            />
-            <Card>
-              <CardContent>
-                <Typography
-                  sx={{ fontSize: 16 }}
-                  color="text.secondary"
-                  gutterBottom
-                >
-                  Enviada por:
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} variant="body2">
-                  {`Nombre: ${this.state.nombre}`}
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} variant="body2">
-                  {`Email: ${this.state.email}`}
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} variant="body2">
-                  {`Grupo: ${
+            >
+              <ListItem>
+                <ListItemText primary="Estado" secondary={this.state.estado} />
+                {this.renderStatusSquare(this.state.estado)}
+              </ListItem>
+              <Divider variant="" component="li" />
+              <ListItem>
+                <ListItemText
+                  primary="Tipo"
+                  secondary={
+                    this.state.tipo.charAt(0).toUpperCase() +
+                    this.state.tipo.slice(1)
+                  }
+                />
+              </ListItem>
+              <Divider variant="" component="li" />
+              <ListItem>
+                <ListItemText
+                  primary="Descripción"
+                  secondary={
+                    this.state.desc ? this.state.desc : "Sin descripción"
+                  }
+                />
+              </ListItem>
+              <Divider variant="" component="li" />
+              <ListItem>
+                <ListItemText
+                  primary="Fecha"
+                  secondary={`${moment(this.state.start).format(
+                    "Do MMMM YYYY"
+                  )} de ${moment(this.state.start).format("LT a")} a ${moment(
+                    this.state.end
+                  ).format("LT a")}`}
+                />
+              </ListItem>
+            </List>
+            <Typography sx={{ fontSize: 16 }} color="text.primary" gutterBottom>
+              Enviada por:
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={4}>
+                <Item>Nombre</Item>
+              </Grid>
+              <Grid item xs={8}>
+                <Item>{this.state.nombre}</Item>
+              </Grid>
+              <Grid item xs={4}>
+                <Item>Email</Item>
+              </Grid>
+              <Grid item xs={8}>
+                <Item>{this.state.email}</Item>
+              </Grid>
+              <Grid item xs={4}>
+                <Item>Grupo</Item>
+              </Grid>
+              <Grid item xs={8}>
+                <Item>
+                  {
                     this.state.secciones.find(
                       (item) => item.id_seccion == this.state.id_seccion
                     )?.nombre
-                  } (Sección 
-                  ${
+                  }
+                  {" ("}
+                  Sección
+                  {
                     this.state.secciones.find(
                       (item) => item.id_seccion == this.state.id_seccion
                     )?.numero
                   }
-                  )`}
-                </Typography>
-              </CardContent>
-            </Card>
+                  {")"}
+                </Item>
+              </Grid>
+            </Grid>
+            <Collapse in={this.state.alertIsOpen} sx={{ marginTop: 1 }}>
+              <Alert
+                severity="info"
+                action={
+                  <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    size="small"
+                    onClick={() => {
+                      this.setState({ alertIsOpen: false });
+                    }}
+                  >
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                }
+              >
+                Puedes modificar el horario de la reunión a continuación.
+              </Alert>
+            </Collapse>
             <DemoContainer components={["MobileTimePicker"]}>
               <DemoItem label="Hora de inicio">
                 <MobileTimePicker
@@ -806,47 +742,106 @@ class CalendarAlt extends React.Component {
               </DemoItem>
             </DemoContainer>
           </DialogContent>
-          <DialogActions>
-            <Button label="Cancel" primary={"false"} onClick={this.handleClose}>
+          <DialogActions
+            sx={{ display: "flex", justifyContent: "space-between" }}
+          >
+            <Button
+              label="Cancel"
+              primary={"false"}
+              onClick={this.handleClose}
+              variant="outlined"
+              sx={{ marginRight: 1 }}
+            >
               SALIR
             </Button>
-            <Button
-              label="Delete"
-              secondary={"true"}
-              onClick={() => {
-                this.actualizarSolicitudEstado("RECHAZADO"), this.handleClose();
-              }}
-            >
-              rechazar
-            </Button>
-            <Button
-              label="Confirm Edit"
-              secondary={"true"}
-              onClick={() => {
-                this.updateEvent(), this.handleClose();
-              }}
-            >
-              GUARDAR CAMBIOS
-            </Button>
-            <Button
-              label="Confirm Edit"
-              secondary={"true"}
-              onClick={() => {
-                this.actualizarSolicitudEstado("AUSENTE"), this.handleClose();
-              }}
-            >
-              AUSENTE
-            </Button>
-            <Button
-              label="Confirm Edit"
-              secondary={"true"}
-              onClick={() => {
-                // this.updateEvent(), this.handleClose();
-                this.actualizarSolicitudEstado("ATENDIDO"), this.handleClose();
-              }}
-            >
-              ATENDIDO
-            </Button>
+            {this.state.estado == SOLICITUDES_ESTADOS.PENDIENTE && (
+              <Stack direction="row">
+                <Button
+                  label="Delete"
+                  secondary={"true"}
+                  onClick={() => {
+                    this.actualizarSolicitudEstado(
+                      SOLICITUDES_ESTADOS.RECHAZADO
+                    ),
+                      this.handleClose();
+                  }}
+                  variant="outlined"
+                  color="error"
+                  sx={{ marginRight: 1 }}
+                >
+                  RECHAZAR SOLICITUD
+                </Button>
+                {this.state.timeIsChanged && (
+                  <Button
+                    label="Confirm Edit"
+                    secondary={"true"}
+                    onClick={() => {
+                      this.actualizarSolicitudEstado(
+                        SOLICITUDES_ESTADOS.ACEPTADO
+                      ),
+                        this.updateEvent(),
+                        this.handleClose();
+                    }}
+                    variant="outlined"
+                    color="success"
+                  >
+                    GUARDAR CAMBIOS Y ACEPTAR
+                  </Button>
+                )}
+                {!this.state.timeIsChanged && (
+                  <Button
+                    label="Confirm Edit"
+                    secondary={"true"}
+                    onClick={() => {
+                      // this.updateEvent(), this.handleClose();
+                      this.actualizarSolicitudEstado(
+                        SOLICITUDES_ESTADOS.ACEPTADO
+                      );
+                      this.handleClose();
+                    }}
+                    variant="outlined"
+                    color="success"
+                  >
+                    ACEPTAR SOLICITUD
+                  </Button>
+                )}
+              </Stack>
+            )}
+            {moment().toDate().getTime() &&
+              this.state.estado >= this.state.start && (
+                <Stack>
+                  <Zoom in={this.state.openEvent}>
+                    <Stack direction="row">
+                      <span className="flex align-items-center">
+                        ¿Se presentó el estudiante a la reunión?
+                      </span>
+                      <Button
+                        onClick={() => {
+                          this.actualizarSolicitudEstado(
+                            SOLICITUDES_ESTADOS.ATENDIDO
+                          ),
+                            this.updateEvent(),
+                            this.handleClose();
+                        }}
+                      >
+                        SI
+                      </Button>
+                      <p className="flex align-items-center">/</p>
+                      <Button
+                        onClick={() => {
+                          this.actualizarSolicitudEstado(
+                            SOLICITUDES_ESTADOS.AUSENTE
+                          ),
+                            this.updateEvent(),
+                            this.handleClose();
+                        }}
+                      >
+                        NO
+                      </Button>
+                    </Stack>
+                  </Zoom>
+                </Stack>
+              )}
           </DialogActions>
         </Dialog>
       </div>
