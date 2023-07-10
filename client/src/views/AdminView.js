@@ -9,6 +9,8 @@ import CRUDCarreras from "../admin/CRUDCarreras";
 import CRUDMaterias from "../admin/CRUDMaterias";
 import Layout from "../components/layout/Layout";
 
+import HistoryView from "./HistoryView";
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -61,6 +63,7 @@ export default function AdminView() {
             <Tab label="usuarios" {...a11yProps(0)} />
             <Tab label="materias" {...a11yProps(1)} />
             <Tab label="carreras" {...a11yProps(2)} />
+            <Tab label="solicitudes" {...a11yProps(3)} />
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
@@ -72,7 +75,11 @@ export default function AdminView() {
         <TabPanel value={value} index={2}>
           <CRUDCarreras />
         </TabPanel>
+        <TabPanel value={value} index={3}>
+          <HistoryView />
+        </TabPanel>
       </Box>
+
     </Layout>
   );
 }

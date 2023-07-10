@@ -30,6 +30,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import SquareIcon from "@mui/icons-material/Square";
 import Divider from "@mui/material/Divider";
+import LeyendaColores from "./LeyendaColores";
 
 // constantes
 import {
@@ -617,7 +618,7 @@ class CalendarAlt extends React.Component {
             };
           case SOLICITUDES_ESTADOS.ACEPTADO:
             return {
-              style: { backgroundColor: "#17594a", borderColor: "#17594" },
+              style: { backgroundColor: "#17594a", borderColor: "#17594a" },
             };
           default:
             return;
@@ -656,7 +657,7 @@ class CalendarAlt extends React.Component {
 
         <Box
           sx={{ bgcolor: "background.paper", marginBottom: 5 }}
-          className="hidden lg:flex"
+          className="hidden md:flex w-full justify-content-between"
         >
           <Tabs
             value={this.state.seccionSeleccionada}
@@ -685,6 +686,8 @@ class CalendarAlt extends React.Component {
               />
             ))}
           </Tabs>
+
+          <LeyendaColores />
         </Box>
 
         {/* react-big-calendar library utilized to render calendar*/}
@@ -711,7 +714,7 @@ class CalendarAlt extends React.Component {
           }}
           onSelectSlot={(slotInfo) => {
             !this.concurrentEventExists(slotInfo) &&
-            this.fitsOnSchedule(slotInfo)
+              this.fitsOnSchedule(slotInfo)
               ? this.handleSlotSelected(slotInfo)
               : this.showError("El horario seleccionado no está disponible.");
           }}

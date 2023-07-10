@@ -5,6 +5,7 @@ import DataHistoryTable from "../components/DataHistoryTable";
 import Layout from "../components/layout/Layout";
 import LineChart from "../components/LineChart";
 import BarChart from "../components/BarChart";
+import { Divider } from "primereact/divider";
 
 // servicios
 import { getReporte } from "../services/SolicitudesServices";
@@ -20,6 +21,7 @@ const HistoryView = () => {
   );
 
   const [contAusentes, setContAusentes] = useState(0);
+  const [contAceptadas, setContAceptadas] = useState(0);
   const [contAtendidas, setContAtendidas] = useState(0);
   const [contPendientes, setContPendientes] = useState(0);
   const [contRechazadas, setcontRechazadas] = useState(0);
@@ -35,22 +37,26 @@ const HistoryView = () => {
   const conteoSolicitudes = () => {
     if (historyData.length > 0) {
       let atendidas = historyData.filter(
-        (solicitud) => solicitud.estado === "ATENDIDO"
+        (solicitud) => solicitud.estado.toUpperCase() === "ATENDIDO"
       );
       let pendientes = historyData.filter(
-        (solicitud) => solicitud.estado === "PENDIENTE"
+        (solicitud) => solicitud.estado.toUpperCase() === "PENDIENTE"
       );
       let ausentes = historyData.filter(
-        (solicitud) => solicitud.estado === "AUSENTE"
+        (solicitud) => solicitud.estado.toUpperCase() === "AUSENTE"
       );
       let rechazadas = historyData.filter(
-        (solicitud) => solicitud.estado === "RECHAZADO"
+        (solicitud) => solicitud.estado.toUpperCase() === "RECHAZADO"
+      );
+      let aceptadas = historyData.filter(
+        (solicitud) => solicitud.estado.toUpperCase() === "ACEPTADA"
       );
 
       setContAtendidas(atendidas.length);
       setContPendientes(pendientes.length);
       setContAusentes(ausentes.length);
       setcontRechazadas(rechazadas.length);
+      setContAceptadas(aceptadas.length);
     }
   };
 
@@ -85,14 +91,14 @@ const HistoryView = () => {
         const response3 = await getMateriaById(history[i].id_materia);
         console.log("🚀 ~ file: HistoryView.js:89 ~ obtieneDatosReporte ~ response3:", response3)
 
-        if(response3.status === 200) {
+        if (response3.status === 200) {
           history[i].nombreMateria = response3.data[0].nombre;
         }
 
         const response4 = await getSeccionById(history[i].id_seccion);
         console.log("🚀 ~ file: HistoryView.js:93 ~ obtieneDatosReporte ~ response4:", response4)
 
-        if(response.status === 200) {
+        if (response.status === 200) {
           history[i].seccion = response4.data[0].numero
         }
 
@@ -106,40 +112,50 @@ const HistoryView = () => {
   };
 
   return (
-    <Layout>
-      <div className="px-6">
-        <h1>Reportes de datos</h1>
+    <div>
+      <div className="px-1 md:px-6">
+        <p className="text-xl font-bold md:text-3sxl">Reportes de solicitudes</p>
 
-        <div className="flex flex-row w-full justify-content-between">
-          <div className="bg-green-500 p-4 border-round-xl shadow-3">
-            <p className="m-0 text-white font-bold text-lg pb-2">
+        <Divider />
+
+        <div className="grid w-full flex justify-content-center md:justify-content-between gap-1">
+          <div className="col-5 md:col-2 bg-green-500 text-center md:p-4 border-round-xl shadow-3">
+            <p className="m-0 text-white font-bold md:text-lg pb-2">
+              SOLICITUDES ACEPTADAS
+            </p>
+            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
+              {contAceptadas}
+            </p>
+          </div>
+          <div className="col-5 md:col-2 bg-green-800 text-center md:p-4 border-round-xl shadow-3">
+            <p className="m-0 text-white font-bold md:text-lg pb-2">
               SOLICITUDES ATENDIDAS
             </p>
-            <p className="m-0 text-center text-white font-bold text-6xl">
+            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
               {contAtendidas}
             </p>
           </div>
-          <div className="bg-yellow-500 p-4 border-round-xl shadow-3">
-            <p className="m-0 text-white font-bold text-lg pb-2">
+          <div className="col-5 md:col-2 bg-blue-500 text-center md:p-4 border-round-xl shadow-3">
+            <p className="m-0 text-white font-bold md:text-lg pb-2">
               SOLICITUDES PENDIENTES
             </p>
-            <p className="m-0 text-center text-white font-bold text-6xl">
+            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
               {contPendientes}
             </p>
           </div>
-          <div className="bg-orange-500 p-4 border-round-xl shadow-3">
-            <p className="m-0 text-white font-bold text-lg pb-2">
+          <div className="col-5 md:col-2 bg-orange-500 text-center md:p-4 border-round-xl shadow-3">
+            <p className="m-0 text-white font-bold md:text-lg pb-2">
               SOLICITUDES AUSENTES
             </p>
-            <p className="m-0 text-center text-white font-bold text-6xl">
+            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
               {contAusentes}
             </p>
           </div>
-          <div className="bg-red-500 p-4 border-round-xl shadow-3">
-            <p className="m-0 text-white font-bold text-lg pb-2">
-              SOLICITUDES RECHAZADASS
+          <div className="col-5 md:col-2 bg-red-500 text-center p-1 md:p-4 border-round-xl shadow-3">
+            <p className="m-0 text-white font-bold md:text-lg pb-2">
+              SOLICITUDES RECHAZADAS
             </p>
-            <p className="m-0 text-center text-white font-bold text-6xl">
+            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
               {contRechazadas}
             </p>
           </div>
@@ -149,7 +165,7 @@ const HistoryView = () => {
           <DataHistoryTable historyData={historyData} />
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

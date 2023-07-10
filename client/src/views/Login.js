@@ -47,14 +47,20 @@ const Login = () => {
     }
   };
 
+  const titleTemplate = (
+    <div>
+      <p className="text-center md:text-left text-2xl font-bold">Bienvenido al sistema de consultas y revisiones</p>
+    </div>
+  )
+
   return (
-    <div className="flex w-full h-screen justify-content-center align-items-center surface-ground">
-      <Card title="Bienvenido al sistema de consultas y revisiones">
-        <div className="flex flex-row w-full">
+    <div className="flex w-full h-screen justify-content-center align-items-center surface-ground px-3">
+      <Card title={titleTemplate}>
+        <div className="flex flex-column justify-content-center align-items-center md:flex-row w-full">
           <div className="flex w-8 justify-content-center align-items-center">
             <img
               src="https://www.uca.edu.sv/realidad.empresarial/wp-content/uploads/2018/09/logo-uca2.png"
-              className="w-8"
+              className="w-8 mb-3 md:mb-0"
             />
           </div>
           <div className="flex flex-column justify-content-center align-items-center gap-4">

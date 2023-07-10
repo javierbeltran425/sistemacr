@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ContextUsuario } from "../context/usuario";
+import { useNavigate } from "react-router-dom";
 
 //custom components
 import Layout from "../components/layout/Layout";
@@ -15,53 +16,31 @@ import "../constants/usuario";
 import { USUARIO_ROLES } from "../constants/usuario";
 
 const HomePage = () => {
-  const [selectedTeacher, setSelectedTeacher] = useState(null);
-  const [teachers, setTeachers] = useState([
-    {
-      name: "Ronaldo Canizales",
-    },
-    {
-      name: "Mauricio Grande",
-    },
-  ]);
-  const tramites = ["Consulta", "Revision"];
-  const [selectedTramite, setSelectedTramite] = useState("Consulta");
   const usuario = React.useContext(ContextUsuario);
+  const navigate = useNavigate()
+
+  const switchRoute = () => {
+    switch (usuario.rol) {
+      case "profesor":
+        return <CalendarTeacher />
+
+      case "estudiante":
+        return <CalendarStudent />
+
+      case "admin":
+        navigate("/admin");
+
+      default:
+
+        break;
+    }
+  }
 
   return (
     <Layout>
       <div className="w-full lg:px-6 py-3">
-        {/*
-                <div className='flex w-full flex-row justify-content-between'>
-                    <div className='flex'>
-                        <p>Seleccione el trámite que desea hacer: </p>
-                        {
-                            tramites.map((tramite) => {
-                                return <div
-                                    className={`${selectedTramite === tramite ? "bg-blue-100 " : "surface-ground "} mx-2 px-2 border-round shadow-1 hover:bg-blue-100 cursor-pointer`}
-                                    onClick={() => { setSelectedTramite(tramite) }}
-                                >
-                                    <p>{tramite}</p>
-                                </div>
-                            })
-                        }
-                    </div>
-
-                    <Dropdown value={selectedTeacher} onChange={(e) => setSelectedTeacher(e.value)} options={teachers} optionLabel="name"
-                        filter placeholder="Seleccione un catedrático" className="w-full md:w-16rem" />
-                </div>
-
-                <div className='w-full mt-4'>
-                    <History />
-                </div>
-                */}
-
         <div className="mt-4">
-          {usuario.rol === USUARIO_ROLES.PROFESOR ? (
-            <CalendarTeacher />
-          ) : (
-            <CalendarStudent />
-          )}
+          {switchRoute()}
         </div>
       </div>
     </Layout>
