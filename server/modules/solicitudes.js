@@ -52,7 +52,8 @@ const getSolicitudesByIdSeccion = async function (req, res) {
         "estado"
       )
       .from("solicitudes")
-      .where({ id_seccion: id_seccion });
+      .where({ id_seccion: id_seccion })
+      .whereNot({ archivada: true });
     res.json(solicitudes);
   } catch (error) {
     res.status(400).send(error);
@@ -80,6 +81,7 @@ const getSolicitudesUsuariosByIdSeccion = async function (req, res) {
       )
       .from("solicitudes")
       .whereIn("id_seccion", id_seccion)
+      .whereNot({ archivada: true })
       .join("usuarios", "usuarios.id_usuario", "solicitudes.id_usuario");
     res.json(solicitudes);
   } catch (error) {
@@ -144,6 +146,21 @@ const actualizaEstadoSolicitud = async function (req, res) {
   }
 };
 
+const archivarSolicitud = async function (req, res) {
+  const { id_solicitud } = req.params;
+  try {
+    const updatedSolicitud = await knex("solicitudes")
+      .where({ id_solicitud: id_solicitud })
+      .update({
+        archivada: true,
+      });
+    res.json(updatedSolicitud);
+  } catch (error) {
+    res.status(400).send(error);
+    console.error(error);
+  }
+};
+
 const deleteSolicitud = async function (req, res) {
   const { id_solicitud } = req.params;
   try {
@@ -165,4 +182,5 @@ module.exports = {
   deleteSolicitud,
   editSolicitud,
   getAllSolicitudes,
+  archivarSolicitud,
 };

@@ -334,10 +334,11 @@ class CalendarAlt extends React.Component {
   }
 
   //  Updates Existing Appointments Title and/or Description
+  /* TEMP
   async updateEvent() {
     const { title, desc, tipo, start, end, events, clickedEvent, email } =
       this.state;
-    const index = events.findIndex((event) => event === clickedEvent);
+    const index = this.state.clickedEvent.id;
     const updatedEvent = events.slice();
     updatedEvent[index].title = title;
     updatedEvent[index].desc = desc;
@@ -392,16 +393,15 @@ class CalendarAlt extends React.Component {
       this.showError("Ha ocurrido un error en la modificación de su solicitud");
     }
   }
+  */
 
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
     const { email } = this.state;
 
-    let eventToDelete = this.state.events.find(
-      (event) => event["start"] === this.state.start
-    );
+    let eventToDelete = this.state.clickedEvent;
     let updatedEvents = this.state.events.filter(
-      (event) => event["start"] !== this.state.start
+      (event) => event !== eventToDelete
     );
     // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvents));
     this.setState({ events: updatedEvents });
@@ -537,14 +537,6 @@ class CalendarAlt extends React.Component {
     }
   }
 
-  /*
-  minuteConverter(time) {
-    const [h, m] = time.split(':');
-    const value = +h + m / 60;
-    return value.toFixed(2);
- }
- */
-
   showSuccess(message) {
     this.toast.show({
       severity: "success",
@@ -568,28 +560,6 @@ class CalendarAlt extends React.Component {
 
     const customSlotPropGetter = (date) => {
       const backgroundEvents = this.state.backgroundEvents;
-      /*
-      var d = date.getHours() + date.getMinutes() / 60.0;
-      for (let i = 0; i < backgroundEvents.length; i++) {
-        let t1 =
-          backgroundEvents[i].start.getHours() +
-          backgroundEvents[i].start.getMinutes() / 60.0;
-        let t2 =
-          backgroundEvents[i].end.getHours() +
-          backgroundEvents[i].end.getMinutes() / 60.0;
-        if (
-          date.getDay() == backgroundEvents[i].start.getDay() &&
-          d >= t1 &&
-          d < t2
-        ) {
-          return {
-            style: {
-              backgroundColor: "#C2F5DA",
-            },
-          };
-        }
-      }
-      */
       for (let i = 0; i < backgroundEvents.length; i++) {
         if (
           backgroundEvents[i].start <= date &&
@@ -714,7 +684,7 @@ class CalendarAlt extends React.Component {
           }}
           onSelectSlot={(slotInfo) => {
             !this.concurrentEventExists(slotInfo) &&
-              this.fitsOnSchedule(slotInfo)
+            this.fitsOnSchedule(slotInfo)
               ? this.handleSlotSelected(slotInfo)
               : this.showError("El horario seleccionado no está disponible.");
           }}

@@ -37,6 +37,7 @@ import IconButton from "@mui/material/IconButton";
 import Collapse from "@mui/material/Collapse";
 import CloseIcon from "@mui/icons-material/Close";
 import Zoom from "@mui/material/Zoom";
+import Modal from "@mui/material/Modal";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -57,9 +58,9 @@ import {
 } from "../services/HorariosServices";
 import {
   getSolicitudesUsuariosByIdSeccion,
-  deleteSolicitud,
   editSolicitud,
   actualizaEstadoSolicitud,
+  archivarSolicitud,
 } from "../services/SolicitudesServices";
 import { EnviaNotificacione } from "../services/NotificacionesServices";
 
@@ -106,6 +107,7 @@ class CalendarAlt extends React.Component {
       timeIsChanged: false,
       alertIsOpen: true,
       clickedEvent: {},
+      showArchiveModal: false,
     };
     this.handleClose = this.handleClose.bind(this);
   }
@@ -224,6 +226,10 @@ class CalendarAlt extends React.Component {
     this.setState({ openEvent: false, openSlot: false });
   }
 
+  handleCloseArchiveModal() {
+    this.setState({ showArchiveModal: false });
+  }
+
   //  Allows user to click on calendar slot and handles if appointment exists
   handleSlotSelected(slotInfo) {
     console.log("Real slotInfo", slotInfo);
@@ -276,28 +282,15 @@ class CalendarAlt extends React.Component {
 
   //  Updates Existing Appointments Title and/or Description
   async updateEvent() {
-    const { title, desc, tipo, start, end, events, clickedEvent, email } =
-      this.state;
-    const index = events.findIndex((event) => event === clickedEvent);
-    const updatedEvent = events.slice();
-    updatedEvent[index].title = title;
-    updatedEvent[index].desc = desc;
-    updatedEvent[index].start = start;
-    updatedEvent[index].end = end;
-    updatedEvent[index].tipo = tipo;
-    // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvent));
-    this.setState({
-      events: updatedEvent,
-    });
+    const { title, desc, tipo, start, end, clickedEvent, email } = this.state;
 
     const data = {
-      id_solicitud: updatedEvent[index].id,
+      id_solicitud: clickedEvent.id,
       title: title,
       description: desc,
       tipo: tipo,
       start: start,
       end: end,
-      estado: "PENDIENTE",
     };
     const response = await editSolicitud(data).catch((err) => {
       console.error(err);
@@ -313,41 +306,6 @@ class CalendarAlt extends React.Component {
       this.getSolicitudes();
     } else {
       this.showError("Ha ocurrido un error al actualizar el evento");
-    }
-  }
-
-  //  filters out specific event that is to be deleted and set that variable to state
-  async deleteEvent() {
-    const { email } = this.state;
-    console.log(
-      "🚀 ~ file: CalendarTeacher.js:354 ~ CalendarAlt ~ deleteEvent ~ email:",
-      email
-    );
-    let eventToDelete = this.state.events.find(
-      (event) => event["start"] === this.state.start
-    );
-    let updatedEvents = this.state.events.filter(
-      (event) => event["start"] !== this.state.start
-    );
-    // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvents));
-    this.setState({ events: updatedEvents });
-
-    console.log("Evento a eliminar: ", this.state.events);
-
-    const response = await deleteSolicitud(eventToDelete.id).catch((err) => {
-      console.error(err);
-    });
-    console.log(
-      "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
-      response
-    );
-
-    if (response.status === 200) {
-      this.envioNotificacionRechazo(email);
-      this.showSuccess("El evento ha sido eliminado con éxito");
-      this.getSolicitudes();
-    } else {
-      this.showError("Ha ocurrido un error al eliminar el evento");
     }
   }
 
@@ -400,8 +358,6 @@ class CalendarAlt extends React.Component {
 
   actualizarSolicitudEstado = async (estado) => {
     try {
-      console.log("evento a actualizar su estado: ", this.state.events);
-
       const body = {
         id_solicitud: this.state.clickedEvent.id,
         estado: estado,
@@ -433,6 +389,25 @@ class CalendarAlt extends React.Component {
           default:
             break;
         }
+      } else {
+        this.showError("Ha ocurrido un error al responder la solicitud");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  archivarSolicitud = async (id_solicitud) => {
+    try {
+      const response = await archivarSolicitud(id_solicitud);
+      console.log(
+        "🚀 ~ file: CalendarTeacher.js:420 ~ CalendarAlt ~ response ~ response:",
+        response
+      );
+
+      if (response.status === 200) {
+        this.showSuccess("La solicitud ha sido archivada");
+        this.getSolicitudes();
       } else {
         this.showError("Ha ocurrido un error al responder la solicitud");
       }
@@ -527,9 +502,65 @@ class CalendarAlt extends React.Component {
       }
     };
 
+    const style = {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 400,
+      bgcolor: "background.paper",
+      border: "2px solid #000",
+      boxShadow: 24,
+      p: 4,
+    };
+
     return (
       <div id="Calendar">
         <Toast ref={(el) => (this.toast = el)} />
+
+        <div>
+          <Modal
+            open={this.state.showArchiveModal}
+            onClose={this.handleCloseArchiveModal}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                ¿Deseas ocultar la solicitud? (El espacio estará disponible de
+                nuevo)
+              </Typography>
+              <Stack
+                direction="row"
+                sx={{ display: "flex", justifyContent: "flex-end" }}
+              >
+                <Button
+                  label="Delete"
+                  secondary={"true"}
+                  onClick={() => {
+                    this.handleCloseArchiveModal();
+                  }}
+                  variant="outlined"
+                  sx={{ marginRight: 1 }}
+                >
+                  NO
+                </Button>
+                <Button
+                  label="Confirm Edit"
+                  secondary={"true"}
+                  onClick={() => {
+                    this.archivarSolicitud(this.state.clickedEvent.id),
+                      this.handleCloseArchiveModal();
+                  }}
+                  variant="outlined"
+                >
+                  SI
+                </Button>
+              </Stack>
+            </Box>
+          </Modal>
+        </div>
+
         <Box
           sx={{ minWidth: 120, maxWidth: "80%" }}
           className="flex w-full justify-content-end mb-5 lg:mb-0 mx-auto"
@@ -763,6 +794,7 @@ class CalendarAlt extends React.Component {
                     this.actualizarSolicitudEstado(
                       SOLICITUDES_ESTADOS.RECHAZADO
                     ),
+                      this.setState({ showArchiveModal: true }),
                       this.handleClose();
                   }}
                   variant="outlined"
@@ -776,10 +808,10 @@ class CalendarAlt extends React.Component {
                     label="Confirm Edit"
                     secondary={"true"}
                     onClick={() => {
-                      this.actualizarSolicitudEstado(
-                        SOLICITUDES_ESTADOS.ACEPTADO
-                      ),
-                        this.updateEvent(),
+                      this.updateEvent(),
+                        this.actualizarSolicitudEstado(
+                          SOLICITUDES_ESTADOS.ACEPTADO
+                        ),
                         this.handleClose();
                     }}
                     variant="outlined"
@@ -807,8 +839,8 @@ class CalendarAlt extends React.Component {
                 )}
               </Stack>
             )}
-            {moment().toDate().getTime() &&
-              this.state.estado >= this.state.start && (
+            {moment().toDate().getTime() >= this.state.start &&
+              this.state.estado == SOLICITUDES_ESTADOS.ACEPTADO && (
                 <Stack>
                   <Zoom in={this.state.openEvent}>
                     <Stack direction="row">
@@ -842,6 +874,24 @@ class CalendarAlt extends React.Component {
                   </Zoom>
                 </Stack>
               )}
+            {this.state.estado == SOLICITUDES_ESTADOS.RECHAZADO && (
+              <Stack>
+                <Zoom in={this.state.openEvent}>
+                  <Stack direction="row">
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        this.archivarSolicitud(this.state.clickedEvent.id),
+                          this.handleCloseArchiveModal();
+                        this.handleClose();
+                      }}
+                    >
+                      OCULTAR SOLICITUD
+                    </Button>
+                  </Stack>
+                </Zoom>
+              </Stack>
+            )}
           </DialogActions>
         </Dialog>
       </div>

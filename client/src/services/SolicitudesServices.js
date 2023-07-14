@@ -39,6 +39,13 @@ export const actualizaEstadoSolicitud = async (data) => {
   });
 };
 
+export const archivarSolicitud = async (id_solicitud) => {
+  return axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/archivarsolicitud/${id_solicitud}`,
+  });
+};
+
 export const getReporte = async () => {
   return axios({
     method: "GET",
