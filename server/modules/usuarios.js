@@ -93,6 +93,7 @@ const createUsuario = async function (req, res) {
 
   try {
     const newUsuario = await knex("usuarios").returning("id_usuario").insert({
+      id_usuario: email.split('@')[0],
       email: email,
       nombre: nombre,
       hashed_password: hashedPassword,
@@ -135,6 +136,9 @@ const createUsuario = async function (req, res) {
 };
 
 const bulkCreateUsuario = async function (req, res) {
+
+  let purge = document.getElementById('purge').checked;
+
   for (let i = 0; i < req.body.length; i++) {
     const salt = bcrypt.genSaltSync(10);
     req.body[i].hashed_password = bcrypt.hashSync(
@@ -143,14 +147,38 @@ const bulkCreateUsuario = async function (req, res) {
     );
   }
 
+  const {id_usuario, nombre, id_carrera, id_materia, id_seccion, rol, email} = req.body;
+
+  let usuarios = {id_usuario, nombre, id_carrera, rol, email};
+
+  let clean = usuarios.filter((usuarios, index, self) =>
+  index === self.findIndex((t) => (t.save === usuarios.save && t.State === usuarios.State)))
+
+  let materias = {id_usuario, id_materia, id_seccion};
   try {
-    const newUsuarios = await knex.batchInsert("usuarios", req.body, 1000);
-    res.json(newUsuarios);
+  if(purge){
+      await knex('usuarios').del().where('rol', '==', 'estudiante').then(
+        function(){
+          knex.batchInsert("usuarios", clean, 1000).then(
+            function(){
+              knex.batchInsert("usuariosxmaterias", materias, 1000);
+            }
+          );
+        }
+      );
+  }else{
+    await knex.batchInsert("usuarios", clean, 1000).then(
+      function(){
+        knex.batchInsert("usuariosxmaterias", materias, 1000);
+      }
+    );
+  }
+   
   } catch (error) {
     res.status(400).send(error);
-    console.log(error);
-    console.error(error);
+    
   }
+  
 };
 
 const editUsuario = async function (req, res) {

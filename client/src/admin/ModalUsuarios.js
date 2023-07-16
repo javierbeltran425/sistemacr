@@ -44,6 +44,9 @@ const ModalUsuarios = ({
     try {
       let data = newUsuario;
       data.materias = newMaterias;
+
+      console.log(data);
+      
       const resp = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/usuarios/createusuario`,
         {

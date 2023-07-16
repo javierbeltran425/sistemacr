@@ -101,6 +101,7 @@ const createMateria = async function (req, res) {
 
     const arrsecciones = Array.from({ length: numsecciones }, (_, i) => i + 1);
     const fieldsToInsert = arrsecciones.map((seccion) => ({
+      id_seccion: newMateria[0].id_materia + seccion,
       id_materia: newMateria[0].id_materia,
       numero: seccion,
     }));

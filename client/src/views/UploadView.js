@@ -12,9 +12,11 @@ function Upload() {
   const [currentFile, setCurrentFile] = useState(undefined);
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
+  const [jsonArray, setJsonArray] = useState([]);
   let files;
+  //let jsonArray;
   let enableButton = true;
-  let jsonArray;
+  
   
 
   const columns = useMemo(
@@ -24,7 +26,7 @@ function Upload() {
         columns: [
           {
             Header: "Nombre",
-            accessor: "nombre"
+            accessor: "NOMBRES"
           },
           {
             Header: "Email",
@@ -32,7 +34,7 @@ function Upload() {
           },
           {
             Header: "Carrera",
-            accessor: "carrera"
+            accessor: "NBR_CARRERA"
           },
           {
             Header: "Rol",
@@ -76,18 +78,16 @@ String.prototype.shuffle = function() {
 };
 
 function generateStartingPass(){
-  let specials = '!@#$%^&*()_+{}:"<>?\|[];\',./`~';
   let lowercase = 'abcdefghijklmnopqrstuvwxyz';
   let uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let numbers = '0123456789';
 
-  let all = specials + lowercase + uppercase + numbers;
+  let all = lowercase + uppercase + numbers;
 
   let password = '';
-  password += specials.pick(1);
   password += lowercase.pick(1);
   password += uppercase.pick(1);
-  password += all.pick(3, 10);
+  password += all.pick(4);
   password += numbers.pick(1);
   password = password.shuffle();
 
@@ -102,15 +102,21 @@ function mergeCSVs(csv){
 }
 
   const result = csv.join("\n"); 
-
+  
   return result;
 }
 
 async function sendJson(){
-  
-  for(let i = 0; i < jsonArray.length; i++) {
-    jsonArray[i].hashed_password = generateStartingPass();
+
+
+  let data = jsonArray.map(({ CARNET, NOMBRES, COD_CARRERA, COD_MATERIA, COD_CLAVE, rol, email }) => ({id_usuario: CARNET, nombre: NOMBRES, id_carrera: COD_CARRERA, id_materia: COD_MATERIA, id_seccion: (COD_MATERIA + COD_CLAVE),  rol: rol, email: email}));
+
+  for(let i = 0; i < data.length; i++) {
+    data[i].hashed_password = generateStartingPass();
   }
+
+  console.log(data);
+  console.log(JSON.stringify(data));
 
   try {
     const resp = await fetch(
@@ -118,7 +124,7 @@ async function sendJson(){
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(jsonArray),
+        body: JSON.stringify(data),
       }
     );
 
@@ -127,19 +133,26 @@ async function sendJson(){
     }
     
   } catch (error) {
-    console.error(error);
+    console.error("Error: ", error);
   }
 }
 
 async function showImport(theData){
-  jsonArray = await csv().fromString(theData);
-  setData(jsonArray);
+  let jsonVar = await csv().fromString(theData);
+ 
+  for(let i = 0; i < jsonVar.length; i++) {
+    jsonVar[i].rol = "estudiante";
+    jsonVar[i].email = jsonVar[i].CARNET + "@uca.edu.sv";
+
+  }
+  setJsonArray(jsonVar);
+  setData(jsonVar);
   enableButton = false;
 }
 
 async function readFile() {
   const fileInput = document.getElementById('fileUpload');
-  files =  fileInput.files;
+  files = fileInput.files;
   let promises = [];
   let result;
   for (let file of files) {
@@ -154,7 +167,7 @@ async function readFile() {
   Promise.all(promises).then(fileContents => {
    result = mergeCSVs(fileContents).split(/\r?\n/)
     .filter(line => line.trim() !== "")
-    .join("\n"); mergeCSVs(fileContents);
+    .join("\n"); 
 
     showImport(result);
    
@@ -190,11 +203,24 @@ async function readFile() {
       </label>
 
       <button
-        className="btn btn-success"
+        className="btn btn-success uploadButton"
         onClick={sendJson}
       >
-        Upload
+        Importar
       </button>
+
+      <br></br>  
+
+      <div className="container">
+          <label className="switch" htmlFor="purge">
+          <input type="checkbox" id="purge"/>
+          <div className="slider round"></div>
+          </label>
+      </div>
+
+      <p> Purgar Estudiantes de Base de Datos </p>
+
+      <br></br>  
 
       <div className="alert alert-light" role="alert">
         {message}
