@@ -139,10 +139,12 @@ const createUsuario = async function (req, res) {
 
 const bulkCreateUsuario = async function (req, res) {
 
+
   let usuariosData = req.body.map(({ id_usuario, nombre, id_carrera, rol, email, hashed_password}) => ({id_usuario: id_usuario, nombre: nombre, id_carrera: id_carrera, rol: rol, email: email, hashed_password: hashed_password}));
 
+  //let purge = document.getElementById('purge').checked;
 
-  let purge = document.getElementById('purge').checked;
+  let purge = false;
 
   for (let i = 0; i < usuariosData.length; i++) {
     const salt = bcrypt.genSaltSync(10);
@@ -153,36 +155,28 @@ const bulkCreateUsuario = async function (req, res) {
   }
 
   let clean = usuariosData.filter((usuariosData, index, self) =>
-  index === self.findIndex((t) => (t.save === usuariosData.save && t.State === usuariosData.State)))
+  index === self.findIndex((t) => (t.id_usuario === usuariosData.id_usuario)));
 
   let materiasData = req.body.map(({ id_usuario, id_materia, id_seccion}) => ({id_usuario: id_usuario, id_materia: id_materia, id_seccion: id_seccion}));
 
   try {
+
   if(purge){
-      await knex('usuarios').del().where('rol', '==', 'estudiante').then(
-        function(){
-          knex.batchInsert("usuarios", clean, 1000).then(
-            function(){
-              knex.batchInsert("usuariosxmaterias", materiasData, 1000);
-            }
-          );
-        }
-      ).catch(err => alert(err));
-  }else{
-    await knex.batchInsert("usuarios", clean, 1000).then(
-      function(res){
-        console.log(req.body);
-        console.log(res);
-        knex.batchInsert("usuariosxmaterias", materias, 1000);
-      }
-    ).catch(err => alert(err));
+    newUsuarios = await knex('usuarios').del().where('rol', '==', 'estudiante')
   }
-   
+
+  const newUsuarios = await knex.batchInsert("usuarios", clean, 1000).returning('email').onConflict('id_usuario')
+  .ignore();
+
+  await knex.batchInsert("usuariosxmaterias", materiasData, 1000);
+
+  res.json(newUsuarios);
+
   } catch (error) {
     res.status(400).send(error);
     
   }
-  
+
 };
 
 const editUsuario = async function (req, res) {

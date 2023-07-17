@@ -114,9 +114,6 @@ async function sendJson(){
     data[i].hashed_password = generateStartingPass();
   }
 
-  console.log(data);
-  console.log(typeof JSON.stringify(data));
-
  try {
     const resp = await fetch(
       `${process.env.REACT_APP_SERVER_URL}/usuarios/bulkcreateusuario`,
@@ -128,8 +125,9 @@ async function sendJson(){
     );
 
     if (resp.status === 200) {
-      window.alert("Alumnos importados exitosamente.");
+      console.log(resp.json());
     }
+    
     
   } catch (error) {
     console.error("Error: ", error);
