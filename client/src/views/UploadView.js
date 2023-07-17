@@ -4,7 +4,6 @@ import "../styles/Table.css";
 import Layout from "../components/layout/Layout";
 import {csv} from "csvtojson";
 
-
 function Upload() {
 
   const [data, setData] = useState([]);
@@ -116,9 +115,9 @@ async function sendJson(){
   }
 
   console.log(data);
-  console.log(JSON.stringify(data));
+  console.log(typeof JSON.stringify(data));
 
-  try {
+ try {
     const resp = await fetch(
       `${process.env.REACT_APP_SERVER_URL}/usuarios/bulkcreateusuario`,
       {

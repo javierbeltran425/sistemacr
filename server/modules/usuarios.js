@@ -91,9 +91,11 @@ const createUsuario = async function (req, res) {
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
 
+  const IdUsuario = email.split('@')[0];
+
   try {
     const newUsuario = await knex("usuarios").returning("id_usuario").insert({
-      id_usuario: email.split('@')[0],
+      id_usuario: IdUsuario,
       email: email,
       nombre: nombre,
       hashed_password: hashedPassword,
@@ -109,7 +111,7 @@ const createUsuario = async function (req, res) {
     materias.forEach((materia) => {
       materia.arrsecciones.forEach((id_seccion) => {
         fieldsToInsert.push({
-          id_usuario: newUsuario[0].id_usuario,
+          id_usuario: IdUsuario,
           id_materia: materia.id_materia,
           id_seccion: id_seccion,
         });
@@ -125,7 +127,7 @@ const createUsuario = async function (req, res) {
     if (rol == "profesor") {
       await knex("secciones")
         .whereIn("id_seccion", fieldsToUpdate)
-        .update({ id_profesor: newUsuario[0].id_usuario });
+        .update({ id_profesor: IdUsuario});
     }
 
     res.json(newUsuario);
@@ -137,41 +139,43 @@ const createUsuario = async function (req, res) {
 
 const bulkCreateUsuario = async function (req, res) {
 
+  let usuariosData = req.body.map(({ id_usuario, nombre, id_carrera, rol, email, hashed_password}) => ({id_usuario: id_usuario, nombre: nombre, id_carrera: id_carrera, rol: rol, email: email, hashed_password: hashed_password}));
+
+
   let purge = document.getElementById('purge').checked;
 
-  for (let i = 0; i < req.body.length; i++) {
+  for (let i = 0; i < usuariosData.length; i++) {
     const salt = bcrypt.genSaltSync(10);
-    req.body[i].hashed_password = bcrypt.hashSync(
-      req.body[i].hashed_password,
+    usuariosData[i].hashed_password = bcrypt.hashSync(
+      usuariosData[i].hashed_password,
       salt
     );
   }
 
-  const {id_usuario, nombre, id_carrera, id_materia, id_seccion, rol, email} = req.body;
+  let clean = usuariosData.filter((usuariosData, index, self) =>
+  index === self.findIndex((t) => (t.save === usuariosData.save && t.State === usuariosData.State)))
 
-  let usuarios = {id_usuario, nombre, id_carrera, rol, email};
+  let materiasData = req.body.map(({ id_usuario, id_materia, id_seccion}) => ({id_usuario: id_usuario, id_materia: id_materia, id_seccion: id_seccion}));
 
-  let clean = usuarios.filter((usuarios, index, self) =>
-  index === self.findIndex((t) => (t.save === usuarios.save && t.State === usuarios.State)))
-
-  let materias = {id_usuario, id_materia, id_seccion};
   try {
   if(purge){
       await knex('usuarios').del().where('rol', '==', 'estudiante').then(
         function(){
           knex.batchInsert("usuarios", clean, 1000).then(
             function(){
-              knex.batchInsert("usuariosxmaterias", materias, 1000);
+              knex.batchInsert("usuariosxmaterias", materiasData, 1000);
             }
           );
         }
-      );
+      ).catch(err => alert(err));
   }else{
     await knex.batchInsert("usuarios", clean, 1000).then(
-      function(){
+      function(res){
+        console.log(req.body);
+        console.log(res);
         knex.batchInsert("usuariosxmaterias", materias, 1000);
       }
-    );
+    ).catch(err => alert(err));
   }
    
   } catch (error) {
