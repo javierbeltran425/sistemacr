@@ -314,10 +314,33 @@ class CalendarAlt extends React.Component {
       const body = {
         sendemail: email,
         emailcontent: `
-          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <h1>Correo automático del sistema de solicitudes DEI</h1>
           <br/>
-          <p>Estimado estudiante, se le notifica que el catedrático ha rechazado su solicitud de espacio para consulta/rebición</p>
-          <p>Se recomienta ponerse en contacto con su catedrático para analizar más opciones</p>
+          <p>Estimado estudiante, se le notifica que el catedrático ha rechazado su solicitud de espacio para consulta/revisión</p>
+          <p>Se recomienda ponerse en contacto con su catedrático para analizar más opciones</p>
+        `,
+      };
+
+      const response = await EnviaNotificacione(body).catch((err) => {
+        console.error(err);
+      });
+      console.log(
+        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
+        response
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  envioNotificacionAceptada = async (email) => {
+    try {
+      const body = {
+        sendemail: email,
+        emailcontent: `
+          <h1>Correo automático del sistema de solicitudes DEI</h1>
+          <br/>
+          <p>Estimado estudiante, se le notifica que el catedrático ha aceptado su solicitud de espacio para consulta/revisión</p>
         `,
       };
 
@@ -338,7 +361,7 @@ class CalendarAlt extends React.Component {
       const body = {
         sendemail: email,
         emailcontent: `
-          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <h1>Correo automático del sistema de solicitudes DEI</h1>
           <br/>
           <p>Estimado estudiante, se le notifica que el catedrático ha hecho una modificación en su solicitud.</p>
         `,
@@ -387,6 +410,7 @@ class CalendarAlt extends React.Component {
             break;
 
           default:
+            this.envioNotificacionAceptada(email)
             break;
         }
       } else {
@@ -644,12 +668,12 @@ class CalendarAlt extends React.Component {
           onSelectEvent={(event) => {
             this.handleEventSelected(event);
           }}
-          /*onSelectSlot={(slotInfo) => {
-          !this.concurrentEventExists(slotInfo) &&
-          this.fitsOnSchedule(slotInfo)
-            ? this.handleSlotSelected(slotInfo)
-            : null;
-        }}*/
+        /*onSelectSlot={(slotInfo) => {
+        !this.concurrentEventExists(slotInfo) &&
+        this.fitsOnSchedule(slotInfo)
+          ? this.handleSlotSelected(slotInfo)
+          : null;
+      }}*/
         />
 
         {/* Material-ui Modal for booking existing appointment */}

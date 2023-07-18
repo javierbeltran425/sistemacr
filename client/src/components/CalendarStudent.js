@@ -153,7 +153,6 @@ class CalendarAlt extends React.Component {
       ).catch((err) => {
         console.error(err);
       });
-      // console.log("🚀 ~ file: CalendarAlt.js:80 ~ CalendarAlt ~ response ~ response:", response)
 
       if (response.status === 200) {
         const json = response.data;
@@ -333,68 +332,6 @@ class CalendarAlt extends React.Component {
     }
   }
 
-  //  Updates Existing Appointments Title and/or Description
-  /* TEMP
-  async updateEvent() {
-    const { title, desc, tipo, start, end, events, clickedEvent, email } =
-      this.state;
-    const index = this.state.clickedEvent.id;
-    const updatedEvent = events.slice();
-    updatedEvent[index].title = title;
-    updatedEvent[index].desc = desc;
-    updatedEvent[index].start = start;
-    updatedEvent[index].end = end;
-    updatedEvent[index].tipo = tipo;
-    // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvent));
-    this.setState({
-      events: updatedEvent,
-    });
-
-    const data = {
-      id_solicitud: updatedEvent[index].id,
-      title: title,
-      description: desc,
-      tipo: tipo,
-      start: start,
-      end: end,
-    };
-    const response = await editSolicitud(data).catch((err) => {
-      console.error(err);
-    });
-    console.log(
-      "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
-      response
-    );
-
-    if (response.status === 200) {
-      const response2 = await getInfoUsuario({
-        id_usuario: this.state.seccionSeleccionada.id_profesor,
-      }).catch((err) => {
-        console.error(err);
-      });
-
-      const response3 = await getInfoUsuario({
-        id_usuario: this.context.id_usuario,
-      }).catch((err) => {
-        console.error(err);
-      });
-      console.log(
-        "🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:",
-        response3
-      );
-
-      this.envioNotificacionEdita(
-        response2.data[0].email,
-        response3.data[0].nombre
-      );
-
-      this.showSuccess("Su solicitud ha sido modificada con éxito");
-    } else {
-      this.showError("Ha ocurrido un error en la modificación de su solicitud");
-    }
-  }
-  */
-
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
     const { email } = this.state;
@@ -448,7 +385,7 @@ class CalendarAlt extends React.Component {
       const body = {
         sendemail: email,
         emailcontent: `
-          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <h1>Correo automático del sistema de solicitudes DEI</h1>
           <br/>
           <p>Estimado docente, se le notifica que el estudiante  ${nombre}  ha registrado una solicitud en sus horarios disponibles.</p>
         `,
@@ -471,7 +408,7 @@ class CalendarAlt extends React.Component {
       const body = {
         sendemail: email,
         emailcontent: `
-          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <h1>Correo automático del sistema de solicitudes DEI</h1>
           <br/>
           <p>Estimado docente, se le notifica que el estudiante  ${nombre}  ha modificado una solicitud en sus horarios disponibles.</p>
         `,
@@ -494,7 +431,7 @@ class CalendarAlt extends React.Component {
       const body = {
         sendemail: email,
         emailcontent: `
-          <h1>Correo automatico del sistema de solicitudes DEI</h1>
+          <h1>Correo automático del sistema de solicitudes DEI</h1>
           <br/>
           <p>Estimado docente, se le notifica que el estudiante  ${nombre}  ha eliminado una solicitud en sus horarios disponibles.</p>
         `,
@@ -684,7 +621,7 @@ class CalendarAlt extends React.Component {
           }}
           onSelectSlot={(slotInfo) => {
             !this.concurrentEventExists(slotInfo) &&
-            this.fitsOnSchedule(slotInfo)
+              this.fitsOnSchedule(slotInfo)
               ? this.handleSlotSelected(slotInfo)
               : this.showError("El horario seleccionado no está disponible.");
           }}
