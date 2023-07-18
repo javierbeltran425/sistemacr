@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 //custom components
 import Layout from "../components/layout/Layout";
-import History from "../components/History";
 import CalendarStudent from "../components/CalendarStudent";
 import CalendarTeacher from "../components/CalendarTeacher";
 
@@ -17,31 +16,28 @@ import { USUARIO_ROLES } from "../constants/usuario";
 
 const HomePage = () => {
   const usuario = React.useContext(ContextUsuario);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const switchRoute = () => {
     switch (usuario.rol) {
       case "profesor":
-        return <CalendarTeacher />
+        return <CalendarTeacher />;
 
       case "estudiante":
-        return <CalendarStudent />
+        return <CalendarStudent />;
 
       case "admin":
         navigate("/admin");
 
       default:
-
         break;
     }
-  }
+  };
 
   return (
     <Layout>
       <div className="w-full lg:px-6 py-3">
-        <div className="mt-4">
-          {switchRoute()}
-        </div>
+        <div className="mt-4">{switchRoute()}</div>
       </div>
     </Layout>
   );

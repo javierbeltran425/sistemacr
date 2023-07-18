@@ -91,7 +91,7 @@ const createUsuario = async function (req, res) {
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
 
-  const IdUsuario = email.split('@')[0];
+  const IdUsuario = email.split("@")[0];
 
   try {
     const newUsuario = await knex("usuarios").returning("id_usuario").insert({
@@ -127,7 +127,7 @@ const createUsuario = async function (req, res) {
     if (rol == "profesor") {
       await knex("secciones")
         .whereIn("id_seccion", fieldsToUpdate)
-        .update({ id_profesor: IdUsuario});
+        .update({ id_profesor: IdUsuario });
     }
 
     res.json(newUsuario);
@@ -138,9 +138,16 @@ const createUsuario = async function (req, res) {
 };
 
 const bulkCreateUsuario = async function (req, res) {
-
-
-  let usuariosData = req.body.map(({ id_usuario, nombre, id_carrera, rol, email, hashed_password}) => ({id_usuario: id_usuario, nombre: nombre, id_carrera: id_carrera, rol: rol, email: email, hashed_password: hashed_password}));
+  let usuariosData = req.body.map(
+    ({ id_usuario, nombre, id_carrera, rol, email, hashed_password }) => ({
+      id_usuario: id_usuario,
+      nombre: nombre,
+      id_carrera: id_carrera,
+      rol: rol,
+      email: email,
+      hashed_password: hashed_password,
+    })
+  );
 
   //let purge = document.getElementById('purge').checked;
 
@@ -154,29 +161,36 @@ const bulkCreateUsuario = async function (req, res) {
     );
   }
 
-  let clean = usuariosData.filter((usuariosData, index, self) =>
-  index === self.findIndex((t) => (t.id_usuario === usuariosData.id_usuario)));
+  let clean = usuariosData.filter(
+    (usuariosData, index, self) =>
+      index === self.findIndex((t) => t.id_usuario === usuariosData.id_usuario)
+  );
 
-  let materiasData = req.body.map(({ id_usuario, id_materia, id_seccion}) => ({id_usuario: id_usuario, id_materia: id_materia, id_seccion: id_seccion}));
+  let materiasData = req.body.map(({ id_usuario, id_materia, id_seccion }) => ({
+    id_usuario: id_usuario,
+    id_materia: id_materia,
+    id_seccion: id_seccion,
+  }));
 
   try {
+    if (purge) {
+      newUsuarios = await knex("usuarios")
+        .del()
+        .where("rol", "==", "estudiante");
+    }
 
-  if(purge){
-    newUsuarios = await knex('usuarios').del().where('rol', '==', 'estudiante')
-  }
+    const newUsuarios = await knex
+      .batchInsert("usuarios", clean, 1000)
+      .returning("email")
+      .onConflict("id_usuario")
+      .ignore();
 
-  const newUsuarios = await knex.batchInsert("usuarios", clean, 1000).returning('email').onConflict('id_usuario')
-  .ignore();
+    await knex.batchInsert("usuariosxmaterias", materiasData, 1000);
 
-  await knex.batchInsert("usuariosxmaterias", materiasData, 1000);
-
-  res.json(newUsuarios);
-
+    res.json(newUsuarios);
   } catch (error) {
     res.status(400).send(error);
-    
   }
-
 };
 
 const editUsuario = async function (req, res) {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
 // custom components imports
-import CalendarOld from "../components/Calendar(old)";
 import Layout from "../components/layout/Layout";
 import CalendarSchedule from "../components/CalendarSchedule";
 

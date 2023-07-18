@@ -7,7 +7,7 @@ CREATE TABLE carreras (
 );
 
 CREATE TABLE usuarios (
-  id_usuario SERIAL PRIMARY KEY,
+  id_usuario VARCHAR(50) PRIMARY KEY,
   id_carrera INT,
   email VARCHAR(255) NOT NULL UNIQUE,
   hashed_password VARCHAR(255) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE materias (
 );
 
 CREATE TABLE secciones (
-  id_seccion SERIAL PRIMARY KEY,
+  id_seccion VARCHAR(50) PRIMARY KEY,
   numero INT,
   id_materia INT,
   id_profesor INT,
