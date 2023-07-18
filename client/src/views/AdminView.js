@@ -1,4 +1,6 @@
 import * as React from "react";
+import { useEffect } from "react";
+
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -8,11 +10,27 @@ import CRUDusuarios from "../admin/CRUDusuarios";
 import CRUDCarreras from "../admin/CRUDCarreras";
 import CRUDMaterias from "../admin/CRUDMaterias";
 import Layout from "../components/layout/Layout";
+import { ContextUsuario } from "../context/usuario";
 
 import HistoryView from "./HistoryView";
+import { useNavigate } from "react-router-dom";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
+  const navigation = useNavigate()
+
+  const contextUsuario = React.useContext(ContextUsuario);
+
+  useEffect(() => {
+    const checkLogin = () => {
+      if (contextUsuario.rol !== "admin") {
+        navigation('/')
+      }
+    }
+
+    checkLogin()
+  }, [])
+
 
   return (
     <div
