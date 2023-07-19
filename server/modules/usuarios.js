@@ -139,19 +139,9 @@ const createUsuario = async function (req, res) {
 
 const bulkCreateUsuario = async function (req, res) {
 
+
+  const purge = req.body[0];
   const reqData = req.body[1];
-
-  let uIds = [];
-  let mIds = [];
-  let sIds = [];
-
-  
-
-  for(let i = 0; i < reqData.length; i++){
-    uIds.push(reqData[i].id_usuario);
-    mIds.push(reqData[i].id_materia);
-    sIds.push(reqData[i].id_seccion)
-  }
 
   let usuariosData = reqData.map(
     ({ id_usuario, nombre, id_carrera, rol, email, hashed_password }) => ({
@@ -163,8 +153,6 @@ const bulkCreateUsuario = async function (req, res) {
       hashed_password: hashed_password,
     })
   );
-
-  let purge = req.body[0];
 
   for (let i = 0; i < usuariosData.length; i++) {
     const salt = bcrypt.genSaltSync(10);
@@ -182,10 +170,21 @@ const bulkCreateUsuario = async function (req, res) {
     id_seccion: id_seccion,
   }));
 
+  let materiasxcarrerasData = reqData.map(({ id_carrera, id_materia}) => ({
+    id_carrera: id_carrera,
+    id_materia: id_materia
+  }));
+
   let materiasData = reqData.map(({ nombre_materia, id_materia}) => ({
     id_materia: id_materia,
     nombre: nombre_materia
   }));
+
+  let carrerassData = reqData.map(({ id_carrera, carrera}) => ({
+    nombre: carrera,
+    id_carrera: id_carrera
+  }));
+
 
   let seccionesData = reqData.map(({ id_seccion, num_seccion, id_materia }) => ({
     id_materia: id_materia,
@@ -193,87 +192,90 @@ const bulkCreateUsuario = async function (req, res) {
     numero: num_seccion,
   }));
 
-  //Trayendo duplicados
-
-  await knex.select('id_usuario').from('usuarios').whereIn('id_usuario', uIds).then(
-
-    function(users){
-      let dupes = [];
-      for(let i = 0; i < users.length; i++){
-        dupes.push(users[i].id_usuario);
-      }
-
-      uIds = dupes;
-    }
-  
-  );
-
-  await knex.select('id_materia').from('materias').whereIn('id_materia', mIds).then(
-
-    function(materias){
-
-      let dupes = [];
-
-      for(let i = 0; i < materias.length; i++){
-        dupes.push(materias[i].id_usuario);
-      }
-
-      mIds = dupes;
-    }
-  
-  );
-
-  await knex.select('id_seccion').from('secciones').whereIn('id_seccion', sIds).then(
-
-    function(secciones){
-      let dupes = [];
-
-      for(let i = 0; i < secciones.length; i++){
-        dupes.push(secciones[i].id_usuario);
-      }
-
-      sIds = dupes;
-    }
-  
-  );
-
   //Quitando duplicados
 
   let cleanMaterias = materiasData.filter(
     (materiasData, index, self) =>
-      (index === self.findIndex((t) => t.id_materia === materiasData.id_materia)) && !mIds.includes(materiasData.id_materia)
+      (index === self.findIndex((t) => t.id_materia === materiasData.id_materia))
   );
-
 
   let cleanUsuarios = usuariosData.filter(
     (usuariosData, index, self) =>
-      (index === self.findIndex((t) => t.id_usuario === usuariosData.id_usuario)) && !uIds.includes(materiasData.id_usuario)
+      (index === self.findIndex((t) => t.id_usuario === usuariosData.id_usuario)) 
   );
 
   let cleanSecciones = seccionesData.filter(
     (seccionesData, index, self) =>
-      (index === self.findIndex((t) => t.id_seccion === seccionesData.id_seccion)) && !sIds.includes(materiasData.id_materia) 
+      (index === self.findIndex((t) => t.id_seccion === seccionesData.id_seccion)) 
   );
 
-  console.log(cleanUsuarios);
+  let cleanCarreras = carrerassData.filter(
+    (carrerassData, index, self) =>
+      (index === self.findIndex((t) => t.id_carrera === carrerassData.id_carrera)) 
+  );
+
+
+  console.log('carrerasData: ', cleanCarreras);
 
 
   try {
+
+    //Borrando datos si se eleigio purgar la base de datos
     if (purge) {
+
+      await knex("usuariosxmaterias")
+        .del()
+
+      await knex("materiasxcarreras")
+        .del()
+
       await knex("usuarios")
         .del()
         .where("rol", "==", "estudiante");
+
+      await knex("materias")
+        .del()
+        
+      await knex("secciones")
+        .del()
+        
     }
 
-  await knex.batchInsert("materias", cleanMaterias, 1000);
+    //Insertando datos
 
-  await knex.batchInsert("secciones", cleanSecciones, 1000);
+    console.log("--> Importando materias");
+    await knex("materias")
+    .insert(cleanMaterias)
+    .onConflict("id_materia")
+    .ignore();
 
-    const newUsuarios = await knex
-      .batchInsert("usuarios", cleanUsuarios, 1000)
-      .returning("email");
+    console.log("--> Importando secciones");
+    await knex("secciones")
+    .insert(cleanSecciones)
+    .onConflict("id_seccion")
+    .ignore();
 
-    await knex.batchInsert("usuariosxmaterias", usuariosXMateriasData, 1000);
+    console.log("--> Importando carreras");
+    await knex("carreras")
+    .insert(cleanCarreras)
+    .onConflict("id_carrera")
+    .ignore();
+
+    console.log("--> Importando materiasXCarreras");
+    await knex("materiasxcarreras")
+    .insert(materiasxcarrerasData)
+
+    console.log("--> Importando usuarios");
+    const newUsuarios = await knex("usuarios")
+    .returning('email')
+    .insert(cleanUsuarios)
+    .onConflict("id_usuario")
+    .ignore();
+
+    console.log("--> Importando usuariosXMaterias");
+    await knex("usuariosxmaterias")
+    .insert(usuariosXMateriasData)
+
 
     res.json(newUsuarios);
   } catch (error) {

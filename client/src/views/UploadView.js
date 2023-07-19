@@ -3,6 +3,7 @@ import Table from "../components/Table";
 import "../styles/Table.css";
 import Layout from "../components/layout/Layout";
 import {csv} from "csvtojson";
+const ExcelJS = require('exceljs');
 
 function Upload() {
 
@@ -76,24 +77,6 @@ String.prototype.shuffle = function() {
   return array.join('');
 };
 
-function generateStartingPass(){
-  let lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  let uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  let numbers = '0123456789';
-
-  let all = lowercase + uppercase + numbers;
-
-  let password = '';
-  password += lowercase.pick(1);
-  password += uppercase.pick(1);
-  password += all.pick(4);
-  password += numbers.pick(1);
-  password = password.shuffle();
-
-  return password;
-}
-
-
 function mergeCSVs(csv){
   for(let i = 1; i < csv.length; i++) {
     const [, ...spl] = csv[i].split("\n");
@@ -108,9 +91,10 @@ function mergeCSVs(csv){
 async function sendJson(){
 
 
-  let data = jsonArray.map(({ CARNET, NOMBRES, COD_CARRERA, COD_MATERIA, COD_CLAVE, rol, email, name_1 }) =>
+  let data = jsonArray.map(({ CARNET, NOMBRES, COD_CARRERA, COD_MATERIA, COD_CLAVE, rol, email, name_1, NBR_CARRERA }) =>
    ({id_usuario: CARNET, 
     nombre: NOMBRES, 
+    carrera: NBR_CARRERA,
     id_carrera: COD_CARRERA, 
     id_materia: COD_MATERIA, 
     num_seccion: COD_CLAVE,
@@ -138,12 +122,14 @@ async function sendJson(){
     );
 
     if (resp.status === 200) {
-      console.log("Usuarios creados exitosamente");
+      alert("Informacion Importada Exitosamente");
     }
     
     
   } catch (error) {
     console.error("Error: ", error);
+    alert("Error: ", error);
+
   }
 }
 
@@ -175,8 +161,12 @@ async function readFile() {
       });
       promises.push(filePromise);
   }
+
+  console.log("fileContents ",promises);
   
   Promise.all(promises).then(fileContents => {
+
+    
    result = mergeCSVs(fileContents).split(/\r?\n/)
     .filter(line => line.trim() !== "")
     .join("\n"); 
