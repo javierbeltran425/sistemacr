@@ -160,7 +160,7 @@ const CRUDmaterias = () => {
       : setDataSet(
           materias.filter(
             (e) =>
-              e.id_materia.toString().includes(searchValue) ||
+              e.id_materia.includes(searchValue) ||
               e.nombre.includes(searchValue)
           )
         );

@@ -1,47 +1,47 @@
 CREATE DATABASE sistemacr;
 
 CREATE TABLE carreras (
-  id_carrera SERIAL PRIMARY KEY,
-  nombre VARCHAR(255),
-  facultad VARCHAR(255)
+  id_carrera TEXT PRIMARY KEY,
+  nombre TEXT,
+  facultad TEXT
 );
 
 CREATE TABLE usuarios (
-  id_usuario VARCHAR(50) PRIMARY KEY,
-  id_carrera INT,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  hashed_password VARCHAR(255) NOT NULL,
-  nombre VARCHAR(255),
-  rol VARCHAR(255),
+  id_usuario TEXT PRIMARY KEY,
+  id_carrera TEXT,
+  email TEXT NOT NULL UNIQUE,
+  hashed_password TEXT NOT NULL,
+  nombre TEXT,
+  rol TEXT,
   CONSTRAINT fk_carrera FOREIGN KEY(id_carrera) REFERENCES carreras(id_carrera) ON DELETE SET NULL
 );
 
 CREATE TABLE materias (
-  id_materia SERIAL PRIMARY KEY,
-  nombre VARCHAR(255),
+  id_materia TEXT PRIMARY KEY,
+  nombre TEXT,
   uv INT
 );
 
 CREATE TABLE secciones (
-  id_seccion VARCHAR(50) PRIMARY KEY,
+  id_seccion TEXT PRIMARY KEY,
+  id_materia TEXT,
+  id_profesor TEXT,
   numero INT,
-  id_materia INT,
-  id_profesor INT,
   CONSTRAINT fk_materia FOREIGN KEY(id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE,
   CONSTRAINT fk_profesor FOREIGN KEY(id_profesor) REFERENCES usuarios(id_usuario) ON DELETE SET NULL
 );
 
 CREATE TABLE solicitudes (
   id_solicitud SERIAL PRIMARY KEY,
-  id_usuario INT,
-  id_materia INT,
-  id_seccion INT,
-  titulo VARCHAR(255),
-  descripcion VARCHAR(255),
-  tipo VARCHAR(255),
-  estado VARCHAR(50),
-  hora_inicio VARCHAR(255),
-  hora_final VARCHAR(255),
+  id_usuario TEXT,
+  id_materia TEXT,
+  id_seccion TEXT,
+  titulo TEXT,
+  descripcion TEXT,
+  tipo TEXT,
+  estado TEXT,
+  hora_inicio TEXT,
+  hora_final TEXT,
   archivada BOOLEAN DEFAULT(false),
   CONSTRAINT fk_usuario FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
   CONSTRAINT fk_materia FOREIGN KEY (id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE,
@@ -50,14 +50,14 @@ CREATE TABLE solicitudes (
 
 CREATE TABLE horarios (
   id_horario SERIAL PRIMARY KEY,
-  id_usuario INT,
-  id_materia INT,
-  id_seccion INT,
+  id_usuario TEXT,
+  id_materia TEXT,
+  id_seccion TEXT,
   identificador INT,
-  titulo VARCHAR(255),
-  descripcion VARCHAR(255),
-  hora_inicio VARCHAR(255),
-  hora_final VARCHAR(255),
+  titulo TEXT,
+  descripcion TEXT,
+  hora_inicio TEXT,
+  hora_final TEXT,
   CONSTRAINT fk_usuario FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
   CONSTRAINT fk_materia FOREIGN KEY(id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE,
   CONSTRAINT fk_seccion FOREIGN KEY (id_seccion) REFERENCES secciones(id_seccion) ON DELETE CASCADE
@@ -65,17 +65,17 @@ CREATE TABLE horarios (
 
 CREATE TABLE materiasXcarreras (
   id_materiasXcarreras SERIAL PRIMARY KEY,
-  id_materia INT,
-  id_carrera INT,
+  id_materia TEXT,
+  id_carrera TEXT,
   CONSTRAINT fk_materia FOREIGN KEY(id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE,
   CONSTRAINT fk_carrera FOREIGN KEY(id_carrera) REFERENCES carreras(id_carrera) ON DELETE CASCADE
 );
 
 CREATE TABLE usuariosXmaterias (
   id_usuariosXmaterias SERIAL PRIMARY KEY,
-  id_usuario INT,
-  id_materia INT,
-  id_seccion INT,
+  id_usuario TEXT,
+  id_materia TEXT,
+  id_seccion TEXT,
   CONSTRAINT fk_usuario FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
   CONSTRAINT fk_materia FOREIGN KEY(id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE,
   CONSTRAINT fk_seccion FOREIGN KEY(id_seccion) REFERENCES secciones(id_seccion) ON DELETE CASCADE
