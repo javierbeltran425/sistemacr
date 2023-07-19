@@ -147,6 +147,7 @@ const ModalCarreras = ({
                 type="submit"
                 onClick={editMode ? editCarrera : createCarrera}
                 sx={{ mx: "auto" }}
+                variant="outlined"
               >
                 Guardar
               </Button>

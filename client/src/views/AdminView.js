@@ -17,10 +17,11 @@ import { useNavigate } from "react-router-dom";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
-  const navigation = useNavigate()
+  const navigation = useNavigate();
 
   const contextUsuario = React.useContext(ContextUsuario);
 
+  /*
   useEffect(() => {
     const checkLogin = () => {
       if (contextUsuario.rol !== "admin") {
@@ -30,7 +31,7 @@ function TabPanel(props) {
 
     checkLogin()
   }, [])
-
+*/
 
   return (
     <div
@@ -97,7 +98,6 @@ export default function AdminView() {
           <HistoryView />
         </TabPanel>
       </Box>
-
     </Layout>
   );
 }

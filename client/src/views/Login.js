@@ -42,16 +42,18 @@ const Login = () => {
       setCookie("id_usuario", data.id_usuario);
       setCookie("email", data.email);
       setCookie("authToken", data.token);
-      setCookie("nombre", data.nombre)
+      setCookie("nombre", data.nombre);
       window.location.reload();
     }
   };
 
   const titleTemplate = (
     <div>
-      <p className="text-center md:text-left text-2xl font-bold">Bienvenido al sistema de consultas y revisiones</p>
+      <p className="text-center md:text-left text-2xl font-bold">
+        Bienvenido al sistema de consultas y revisiones
+      </p>
     </div>
-  )
+  );
 
   return (
     <div className="flex w-full h-screen justify-content-center align-items-center surface-ground px-3">
@@ -83,6 +85,7 @@ const Login = () => {
             />
 
             {error && <p>{error}</p>}
+            {/*
             <div className="auth-options">
               <button
                 onClick={() => viewLogin(false)}
@@ -106,6 +109,7 @@ const Login = () => {
                 Login
               </button>
             </div>
+              */}
           </div>
         </div>
       </Card>

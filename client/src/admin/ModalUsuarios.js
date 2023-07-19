@@ -46,7 +46,7 @@ const ModalUsuarios = ({
       data.materias = newMaterias;
 
       console.log(data);
-      
+
       const resp = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/usuarios/createusuario`,
         {
@@ -383,6 +383,7 @@ const ModalUsuarios = ({
                 type="submit"
                 onClick={editMode ? editUsuario : createUsuario}
                 sx={{ mx: "auto" }}
+                variant="outlined"
               >
                 Guardar
               </Button>

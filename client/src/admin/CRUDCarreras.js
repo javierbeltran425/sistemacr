@@ -13,6 +13,51 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import ModalCarreras from "./ModalCarreras";
+import SearchIcon from "@mui/icons-material/Search";
+import InputBase from "@mui/material/InputBase";
+import { styled } from "@mui/material/styles";
+
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: "#e9ecef",
+  "&:hover": {
+    backgroundColor: "#dee2e6",
+  },
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(1),
+    width: "auto",
+  },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      width: "12ch",
+      "&:focus": {
+        width: "20ch",
+      },
+    },
+  },
+}));
 
 const CRUDcarreras = () => {
   const [carreras, setCarreras] = useState([]);
@@ -21,10 +66,12 @@ const CRUDcarreras = () => {
     nombre: "",
     facultad: "",
   });
+  const [dataSet, setDataSet] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [mode, setMode] = useState(null);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [searchValue, setSearchValue] = useState("");
 
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
@@ -55,6 +102,7 @@ const CRUDcarreras = () => {
       );
       const json = await resp.json();
       setCarreras(json);
+      setDataSet(json);
     } catch (error) {
       console.log(error);
     }
@@ -79,6 +127,18 @@ const CRUDcarreras = () => {
     setPage(0);
   };
 
+  useEffect(() => {
+    searchValue == ""
+      ? setDataSet(carreras)
+      : setDataSet(
+          carreras.filter(
+            (e) =>
+              e.id_carrera.toString().includes(searchValue) ||
+              e.nombre.includes(searchValue)
+          )
+        );
+  }, [searchValue]);
+
   return (
     <Box>
       {showModal && (
@@ -92,15 +152,27 @@ const CRUDcarreras = () => {
         />
       )}
       <Card sx={{ minWidth: 275 }}>
-        <CardActions>
+        <CardActions sx={{ display: "flex", justifyContent: "space-between" }}>
           <Button
             onClick={() => {
               setMode("create");
               setShowModal(true);
             }}
+            variant="outlined"
           >
             Agregar carrera
           </Button>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Buscar.."
+              inputProps={{ "aria-label": "search" }}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </Search>
         </CardActions>
         <CardContent>
           <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -120,8 +192,8 @@ const CRUDcarreras = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {carreras &&
-                    carreras
+                  {dataSet &&
+                    dataSet
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
@@ -159,7 +231,7 @@ const CRUDcarreras = () => {
                                 }}
                                 sx={{ mr: 2 }}
                               >
-                                Edit
+                                EDITAR
                               </Button>
                               <Button
                                 variant="contained"
@@ -167,7 +239,7 @@ const CRUDcarreras = () => {
                                   removeCarreraById(row.id_carrera);
                                 }}
                               >
-                                DELETE
+                                ELIMINAR
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -179,7 +251,7 @@ const CRUDcarreras = () => {
             <TablePagination
               rowsPerPageOptions={[10, 25, 100]}
               component="div"
-              count={carreras.length}
+              count={dataSet.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}

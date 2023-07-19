@@ -14,6 +14,51 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import ModalUsuarios from "./ModalUsuarios";
 import "../constants/usuario";
+import SearchIcon from "@mui/icons-material/Search";
+import InputBase from "@mui/material/InputBase";
+import { styled } from "@mui/material/styles";
+
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: "#e9ecef",
+  "&:hover": {
+    backgroundColor: "#dee2e6",
+  },
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(1),
+    width: "auto",
+  },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      width: "12ch",
+      "&:focus": {
+        width: "20ch",
+      },
+    },
+  },
+}));
 
 const CRUDusuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -24,12 +69,14 @@ const CRUDusuarios = () => {
     nombre: "",
     rol: "",
   });
+  const [dataSet, setDataSet] = useState([]);
   const [carreras, setCarreras] = useState([]);
   const [materias, setMaterias] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [mode, setMode] = useState(null);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchValue, setSearchValue] = useState("");
 
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
@@ -60,6 +107,7 @@ const CRUDusuarios = () => {
       );
       const json = await resp.json();
       setUsuarios(json);
+      setDataSet(json);
     } catch (error) {
       console.log(error);
     }
@@ -113,6 +161,17 @@ const CRUDusuarios = () => {
     setPage(0);
   };
 
+  useEffect(() => {
+    searchValue == ""
+      ? setDataSet(usuarios)
+      : setDataSet(
+          usuarios.filter(
+            (e) =>
+              e.email.includes(searchValue) || e.nombre.includes(searchValue)
+          )
+        );
+  }, [searchValue]);
+
   return (
     <Box>
       {showModal && (
@@ -128,15 +187,27 @@ const CRUDusuarios = () => {
         />
       )}
       <Card sx={{ minWidth: 275 }}>
-        <CardActions>
+        <CardActions sx={{ display: "flex", justifyContent: "space-between" }}>
           <Button
             onClick={() => {
               setMode("create");
               setShowModal(true);
             }}
+            variant="outlined"
           >
             Agregar usuario
           </Button>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Buscar.."
+              inputProps={{ "aria-label": "search" }}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </Search>
         </CardActions>
         <CardContent>
           <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -156,8 +227,8 @@ const CRUDusuarios = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {usuarios &&
-                    usuarios
+                  {dataSet &&
+                    dataSet
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
@@ -221,7 +292,7 @@ const CRUDusuarios = () => {
             <TablePagination
               rowsPerPageOptions={[10, 25, 100]}
               component="div"
-              count={usuarios.length}
+              count={dataSet.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}

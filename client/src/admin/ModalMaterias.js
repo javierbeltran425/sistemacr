@@ -240,6 +240,7 @@ const ModalMaterias = ({
                 type="submit"
                 onClick={editMode ? editMateria : createMateria}
                 sx={{ mx: "auto" }}
+                variant="outlined"
               >
                 Guardar
               </Button>
