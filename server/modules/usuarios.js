@@ -162,8 +162,6 @@ const bulkCreateUsuario = async function (req, res) {
     );
   }
 
-  //Preparando Jsons para enviar a base de datos
-
   let usuariosXMateriasData = reqData.map(({ id_usuario, id_materia, id_seccion }) => ({
     id_usuario: id_usuario,
     id_materia: id_materia,
@@ -227,6 +225,12 @@ const bulkCreateUsuario = async function (req, res) {
         .del()
 
       await knex("materiasxcarreras")
+        .del()
+
+      await knex("solicitudes")
+        .del()
+  
+      await knex("horarios")
         .del()
 
       await knex("usuarios")
