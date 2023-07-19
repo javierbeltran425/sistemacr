@@ -64,24 +64,20 @@ const getMateriasByIdUsuario = async function (req, res) {
 };
 
 const getMateriaById = async function (req, res) {
-  const { id_materia } = req.params
+  const { id_materia } = req.params;
 
   try {
     const materia = await knex
-      .select(
-        "materias.id_materia",
-        "materias.nombre",
-        "materias.uv"
-      )
+      .select("materias.id_materia", "materias.nombre", "materias.uv")
       .from("materias")
-      .where({ id_materia: id_materia })
+      .where({ id_materia: id_materia });
 
-    res.json(materia)
+    res.json(materia);
   } catch (error) {
-    res.status(400).send(error)
+    res.status(400).send(error);
     console.error(error);
   }
-}
+};
 
 const createMateria = async function (req, res) {
   const { id_materia, nombre, uv, numsecciones, carreras } = req.body;
@@ -175,6 +171,7 @@ const editMateria = async function (req, res) {
         (_, i) => i + currentSecciones + 1
       );
       const fieldsToInsert = arrsecciones.map((seccion) => ({
+        id_seccion: id_materia + seccion,
         id_materia: id_materia,
         numero: seccion,
       }));

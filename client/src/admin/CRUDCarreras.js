@@ -133,7 +133,7 @@ const CRUDcarreras = () => {
       : setDataSet(
           carreras.filter(
             (e) =>
-              e.id_carrera.toString().includes(searchValue) ||
+              e.id_carrera.includes(searchValue) ||
               e.nombre.includes(searchValue)
           )
         );
