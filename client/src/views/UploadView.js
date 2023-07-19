@@ -108,11 +108,24 @@ function mergeCSVs(csv){
 async function sendJson(){
 
 
-  let data = jsonArray.map(({ CARNET, NOMBRES, COD_CARRERA, COD_MATERIA, COD_CLAVE, rol, email }) => ({id_usuario: CARNET, nombre: NOMBRES, id_carrera: COD_CARRERA, id_materia: COD_MATERIA, id_seccion: (COD_MATERIA + COD_CLAVE),  rol: rol, email: email}));
+  let data = jsonArray.map(({ CARNET, NOMBRES, COD_CARRERA, COD_MATERIA, COD_CLAVE, rol, email, name_1 }) =>
+   ({id_usuario: CARNET, 
+    nombre: NOMBRES, 
+    id_carrera: COD_CARRERA, 
+    id_materia: COD_MATERIA, 
+    num_seccion: COD_CLAVE,
+    id_seccion: (COD_MATERIA + COD_CLAVE),  
+    rol: rol, 
+    email: email, 
+    nombre_materia: name_1,
+    hashed_password : CARNET
+  }));
+ 
+ const purge = document.getElementById('purge').checked;
 
-  for(let i = 0; i < data.length; i++) {
-    data[i].hashed_password = generateStartingPass();
-  }
+  const dataArr = [purge, data];
+
+  console.log(dataArr);
 
  try {
     const resp = await fetch(
@@ -120,12 +133,12 @@ async function sendJson(){
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(dataArr),
       }
     );
 
     if (resp.status === 200) {
-      console.log(resp.json());
+      console.log("Usuarios creados exitosamente");
     }
     
     
@@ -148,7 +161,9 @@ async function showImport(theData){
 }
 
 async function readFile() {
+
   const fileInput = document.getElementById('fileUpload');
+
   files = fileInput.files;
   let promises = [];
   let result;

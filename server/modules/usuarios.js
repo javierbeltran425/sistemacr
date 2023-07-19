@@ -138,7 +138,22 @@ const createUsuario = async function (req, res) {
 };
 
 const bulkCreateUsuario = async function (req, res) {
-  let usuariosData = req.body.map(
+
+  const reqData = req.body[1];
+
+  let uIds = [];
+  let mIds = [];
+  let sIds = [];
+
+  
+
+  for(let i = 0; i < reqData.length; i++){
+    uIds.push(reqData[i].id_usuario);
+    mIds.push(reqData[i].id_materia);
+    sIds.push(reqData[i].id_seccion)
+  }
+
+  let usuariosData = reqData.map(
     ({ id_usuario, nombre, id_carrera, rol, email, hashed_password }) => ({
       id_usuario: id_usuario,
       nombre: nombre,
@@ -149,9 +164,7 @@ const bulkCreateUsuario = async function (req, res) {
     })
   );
 
-  //let purge = document.getElementById('purge').checked;
-
-  let purge = false;
+  let purge = req.body[0];
 
   for (let i = 0; i < usuariosData.length; i++) {
     const salt = bcrypt.genSaltSync(10);
@@ -161,31 +174,106 @@ const bulkCreateUsuario = async function (req, res) {
     );
   }
 
-  let clean = usuariosData.filter(
-    (usuariosData, index, self) =>
-      index === self.findIndex((t) => t.id_usuario === usuariosData.id_usuario)
-  );
+  //Preparando Jsons para enviar a base de datos
 
-  let materiasData = req.body.map(({ id_usuario, id_materia, id_seccion }) => ({
+  let usuariosXMateriasData = reqData.map(({ id_usuario, id_materia, id_seccion }) => ({
     id_usuario: id_usuario,
     id_materia: id_materia,
     id_seccion: id_seccion,
   }));
 
+  let materiasData = reqData.map(({ nombre_materia, id_materia}) => ({
+    id_materia: id_materia,
+    nombre: nombre_materia
+  }));
+
+  let seccionesData = reqData.map(({ id_seccion, num_seccion, id_materia }) => ({
+    id_materia: id_materia,
+    id_seccion: id_seccion,
+    numero: num_seccion,
+  }));
+
+  //Trayendo duplicados
+
+  await knex.select('id_usuario').from('usuarios').whereIn('id_usuario', uIds).then(
+
+    function(users){
+      let dupes = [];
+      for(let i = 0; i < users.length; i++){
+        dupes.push(users[i].id_usuario);
+      }
+
+      uIds = dupes;
+    }
+  
+  );
+
+  await knex.select('id_materia').from('materias').whereIn('id_materia', mIds).then(
+
+    function(materias){
+
+      let dupes = [];
+
+      for(let i = 0; i < materias.length; i++){
+        dupes.push(materias[i].id_usuario);
+      }
+
+      mIds = dupes;
+    }
+  
+  );
+
+  await knex.select('id_seccion').from('secciones').whereIn('id_seccion', sIds).then(
+
+    function(secciones){
+      let dupes = [];
+
+      for(let i = 0; i < secciones.length; i++){
+        dupes.push(secciones[i].id_usuario);
+      }
+
+      sIds = dupes;
+    }
+  
+  );
+
+  //Quitando duplicados
+
+  let cleanMaterias = materiasData.filter(
+    (materiasData, index, self) =>
+      (index === self.findIndex((t) => t.id_materia === materiasData.id_materia)) && !mIds.includes(materiasData.id_materia)
+  );
+
+
+  let cleanUsuarios = usuariosData.filter(
+    (usuariosData, index, self) =>
+      (index === self.findIndex((t) => t.id_usuario === usuariosData.id_usuario)) && !uIds.includes(materiasData.id_usuario)
+  );
+
+  let cleanSecciones = seccionesData.filter(
+    (seccionesData, index, self) =>
+      (index === self.findIndex((t) => t.id_seccion === seccionesData.id_seccion)) && !sIds.includes(materiasData.id_materia) 
+  );
+
+  console.log(cleanUsuarios);
+
+
   try {
     if (purge) {
-      newUsuarios = await knex("usuarios")
+      await knex("usuarios")
         .del()
         .where("rol", "==", "estudiante");
     }
 
-    const newUsuarios = await knex
-      .batchInsert("usuarios", clean, 1000)
-      .returning("email")
-      .onConflict("id_usuario")
-      .ignore();
+  await knex.batchInsert("materias", cleanMaterias, 1000);
 
-    await knex.batchInsert("usuariosxmaterias", materiasData, 1000);
+  await knex.batchInsert("secciones", cleanSecciones, 1000);
+
+    const newUsuarios = await knex
+      .batchInsert("usuarios", cleanUsuarios, 1000)
+      .returning("email");
+
+    await knex.batchInsert("usuariosxmaterias", usuariosXMateriasData, 1000);
 
     res.json(newUsuarios);
   } catch (error) {
