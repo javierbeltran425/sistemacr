@@ -10,6 +10,7 @@ import { Button } from "primereact/button";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false)
 
   const [error, setError] = useState(null);
   const [isLogin, setIsLogin] = useState(true);
@@ -24,6 +25,7 @@ const Login = () => {
 
   const handleSubmit = async (e, endpoint) => {
     e.preventDefault();
+    setLoading(true)
 
     const response = await fetch(
       `${process.env.REACT_APP_SERVER_URL}/${endpoint}`,
@@ -45,6 +47,8 @@ const Login = () => {
       setCookie("nombre", data.nombre);
       window.location.reload();
     }
+
+    setLoading(false)
   };
 
   const titleTemplate = (
@@ -67,16 +71,20 @@ const Login = () => {
           </div>
           <div className="flex flex-column justify-content-center align-items-center gap-4">
             <InputText
+              placeholder="Correo"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              keyfilter={/^[a-zA-Z0-9@._+-]*$/}
             />
             <Password
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               feedback={false}
               placeholder="Contraseña"
+              keyfilter={/^[\w!@#$%^&*()\-+=<>?/\|{}\[\]~]*$/}
             />
             <Button
+              loading={loading}
               label={isLogin ? "Iniciar sesión" : "Registrarse"}
               onClick={(e) => {
                 e.preventDefault();

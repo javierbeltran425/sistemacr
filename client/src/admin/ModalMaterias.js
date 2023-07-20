@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+
+import OutlinedInput from "@mui/material/OutlinedInput";
+import { InputNumber } from "primereact/inputnumber";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
 import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
+import { InputText } from "primereact/inputtext";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
+import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
+import Modal from "@mui/material/Modal";
 import Chip from "@mui/material/Chip";
-import OutlinedInput from "@mui/material/OutlinedInput";
+import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
 
 const ModalMaterias = ({
@@ -138,42 +141,43 @@ const ModalMaterias = ({
           >
             {editMode ? "Editando materia..." : "Nueva materia"}
           </Typography>
-          <form>
+          <form className="flex flex-column gap-2">
             {!editMode && (
               <FormControl fullWidth>
-                <TextField
-                  id="filled-basic"
-                  label="ID"
-                  variant="filled"
+                <label>ID de la materia</label>
+                <InputText
+                  placeholder="ID"
                   name="id_materia"
                   value={newMateria.id_materia}
                   onChange={handleChange}
-                  sx={{ my: 2 }}
+                  className="w-full"
+                  keyfilter="int"
                 />
               </FormControl>
             )}
             <FormControl fullWidth>
-              <TextField
-                id="filled-basic"
-                label="Nombre"
-                variant="filled"
+              <label>Nombre</label>
+              <InputText
+                placeholder="Nombre"
                 name="nombre"
                 value={newMateria.nombre}
                 onChange={handleChange}
-                sx={{ my: 2 }}
+                className="w-full"
+                keyfilter={/^[a-zA-Z0-9 ]*$/}
               />
             </FormControl>
             <FormControl fullWidth>
-              <TextField
-                id="filled-basic"
-                label="UVs"
-                variant="filled"
+              <label>Unidades valorativas</label>
+              <InputNumber
+                placeholder="UVs"
                 name="uv"
-                type="number"
-                InputProps={{ inputProps: { min: "0", max: "10" } }}
                 value={newMateria.uv}
-                onChange={handleChange}
-                sx={{ my: 2 }}
+                onChange={(e) => {
+                  setNewMateria((newMateria) => ({
+                    ...newMateria,
+                    ["uv"]: e.value,
+                  }));
+                }}
               />
             </FormControl>
             <FormControl fullWidth sx={{ my: 2 }}>
@@ -223,16 +227,18 @@ const ModalMaterias = ({
               </Select>
             </FormControl>
             <FormControl fullWidth>
-              <TextField
-                id="filled-basic"
-                label="Número de secciones"
-                variant="filled"
+              <label>Número de secciones</label>
+              <InputNumber
+                placeholder="Número de secciones"
                 name="numsecciones"
-                type="number"
-                InputProps={{ inputProps: { min: "1", max: "10" } }}
                 value={newMateria.numsecciones}
-                onChange={handleChange}
-                sx={{ my: 2 }}
+                onChange={(e) => {
+                  setNewMateria((newMateria) => ({
+                    ...newMateria,
+                    ["numsecciones"]: e.value,
+                  }));
+                }}
+                className="w-full"
               />
             </FormControl>
             <FormControl fullWidth sx={{ my: 2 }}>

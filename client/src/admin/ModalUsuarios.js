@@ -16,6 +16,8 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import PropTypes from "prop-types";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Chip from "@mui/material/Chip";
+import { InputText } from "primereact/inputtext";
+import { Password } from "primereact/password";
 
 const ModalUsuarios = ({
   mode,
@@ -156,38 +158,38 @@ const ModalUsuarios = ({
           <form>
             {!editMode && (
               <FormControl fullWidth>
-                <TextField
+                <InputText
                   id="filled-basic"
-                  label="Email"
-                  variant="filled"
+                  placeholder="Email"
                   name="email"
                   value={newUsuario.email}
                   onChange={handleChange}
-                  sx={{ my: 1 }}
+                  keyfilter={/^[a-zA-Z0-9@._+-]*$/}
+                  className="w-full my-1"
                 />
               </FormControl>
             )}
             <FormControl fullWidth>
-              <TextField
-                id="filled-basic"
-                label="Nombre"
-                variant="filled"
+              <InputText
+                placeholder="Nombre"
                 name="nombre"
                 value={newUsuario.nombre}
                 onChange={handleChange}
-                sx={{ my: 1 }}
+                keyfilter={/^[a-zA-Z0-9 ]*$/}
+                className="w-full my-1"
               />
             </FormControl>
             {!editMode && (
               <FormControl fullWidth>
-                <TextField
-                  id="filled-basic"
-                  label="Contraseña"
-                  variant="filled"
+                <Password
+                  placeholder="Contraseña"
                   name="password"
                   value={newUsuario.password}
                   onChange={handleChange}
-                  sx={{ my: 1 }}
+                  keyfilter={/^[\w!@#$%^&*()\-+=<>?/\|{}\[\]~]*$/}
+                  toggleMask={true}
+                  inputStyle={{ width: "100%" }}
+                  className="my-1"
                 />
               </FormControl>
             )}

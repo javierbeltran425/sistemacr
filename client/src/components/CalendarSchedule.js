@@ -1,34 +1,35 @@
-import React from "react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
-import moment from "moment";
-import "moment-timezone";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
+import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
+import { Calendar, momentLocalizer } from "react-big-calendar";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { InputTextarea } from 'primereact/inputtextarea';
+import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import { ContextUsuario } from "../context/usuario";
 import { InputSwitch } from "primereact/inputswitch";
 import { InputNumber } from "primereact/inputnumber";
-import "../constants/usuario";
-import "../styles/Calendar.css";
-import "moment/locale/es";
+import DialogTitle from "@mui/material/DialogTitle";
+import { ContextUsuario } from "../context/usuario";
+import FormControl from "@mui/material/FormControl";
+import Typography from "@mui/material/Typography";
+import InputLabel from "@mui/material/InputLabel";
+import TextField from "@mui/material/TextField";
+import Snackbar from "@mui/material/Snackbar";
+import MenuItem from "@mui/material/MenuItem";
+import MuiAlert from "@mui/material/Alert";
+import Dialog from "@mui/material/Dialog";
+import Button from "@mui/material/Button";
+import Select from "@mui/material/Select";
+import { Toast } from "primereact/toast";
+import Stack from "@mui/material/Stack";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
-import { Toast } from "primereact/toast";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import "../styles/Calendar.css";
+import "../constants/usuario";
+import moment from "moment";
+import React from "react";
+import "moment/locale/es";
+import "moment-timezone";
 
 // servicios
 import {
@@ -37,6 +38,7 @@ import {
 } from "../services/HorariosServices";
 import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
 import { getHorariosByIdUsuario } from "../services/HorariosServices";
+import { InputText } from "primereact/inputtext";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
@@ -465,25 +467,15 @@ class CalendarAlt extends React.Component {
             ${this.state.title}`}
           </DialogTitle>
           <DialogContent>
-            {/*<TextField
-              label="Título"
-              margin="dense"
-              fullWidth
-              onChange={(e) => {
-                this.setTitle(e.target.value);
-              }}
-            />
-            <br />*/}
-            <TextField
-              label="Descripción"
-              multiline
-              minRows={2}
-              maxRows={4}
-              margin="dense"
-              fullWidth
+            <InputTextarea
+              placeholder="Descripción"
               onChange={(e) => {
                 this.setDescription(e.target.value);
               }}
+              keyfilter={/^[a-zA-Z0-9 ]*$/}
+              rows={5}
+              cols={30}
+              className="w-full"
             />
 
             <div className="w-full my-3">
@@ -570,17 +562,16 @@ class CalendarAlt extends React.Component {
               }}
             />*/}
             <br />
-            <TextField
-              label="Descripción"
-              multiline
-              minRows={2}
-              maxRows={4}
-              margin="dense"
+            <InputTextarea
+              className="w-full"
+              placeholder="Descripción"
               value={this.state.desc}
-              fullWidth
               onChange={(e) => {
                 this.setDescription(e.target.value);
               }}
+              rows={5}
+              cols={30}
+              keyfilter={/^[a-zA-Z0-9 ]*$/}
             />
             <Typography variant="h6" gutterBottom sx={{ marginTop: 4 }}>
               {this.infoHorario()}
