@@ -231,6 +231,8 @@ const ModalMaterias = ({
               <InputNumber
                 placeholder="Número de secciones"
                 name="numsecciones"
+                type="number"
+                InputProps={{ inputProps: { min: "1", max: "9" } }}
                 value={newMateria.numsecciones}
                 onChange={(e) => {
                   setNewMateria((newMateria) => ({

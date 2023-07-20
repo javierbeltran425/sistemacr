@@ -454,8 +454,8 @@ class CalendarAlt extends React.Component {
           culture="es"
           eventPropGetter={customEventPropGetter}
           showAllEvents={false}
-          /*min={new Date(0, 0, 0, 6, 0, 0)}
-          max={new Date(0, 0, 0, 23, 0, 0)}*/
+          min={new Date(0, 0, 0, 6, 0, 0)}
+          // max={new Date(0, 0, 0, 23, 0, 0)}
           onSelectEvent={(event) => this.handleEventSelected(event)}
           onSelectSlot={(slotInfo) => this.handleSlotSelected(slotInfo)}
         />
