@@ -214,24 +214,32 @@ const bulkCreateUsuario = async function (req, res) {
       index === self.findIndex((t) => t.id_carrera === carrerassData.id_carrera)
   );
 
-  console.log("carrerasData: ", cleanCarreras);
 
   try {
     //Borrando datos si se eleigio purgar la base de datos
     if (purge) {
       await knex("usuariosxmaterias").del();
+      console.log("usuariosxmaterias deleted");
 
       await knex("materiasxcarreras").del();
 
+      console.log("materiasxcarreras deleted");
+
       await knex("solicitudes").del();
+
+      console.log("solicitudes deleted");
 
       await knex("horarios").del();
 
-      await knex("usuarios").del().where("rol", "==", "estudiante");
-
-      await knex("materias").del();
+      console.log("horarios deleted");
 
       await knex("secciones").del();
+
+      console.log("secciones deleted");
+
+      await knex("usuarios").where('rol', 'estudiante').del();
+
+      console.log("usuarios deleted");
     }
 
     //Insertando datos
