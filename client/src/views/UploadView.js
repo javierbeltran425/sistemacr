@@ -3,7 +3,7 @@ import Table from "../components/Table";
 import "../styles/Table.css";
 import Layout from "../components/layout/Layout";
 import {csv} from "csvtojson";
-const ExcelJS = require('exceljs');
+const XLSX = require('xlsx');
 
 function Upload() {
 
@@ -78,8 +78,6 @@ async function sendJson(){
 
   const dataArr = [purge, data];
 
-  console.log(dataArr);
-
  try {
     const resp = await fetch(
       `${process.env.REACT_APP_SERVER_URL}/usuarios/bulkcreateusuario`,
@@ -103,8 +101,9 @@ async function sendJson(){
 }
 
 async function showImport(theData){
+
   let jsonVar = await csv().fromString(theData);
- 
+
   for(let i = 0; i < jsonVar.length; i++) {
     jsonVar[i].rol = "estudiante";
     jsonVar[i].email = jsonVar[i].CARNET + "@uca.edu.sv";
@@ -123,26 +122,61 @@ async function readFile() {
   let promises = [];
   let result;
   for (let file of files) {
+  let fileType = file.name.split('.').pop().toLowerCase();
+    if(fileType == 'csv'){
       let filePromise = new Promise(resolve => {
-          let reader = new FileReader();
-          reader.readAsText(file);
-          reader.onload = () => resolve(reader.result);
-      });
+        let reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = () => resolve(reader.result); 
+    });
+    
+    promises.push(filePromise);
+
+  } else if(fileType== 'xlsx'){
+
+      let workbook;
+      let filePromise = new Promise((resolve)  => {
+      let reader = new FileReader();
+      
+      reader.onload = function(e) {
+      var data = e.target.result;
+
+      workbook = XLSX.read(data, {type: 'binary'});
+      
+      workbook.SheetNames.forEach( function (y) {
+        let csvFile = XLSX.utils.sheet_to_csv(workbook.Sheets[y]);
+
+        //let csvFileProcessed = '"' + csvFile.split(',').join('","') + '"';
+        //csvFileProcessed = csvFileProcessed.split('\n').join('"\n"');
+
+        resolve(csvFile);
+
+      } )
+
+      }
+      reader.readAsBinaryString(file); 
+
+    });
+
       promises.push(filePromise);
+   
+  }else{
+    alert("Archivo de tipo incorrecto.")
+  }
+      
   }
 
-  console.log("fileContents ",promises);
-  
   Promise.all(promises).then(fileContents => {
-
     
    result = mergeCSVs(fileContents).split(/\r?\n/)
     .filter(line => line.trim() !== "")
     .join("\n"); 
 
+    console.log(result);
+
     showImport(result);
    
-})
+  });
 
   }
 
