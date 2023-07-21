@@ -10,7 +10,7 @@ import CRUDusuarios from "../admin/CRUDusuarios";
 import CRUDCarreras from "../admin/CRUDCarreras";
 import CRUDMaterias from "../admin/CRUDMaterias";
 import Layout from "../components/layout/Layout";
-import { ContextUsuario } from "../context/usuario";
+import ContextUsuario from "../context/ContextUsuario";
 
 import HistoryView from "./HistoryView";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +20,10 @@ function TabPanel(props) {
   const navigation = useNavigate();
 
   const contextUsuario = React.useContext(ContextUsuario);
+
+  useEffect(() => {
+    contextUsuario.id_usuario === "" && navigate('/')
+  }, [])
 
   /*
   useEffect(() => {

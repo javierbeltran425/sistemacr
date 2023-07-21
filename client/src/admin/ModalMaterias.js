@@ -171,12 +171,26 @@ const ModalMaterias = ({
               <InputNumber
                 placeholder="UVs"
                 name="uv"
+                min={1}
+                max={9}
                 value={newMateria.uv}
                 onChange={(e) => {
-                  setNewMateria((newMateria) => ({
-                    ...newMateria,
-                    ["uv"]: e.value,
-                  }));
+                  if (e.value > 0 && e.value < 10) {
+                    setNewMateria((newMateria) => ({
+                      ...newMateria,
+                      ["uv"]: e.value,
+                    }));
+                  } else if (e.value > 9) {
+                    setNewMateria((newMateria) => ({
+                      ...newMateria,
+                      ["uv"]: 9,
+                    }));
+                  } else if (e.value < 1) {
+                    setNewMateria((newMateria) => ({
+                      ...newMateria,
+                      ["uv"]: 1,
+                    }));
+                  }
                 }}
               />
             </FormControl>
@@ -231,14 +245,26 @@ const ModalMaterias = ({
               <InputNumber
                 placeholder="Número de secciones"
                 name="numsecciones"
-                type="number"
-                InputProps={{ inputProps: { min: "1", max: "9" } }}
+                min={1}
+                max={9}
                 value={newMateria.numsecciones}
                 onChange={(e) => {
-                  setNewMateria((newMateria) => ({
-                    ...newMateria,
-                    ["numsecciones"]: e.value,
-                  }));
+                  if (e.value > 0 && e.value < 10) {
+                    setNewMateria((newMateria) => ({
+                      ...newMateria,
+                      ["numsecciones"]: e.value,
+                    }));
+                  } else if (e.value > 9) {
+                    setNewMateria((newMateria) => ({
+                      ...newMateria,
+                      ["numsecciones"]: 9,
+                    }));
+                  } else if (e.value < 1) {
+                    setNewMateria((newMateria) => ({
+                      ...newMateria,
+                      ["numsecciones"]: 1,
+                    }));
+                  }
                 }}
                 className="w-full"
               />

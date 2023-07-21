@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ContextUsuario } from "../context/usuario";
+import React, { useState, useEffect, useContext } from "react";
+import ContextUsuario from "../context/ContextUsuario";
 import { useNavigate } from "react-router-dom";
 
 //custom components
@@ -15,8 +15,12 @@ import "../constants/usuario";
 import { USUARIO_ROLES } from "../constants/usuario";
 
 const HomePage = () => {
-  const usuario = React.useContext(ContextUsuario);
+  const usuario = useContext(ContextUsuario);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    usuario.id_usuario === "" && navigate('/')
+  }, [])
 
   const switchRoute = () => {
     switch (usuario.rol) {
