@@ -1,0 +1,51 @@
+version: "3"
+services:
+  postgres:
+    image: "postgres:latest"
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./setup.sql:/docker-entrypoint-initdb.d/setup.sql"
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - "3050:80"
+  api:
+    build:
+      dockerfile: Dockerfile.dev
+      context: "./server"
+    volumes:
+      - /app/node_modules
+      - ./server:/app
+    environment:
+      - PORT=8000
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - NODEM_USER=javier.beltmart@gmail.com
+      - NODEM_PASSWORD=jyldoinnuzqxqprg
+  client:
+    stdin_open: true
+    environment:
+      - REACT_APP_SERVER_URL='http://localhost:8000'
+      - ESLINT_NO_DEV_ERRORS=true
+        #REACT_APP_SERVER_URL='https://server-dot-sistemacr-392918.uc.r.appspot.com'
+      - DISABLE_ESLINT_PLUGIN=true
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    volumes:
+      - /app/node_modules
+      - ./client:/app
