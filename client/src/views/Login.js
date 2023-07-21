@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -8,20 +8,18 @@ import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 
+import ContextUsuario from "../context/ContextUsuario";
+
 const Login = () => {
   const navigate = useNavigate();
+  const [cookies, setCookie] = useCookies(null);
+
   const [loading, setLoading] = useState(false)
-
-  const [error, setError] = useState(null);
-  const [isLogin, setIsLogin] = useState(true);
-  const [cookies, setCookie, removeCookie] = useCookies(null);
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [email, setEmail] = useState("");
 
-  const viewLogin = (status) => {
-    setError(null);
-    setIsLogin(status);
-  };
+  const contextUsuario = useContext(ContextUsuario)
 
   const handleSubmit = async (e, endpoint) => {
     e.preventDefault();
@@ -41,14 +39,35 @@ const Login = () => {
     if (data.error) {
       setError(data.error);
     } else if (data.token) {
+      console.log("🚀 ~ file: Login.js:44 ~ handleSubmit ~ data:", data)
       setCookie("id_usuario", data.id_usuario);
       setCookie("email", data.email);
       setCookie("authToken", data.token);
       setCookie("nombre", data.nombre);
-      window.location.reload();
+
+      contextUsuario.setId_usuario(data.id_usuario)
+      contextUsuario.setEmail(data.email)
+      contextUsuario.setActivo(data.activo)
+      getRol(data.id_usuario)
+
+      if (!data.activo)
+        navigate('/register')
     }
 
     setLoading(false)
+  };
+
+  const getRol = async (idUsuario) => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${idUsuario}`
+      );
+      const json = await resp.json();
+
+      contextUsuario.setRol(json[0].rol)
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const titleTemplate = (
@@ -85,39 +104,15 @@ const Login = () => {
             />
             <Button
               loading={loading}
-              label={isLogin ? "Iniciar sesión" : "Registrarse"}
+              label={"Iniciar sesión"}
               onClick={(e) => {
                 e.preventDefault();
-                handleSubmit(e, isLogin ? "auth/login" : "auth/signup");
+                handleSubmit(e, "auth/login");
               }}
             />
 
             {error && <p>{error}</p>}
-            {/*
-            <div className="auth-options">
-              <button
-                onClick={() => viewLogin(false)}
-                style={{
-                  backgroundColor: !isLogin
-                    ? "rgb(255, 255, 255)"
-                    : "rgb(188, 188, 188)",
-                  marginRight: "1rem",
-                }}
-              >
-                Sign Up
-              </button>
-              <button
-                onClick={() => viewLogin(true)}
-                style={{
-                  backgroundColor: isLogin
-                    ? "rgb(255, 255, 255)"
-                    : "rgb(188, 188, 188)",
-                }}
-              >
-                Login
-              </button>
-            </div>
-              */}
+
           </div>
         </div>
       </Card>

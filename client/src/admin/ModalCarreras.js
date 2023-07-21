@@ -107,7 +107,7 @@ const ModalCarreras = ({
           >
             {mode == "edit" ? "Editando carrera..." : "Nueva carrera"}
           </Typography>
-          <form>
+          <form className="flex flex-column gap-3">
             {!editMode && (
               <FormControl fullWidth>
                 <label>ID de carrera</label>
@@ -133,14 +133,13 @@ const ModalCarreras = ({
               />
             </FormControl>
             <FormControl fullWidth>
-              <TextField
-                id="filled-basic"
-                label="Facultad"
-                variant="filled"
+              <label>Facultad</label>
+              <InputText
+                placeholder="Facultad"
                 name="facultad"
                 value={newCarrera.facultad}
                 onChange={handleChange}
-                sx={{ my: 2 }}
+                keyfilter={/^[a-zA-Z0-9 ]*$/}
               />
             </FormControl>
             <FormControl fullWidth sx={{ my: 2 }}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 // custom components imports
 import Layout from "../components/layout/Layout";
@@ -13,7 +13,10 @@ import { Divider } from "primereact/divider";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 
+import ContextUsuario from "../context/ContextUsuario";
+
 const TeacherView = () => {
+  const contextUsuario = useContext(ContextUsuario)
   const [time, setTime] = useState(null);
   const [flag, setFlag] = useState(false);
 
@@ -36,6 +39,10 @@ const TeacherView = () => {
   // States para Dialog para administración de fechas
   const [visible, setVisible] = useState(false);
   const [visibleMinus, setVisibleMinus] = useState(false);
+
+  useEffect(() => {
+    contextUsuario.id_usuario === "" && navigate('/')
+  }, [])
 
   // Función para activar la modal para registrar nuevos horarios
   const onChangeModalState = () => {
@@ -76,7 +83,7 @@ const TeacherView = () => {
   const fechasRender = (dia) => {
     let _aux = fechas.filter((fecha) => fecha.dia === dia);
 
-    for (let i = 0; i < _aux.length; i++) {}
+    for (let i = 0; i < _aux.length; i++) { }
 
     let _fechasElementList = [];
 

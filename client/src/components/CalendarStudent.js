@@ -11,7 +11,7 @@ import TextField from "@mui/material/TextField";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
-import { ContextUsuario } from "../context/usuario";
+import ContextUsuario from "../context/ContextUsuario";
 import "../constants/usuario";
 import "../styles/Calendar.css";
 import "moment/locale/es";

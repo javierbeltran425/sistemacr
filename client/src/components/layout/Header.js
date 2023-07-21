@@ -1,27 +1,24 @@
 import React, { useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { ContextUsuario } from "../../context/usuario";
+import ContextUsuario from "../../context/ContextUsuario";
 
 //components
 import { Avatar } from "primereact/avatar";
 import { Sidebar } from "primereact/sidebar";
-import { Button } from "primereact/button";
 import { Divider } from "primereact/divider";
+import { Tooltip } from 'primereact/tooltip';
 
 const Header = () => {
   const [visible, setVisible] = useState(false);
-  const [materias, setMaterias] = useState([]);
   const navigate = useNavigate();
   const [cookies, setCookie, removeCookie] = useCookies(null);
   const [titulo, setTitulo] = useState('')
-  const usuario = useContext(ContextUsuario);
-  console.log("🚀 ~ file: Header.js:19 ~ Header ~ usuario:", usuario)
+  const contextUSuario = useContext(ContextUsuario);
 
   useEffect(() => {
     tituloHeader()
   }, [])
-
 
   const signOut = () => {
     removeCookie("id_usuario");
@@ -32,33 +29,11 @@ const Header = () => {
     window.location.reload();
   };
 
-  const getMateriasByIdUsuario = async () => {
-    try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/getmateriasbyidusuario/${usuario.id_usuario}`
-      );
-      const json = await resp.json();
-      setMaterias(json);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const materiasRender = () => {
-    return materias.map((materia) => {
-      return (
-        <li className="list-none pl-1 py-2 hover:bg-gray-200 cursor-pointer border-round">
-          {materia.nombre}
-        </li>
-      );
-    });
-  };
-
   const tituloHeader = () => {
     const location = window.location.hash
     console.log("🚀 ~ file: Header.js:50 ~ titulo ~ location:", location)
 
-    switch (usuario.rol) {
+    switch (contextUSuario.rol) {
       case 'estudiante':
         setTitulo('Panel de estudiantes')
         break;
@@ -74,7 +49,7 @@ const Header = () => {
   }
 
   const headerTemplate = () => {
-    switch (usuario.rol) {
+    switch (contextUSuario.rol) {
       case 'estudiante':
         return (
           <></>
@@ -115,9 +90,13 @@ const Header = () => {
     <>
       <div className="flex md:flex-row w-full h-2 px-1 md:px-6 justify-content-between align-items-center bg-gray-100 shadow-1">
 
-        <div className="hidden md:inline">
-          {headerTemplate()}
-        </div>
+        {
+          contextUSuario.activo ? (
+            <div className="hidden md:inline">
+              {headerTemplate()}
+            </div>
+          ) : (<div />)
+        }
 
         <div className="hidden md:flex gap-2 p-2 align-items-center">
           <div>
@@ -129,12 +108,13 @@ const Header = () => {
               Cerrar sesión
             </p>
           </div>
-          <Avatar icon='pi pi-user' size="large" />
+
+          <Avatar icon='pi pi-user' size="large" className="logo cursor-pointer" onClick={() => navigate('register')} />
         </div>
 
         <div className="py-2 px-1 flex w-full md:hidden">
           {
-            usuario.rol !== "estudiante" ? (
+            contextUSuario.rol !== "estudiante" ? (
               <i className="pi pi-bars font-bold text-lg" onClick={() => setVisible(true)}></i>
             ) : (
               <div className="flex w-full flex-row justify-content-end">
@@ -154,7 +134,7 @@ const Header = () => {
         <Sidebar visible={visible} onHide={() => setVisible(false)}>
           <div className="flex w-full justify-content-start">
             <div className="flex gap-2 align-items-end">
-              <Avatar icon='pi pi-user' size="large" />
+              <Avatar icon='pi pi-user' size="large" className="logo cursor-pointer" onClick={() => navigate('register')} />
               <div className="text-start">
                 <h5 className="p-0 m-0">{cookies.nombre}</h5>
                 <p

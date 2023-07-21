@@ -8,7 +8,7 @@ import DialogActions from "@mui/material/DialogActions";
 import { InputSwitch } from "primereact/inputswitch";
 import { InputNumber } from "primereact/inputnumber";
 import DialogTitle from "@mui/material/DialogTitle";
-import { ContextUsuario } from "../context/usuario";
+import ContextUsuario from "../context/ContextUsuario";
 import FormControl from "@mui/material/FormControl";
 import Typography from "@mui/material/Typography";
 import InputLabel from "@mui/material/InputLabel";

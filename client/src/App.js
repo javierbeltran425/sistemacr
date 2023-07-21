@@ -3,7 +3,7 @@ import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
 //context: id_usuario email rol
-import { ContextUsuario } from "./context/usuario";
+import ContextState from "./context/ContextState";
 
 //theme
 import "primereact/resources/themes/lara-light-indigo/theme.css";
@@ -28,40 +28,13 @@ import RegisterView from "./views/RegisterView";
 //constants
 
 function App() {
-  const [cookies, setCookie, removeCookie] = useCookies(null);
-  const idUsuario = cookies.id_usuario;
-  const emailUsuario = cookies.email;
+  const [cookies] = useCookies(null);
   const authToken = cookies.authToken;
-  const [rolUsuario, setRolUsuario] = useState(null);
-
-  const getRol = async () => {
-    try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${idUsuario}`
-      );
-      const json = await resp.json();
-      setRolUsuario(json[0].rol);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    if (authToken) {
-      getRol();
-    }
-  }, []);
 
   return (
-    <Router>
-      {authToken ? (
-        <ContextUsuario.Provider
-          value={{
-            id_usuario: idUsuario,
-            email: emailUsuario,
-            rol: rolUsuario,
-          }}
-        >
+    <ContextState>
+      <Router>
+        {authToken ? (
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/teacher" element={<TeacherView />} />
@@ -69,11 +42,11 @@ function App() {
             <Route path="/upload" element={<UploadView />} />
             <Route path="/register" element={<RegisterView />} />
           </Routes>
-        </ContextUsuario.Provider>
-      ) : (
-        <Login />
-      )}
-    </Router>
+        ) : (
+          <Login />
+        )}
+      </Router>
+    </ContextState>
   );
 }
 

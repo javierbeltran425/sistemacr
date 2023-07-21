@@ -1,8 +1,8 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Layout from "../components/layout/Layout";
-import { ContextUsuario } from "../context/usuario";
+import ContextUsuario from "../context/ContextUsuario";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import { ListItem } from "@mui/material";
@@ -52,6 +52,10 @@ export default function RegisterView() {
   const [error, setError] = React.useState(null);
   const toast = React.useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    contextUsuario.id_usuario === "" && navigate('/')
+  }, [])
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -156,9 +160,22 @@ export default function RegisterView() {
     getSecciones(contextUsuario.id_usuario);
   }, []);
 
+  React.useEffect(() => {
+    contextUsuario.id_usuario === "" && navigate('/login')
+  }, [])
+
   return (
     <Layout>
       <Toast ref={toast} />
+      {contextUsuario.activo ? (
+        <div className="w-full flex flex-row justify-content-start">
+          <div className="flex flex-row justify-content-center align-items-center m-2 cursor-pointer" onClick={() => navigate('/')} >
+            <i className="pi pi-angle-left" style={{ fontSize: '1.5rem' }}></i>
+            <p className="m-0" style={{ fontSize: '1.5rem' }}>Regresar</p>
+          </div>
+        </div>
+      ) : ""}
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Cambiar contraseña</DialogTitle>
         <DialogContent>

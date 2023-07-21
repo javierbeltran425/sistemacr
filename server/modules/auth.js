@@ -23,9 +23,10 @@ const login = async function (req, res) {
   const { email, password } = req.body;
   try {
     const usuario = await knex
-      .select("id_usuario", "email", "hashed_password", "nombre")
+      .select("id_usuario", "email", "hashed_password", "nombre", "activo")
       .from("usuarios")
       .where({ email: email });
+    console.log("🚀 ~ file: auth.js:29 ~ login ~ usuario:", usuario)
 
     if (Object.keys(usuario).length === 0)
       return res.json({ error: "El usuario ingresado no existe!" });
@@ -38,6 +39,7 @@ const login = async function (req, res) {
         id_usuario: usuario[0].id_usuario,
         email: usuario[0].email,
         nombre: usuario[0].nombre,
+        activo: usuario[0].activo,
         token,
       });
     } else {
