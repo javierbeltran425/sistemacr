@@ -121,3 +121,30 @@ table {
   .uploadButton{
     margin: 1rem;
   }
+
+  #Progress_Status {
+    width: 50%;
+    background-color: #ddd;
+  }
+    
+  .progressBar {
+    width: 0%;
+    height: 35px;
+    background-color: #4CAF50;
+    text-align: center;
+    line-height: 32px;
+    color: black;
+  }
+
+  .hide{
+    display: none;
+  }
+
+  .red{
+    width: 0%;
+    height: 35px;
+    background-color: red;
+    text-align: center;
+    line-height: 32px;
+    color: black;
+  }

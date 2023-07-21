@@ -1,12 +1,10 @@
-CREATE DATABASE sistemacr;
-
-CREATE TABLE carreras (
+CREATE TABLE IF NOT EXISTS carreras (
   id_carrera TEXT PRIMARY KEY,
   nombre TEXT,
   facultad TEXT
 );
 
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
   id_usuario TEXT PRIMARY KEY,
   id_carrera TEXT,
   email TEXT NOT NULL UNIQUE,
@@ -17,13 +15,13 @@ CREATE TABLE usuarios (
   CONSTRAINT fk_carrera FOREIGN KEY(id_carrera) REFERENCES carreras(id_carrera) ON DELETE SET NULL
 );
 
-CREATE TABLE materias (
+CREATE TABLE IF NOT EXISTS materias (
   id_materia TEXT PRIMARY KEY,
   nombre TEXT,
   uv INT
 );
 
-CREATE TABLE secciones (
+CREATE TABLE IF NOT EXISTS secciones (
   id_seccion TEXT PRIMARY KEY,
   id_materia TEXT,
   id_profesor TEXT,
@@ -32,7 +30,7 @@ CREATE TABLE secciones (
   CONSTRAINT fk_profesor FOREIGN KEY(id_profesor) REFERENCES usuarios(id_usuario) ON DELETE SET NULL
 );
 
-CREATE TABLE solicitudes (
+CREATE TABLE IF NOT EXISTS solicitudes (
   id_solicitud SERIAL PRIMARY KEY,
   id_usuario TEXT,
   id_materia TEXT,
@@ -49,7 +47,7 @@ CREATE TABLE solicitudes (
   CONSTRAINT fk_seccion FOREIGN KEY (id_seccion) REFERENCES secciones(id_seccion) ON DELETE CASCADE
 );
 
-CREATE TABLE horarios (
+CREATE TABLE IF NOT EXISTS horarios (
   id_horario SERIAL PRIMARY KEY,
   id_usuario TEXT,
   id_materia TEXT,
@@ -64,7 +62,7 @@ CREATE TABLE horarios (
   CONSTRAINT fk_seccion FOREIGN KEY (id_seccion) REFERENCES secciones(id_seccion) ON DELETE CASCADE
 );
 
-CREATE TABLE materiasXcarreras (
+CREATE TABLE IF NOT EXISTS materiasXcarreras (
   id_materiasXcarreras SERIAL PRIMARY KEY,
   id_materia TEXT,
   id_carrera TEXT,
@@ -72,7 +70,7 @@ CREATE TABLE materiasXcarreras (
   CONSTRAINT fk_carrera FOREIGN KEY(id_carrera) REFERENCES carreras(id_carrera) ON DELETE CASCADE
 );
 
-CREATE TABLE usuariosXmaterias (
+CREATE TABLE IF NOT EXISTS usuariosXmaterias (
   id_usuariosXmaterias SERIAL PRIMARY KEY,
   id_usuario TEXT,
   id_materia TEXT,
@@ -85,10 +83,10 @@ CREATE TABLE usuariosXmaterias (
 /*
 
 ### Query para crear usuario administrador en caso de perdida de acceso ###
-  email: admin@uca.edu.sv
-  contraseña: 
-
-INSERT INTO USUARIOS (id_usuario, email, hashed_password, rol)
-VALUES('admin', 'admin@uca.edu.sv', '$2b$10$8GMI1pz7/k6tYYmnzmbnO./4kxXrsoe4LR9fmMYnKu6xvVCqHny/2', 'admin');
+  - email: admin@uca.edu.sv
+  - contraseña: admin
 
 */
+INSERT INTO USUARIOS (id_usuario, email, hashed_password, rol, activo)
+VALUES('admin', 'admin@uca.edu.sv', '$2b$10$8GMI1pz7/k6tYYmnzmbnO./4kxXrsoe4LR9fmMYnKu6xvVCqHny/2', 'admin', true)
+ON CONFLICT (id_usuario) DO NOTHING;
