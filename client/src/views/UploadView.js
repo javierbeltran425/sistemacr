@@ -50,6 +50,20 @@ function Upload() {
     []
   );
 
+  function updateProgressBar(startingWidth, maxWidth) {
+    var element = document.getElementById("myprogressBar");   
+    var width = startingWidth;
+    var identity = setInterval(scene, 10);
+    function scene() {
+      if (width >= maxWidth) {
+        clearInterval(identity);
+      } else {
+        width++; 
+        element.style.width = width + '%'; 
+      }
+    }
+  }
+
   function mergeCSVs(csv) {
     for (let i = 1; i < csv.length; i++) {
       const [, ...spl] = csv[i].split("\n");
@@ -83,6 +97,18 @@ function Upload() {
 
     const dataArr = [purge, data];
 
+    let elementSuccess = document.getElementById("successText");
+    elementSuccess.classList.add("hide");
+
+    let elementFail = document.getElementById("failText");
+    elementFail.classList.add("hide");
+
+    let elementBar = document.getElementById("myprogressBar");
+    elementBar.classList.add("progressBar");
+    elementBar.classList.remove("red");
+
+    updateProgressBar(1,75);
+
     try {
       const resp = await fetch(
         `${process.env.REACT_APP_SERVER_URL}/usuarios/bulkcreateusuario`,
@@ -94,12 +120,36 @@ function Upload() {
       );
 
       if (resp.status === 200) {
-        alert("Informacion Importada Exitosamente");
+
+        let element = document.getElementById("successText");
+        element.classList.remove("hide");
+
+        let element2 = document.getElementById("failText");
+        element2.classList.add("hide");
+
+        let element1 = document.getElementById("myprogressBar");
+        element1.classList.add("progressBar");
+        element1.classList.remove("red");
+
+        updateProgressBar(75,100);
+      }
+
+      if (resp.status === 400) {
+
+        let element = document.getElementById("failText");
+        element.classList.remove("hide");
+
+        let element2 = document.getElementById("successText");
+        element2.classList.add("hide");
+
+        let element1 = document.getElementById("myprogressBar");
+        element1.classList.remove("progressBar");
+        element1.classList.add("red");
+
       }
 
 
     } catch (error) {
-      console.error("Error: ", error);
       alert("Error: ", error);
 
     }
@@ -177,8 +227,6 @@ function Upload() {
         .filter(line => line.trim() !== "")
         .join("\n");
 
-      console.log(result);
-
       showImport(result);
 
     });
@@ -228,7 +276,7 @@ function Upload() {
               </label>
             </div>
 
-            <p> Purgar Estudiantes de Base de Datos </p>
+            <p> Purgar Información de Base de Datos </p>
 
             <br></br>
 
@@ -236,6 +284,18 @@ function Upload() {
               {message}
             </div>
           </div>
+
+          <br></br>
+
+          <div id="Progress_Status">
+             <div id="myprogressBar" className = "progressBar"></div>
+          </div>  
+
+          <p className = "hide" id = "successText"> <b> Archivos importados exitosamente </b></p> 
+          <p className = "hide" id = "failText"> <b> Hubo un problema en el proceso de importado </b></p> 
+
+          <br></br>  
+
           <Table columns={columns} data={data} />
         </div>
       </div>

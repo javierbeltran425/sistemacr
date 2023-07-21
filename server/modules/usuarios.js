@@ -277,6 +277,7 @@ const bulkCreateUsuario = async function (req, res) {
 
     res.json(newUsuarios);
   } catch (error) {
+    console.error("Error: ", error);
     res.status(400).send(error);
   }
 };
