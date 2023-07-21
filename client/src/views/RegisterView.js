@@ -24,6 +24,7 @@ import { changePassword, activateUser } from "../services/UsuariosServices";
 import { Password } from "primereact/password";
 import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -52,9 +53,10 @@ export default function RegisterView() {
   const [error, setError] = React.useState(null);
   const toast = React.useRef(null);
   const navigate = useNavigate();
+  const [cookies] = useCookies(null);
 
   useEffect(() => {
-    contextUsuario.id_usuario === "" && navigate('/')
+    cookies.id_usuario === "" && navigate('/')
   }, [])
 
   const handleClickOpen = () => {

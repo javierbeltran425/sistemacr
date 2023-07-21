@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import ContextUsuario from "../context/ContextUsuario";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 //custom components
 import Layout from "../components/layout/Layout";
@@ -17,9 +18,10 @@ import { USUARIO_ROLES } from "../constants/usuario";
 const HomePage = () => {
   const usuario = useContext(ContextUsuario);
   const navigate = useNavigate();
+  const [cookies] = useCookies(null);
 
   useEffect(() => {
-    usuario.id_usuario === "" && navigate('/')
+    cookies.id_usuario === "" && navigate('/')
   }, [])
 
   const switchRoute = () => {

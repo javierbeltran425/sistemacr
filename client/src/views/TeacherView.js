@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useCookies } from "react-cookie";
 
 // custom components imports
 import Layout from "../components/layout/Layout";
@@ -16,9 +17,7 @@ import { Dialog } from "primereact/dialog";
 import ContextUsuario from "../context/ContextUsuario";
 
 const TeacherView = () => {
-  const contextUsuario = useContext(ContextUsuario)
-  const [time, setTime] = useState(null);
-  const [flag, setFlag] = useState(false);
+  const [cookies] = useCookies(null);
 
   const dias = [
     { label: "Lunes", value: "LN" },
@@ -41,7 +40,7 @@ const TeacherView = () => {
   const [visibleMinus, setVisibleMinus] = useState(false);
 
   useEffect(() => {
-    contextUsuario.id_usuario === "" && navigate('/')
+    cookies.id_usuario === "" && navigate('/')
   }, [])
 
   // Función para activar la modal para registrar nuevos horarios

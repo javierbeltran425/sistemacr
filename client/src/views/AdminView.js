@@ -14,15 +14,17 @@ import ContextUsuario from "../context/ContextUsuario";
 
 import HistoryView from "./HistoryView";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
-  const navigation = useNavigate();
+  const [cookies] = useCookies(null)
+  const navigate = useNavigate();
 
   const contextUsuario = React.useContext(ContextUsuario);
 
   useEffect(() => {
-    contextUsuario.id_usuario === "" && navigate('/')
+    cookies.id_usuario === "" && navigate('/')
   }, [])
 
   /*

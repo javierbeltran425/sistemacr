@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect, useContext } from "react";
+import { useCookies } from "react-cookie";
 import Table from "../components/Table";
 import "../styles/Table.css";
 import Layout from "../components/layout/Layout";
@@ -15,12 +16,14 @@ function Upload() {
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
   const [jsonArray, setJsonArray] = useState([]);
+  const [cookies] = useCookies(null);
+
   let files;
   //let jsonArray;
   let enableButton = true;
 
   useEffect(() => {
-    contextUsuario.id_usuario === "" && navigate('/')
+    cookies.id_usuario === "" && navigate('/')
   }, [])
 
   const columns = useMemo(
