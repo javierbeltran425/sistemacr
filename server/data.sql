@@ -12,6 +12,7 @@ CREATE TABLE usuarios (
   email TEXT NOT NULL UNIQUE,
   hashed_password TEXT NOT NULL,
   nombre TEXT,
+  activo BOOLEAN DEFAULT(false),
   rol TEXT,
   CONSTRAINT fk_carrera FOREIGN KEY(id_carrera) REFERENCES carreras(id_carrera) ON DELETE SET NULL
 );
@@ -80,3 +81,14 @@ CREATE TABLE usuariosXmaterias (
   CONSTRAINT fk_materia FOREIGN KEY(id_materia) REFERENCES materias(id_materia) ON DELETE CASCADE,
   CONSTRAINT fk_seccion FOREIGN KEY(id_seccion) REFERENCES secciones(id_seccion) ON DELETE CASCADE
 );
+
+/*
+
+### Query para crear usuario administrador en caso de perdida de acceso ###
+  email: admin@uca.edu.sv
+  contraseña: 
+
+INSERT INTO USUARIOS (id_usuario, email, hashed_password, rol)
+VALUES('admin', 'admin@uca.edu.sv', '$2b$10$8GMI1pz7/k6tYYmnzmbnO./4kxXrsoe4LR9fmMYnKu6xvVCqHny/2', 'admin');
+
+*/

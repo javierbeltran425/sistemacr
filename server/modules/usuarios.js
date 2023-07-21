@@ -45,6 +45,7 @@ const getUsuarioById = async function (req, res) {
         "usuarios.email",
         "usuarios.nombre",
         "usuarios.rol",
+        "usuarios.activo",
         knex.raw("STRING_AGG(DISTINCT carreras.nombre, '\n') as carrera"),
         knex.raw("STRING_AGG(DISTINCT materias.nombre,  '\n') as materias"),
         knex.raw("ARRAY_AGG(materias.id_materia) as id_materia")
@@ -138,8 +139,6 @@ const createUsuario = async function (req, res) {
 };
 
 const bulkCreateUsuario = async function (req, res) {
-
-
   const purge = req.body[0];
   const reqData = req.body[1];
 
@@ -162,124 +161,111 @@ const bulkCreateUsuario = async function (req, res) {
     );
   }
 
-  let usuariosXMateriasData = reqData.map(({ id_usuario, id_materia, id_seccion }) => ({
-    id_usuario: id_usuario,
-    id_materia: id_materia,
-    id_seccion: id_seccion,
-  }));
+  let usuariosXMateriasData = reqData.map(
+    ({ id_usuario, id_materia, id_seccion }) => ({
+      id_usuario: id_usuario,
+      id_materia: id_materia,
+      id_seccion: id_seccion,
+    })
+  );
 
-  let materiasxcarrerasData = reqData.map(({ id_carrera, id_materia}) => ({
+  let materiasxcarrerasData = reqData.map(({ id_carrera, id_materia }) => ({
     id_carrera: id_carrera,
-    id_materia: id_materia
-  }));
-
-  let materiasData = reqData.map(({ nombre_materia, id_materia}) => ({
     id_materia: id_materia,
-    nombre: nombre_materia
   }));
 
-  let carrerassData = reqData.map(({ id_carrera, carrera}) => ({
+  let materiasData = reqData.map(({ nombre_materia, id_materia }) => ({
+    id_materia: id_materia,
+    nombre: nombre_materia,
+  }));
+
+  let carrerassData = reqData.map(({ id_carrera, carrera }) => ({
     nombre: carrera,
-    id_carrera: id_carrera
+    id_carrera: id_carrera,
   }));
 
-
-  let seccionesData = reqData.map(({ id_seccion, num_seccion, id_materia }) => ({
-    id_materia: id_materia,
-    id_seccion: id_seccion,
-    numero: num_seccion,
-  }));
+  let seccionesData = reqData.map(
+    ({ id_seccion, num_seccion, id_materia }) => ({
+      id_materia: id_materia,
+      id_seccion: id_seccion,
+      numero: num_seccion,
+    })
+  );
 
   //Quitando duplicados
 
   let cleanMaterias = materiasData.filter(
     (materiasData, index, self) =>
-      (index === self.findIndex((t) => t.id_materia === materiasData.id_materia))
+      index === self.findIndex((t) => t.id_materia === materiasData.id_materia)
   );
 
   let cleanUsuarios = usuariosData.filter(
     (usuariosData, index, self) =>
-      (index === self.findIndex((t) => t.id_usuario === usuariosData.id_usuario)) 
+      index === self.findIndex((t) => t.id_usuario === usuariosData.id_usuario)
   );
 
   let cleanSecciones = seccionesData.filter(
     (seccionesData, index, self) =>
-      (index === self.findIndex((t) => t.id_seccion === seccionesData.id_seccion)) 
+      index === self.findIndex((t) => t.id_seccion === seccionesData.id_seccion)
   );
 
   let cleanCarreras = carrerassData.filter(
     (carrerassData, index, self) =>
-      (index === self.findIndex((t) => t.id_carrera === carrerassData.id_carrera)) 
+      index === self.findIndex((t) => t.id_carrera === carrerassData.id_carrera)
   );
 
-
-  console.log('carrerasData: ', cleanCarreras);
-
+  console.log("carrerasData: ", cleanCarreras);
 
   try {
-
     //Borrando datos si se eleigio purgar la base de datos
     if (purge) {
+      await knex("usuariosxmaterias").del();
 
-      await knex("usuariosxmaterias")
-        .del()
+      await knex("materiasxcarreras").del();
 
-      await knex("materiasxcarreras")
-        .del()
+      await knex("solicitudes").del();
 
-      await knex("solicitudes")
-        .del()
-  
-      await knex("horarios")
-        .del()
+      await knex("horarios").del();
 
-      await knex("usuarios")
-        .del()
-        .where("rol", "==", "estudiante");
+      await knex("usuarios").del().where("rol", "==", "estudiante");
 
-      await knex("materias")
-        .del()
-        
-      await knex("secciones")
-        .del()
-        
+      await knex("materias").del();
+
+      await knex("secciones").del();
     }
 
     //Insertando datos
 
     console.log("--> Importando materias");
     await knex("materias")
-    .insert(cleanMaterias)
-    .onConflict("id_materia")
-    .ignore();
+      .insert(cleanMaterias)
+      .onConflict("id_materia")
+      .ignore();
 
     console.log("--> Importando secciones");
     await knex("secciones")
-    .insert(cleanSecciones)
-    .onConflict("id_seccion")
-    .ignore();
+      .insert(cleanSecciones)
+      .onConflict("id_seccion")
+      .ignore();
 
     console.log("--> Importando carreras");
     await knex("carreras")
-    .insert(cleanCarreras)
-    .onConflict("id_carrera")
-    .ignore();
+      .insert(cleanCarreras)
+      .onConflict("id_carrera")
+      .ignore();
 
     console.log("--> Importando materiasXCarreras");
-    await knex("materiasxcarreras")
-    .insert(materiasxcarrerasData)
+    await knex("materiasxcarreras").insert(materiasxcarrerasData);
 
     console.log("--> Importando usuarios");
     const newUsuarios = await knex("usuarios")
-    .returning('email')
-    .insert(cleanUsuarios)
-    .onConflict("id_usuario")
-    .ignore();
+      .returning("email")
+      .insert(cleanUsuarios)
+      .onConflict("id_usuario")
+      .ignore();
 
     console.log("--> Importando usuariosXMaterias");
-    await knex("usuariosxmaterias")
-    .insert(usuariosXMateriasData)
-
+    await knex("usuariosxmaterias").insert(usuariosXMateriasData);
 
     res.json(newUsuarios);
   } catch (error) {
@@ -360,6 +346,56 @@ const getUsuarioInfo = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  const { email, oldPassword, newPassword } = req.body;
+  console.log(email, oldPassword, newPassword);
+  try {
+    const usuario = await knex
+      .select("id_usuario", "email", "hashed_password", "nombre")
+      .from("usuarios")
+      .where({ email: email });
+
+    if (Object.keys(usuario).length === 0)
+      return res.json({ error: "El usuario no existe!" });
+
+    const success = await bcrypt.compare(
+      oldPassword,
+      usuario[0].hashed_password
+    );
+
+    if (success) {
+      const salt = bcrypt.genSaltSync(10);
+      const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+      const editedUsuario = await knex("usuarios")
+        .where({ email: email })
+        .update({ hashed_password: hashedPassword });
+      res.json(editedUsuario);
+    } else {
+      res.status(400).json({ error: "La contraseña actual es incorrecta!" });
+    }
+  } catch (error) {
+    res
+      .status(400)
+      .send({ error: "El servicio no está disponible en este momento" });
+    console.log(error);
+  }
+};
+
+const activateUser = async (req, res) => {
+  const { id_usuario } = req.params;
+
+  try {
+    const editedUsuario = await knex("usuarios")
+      .where({ id_usuario: id_usuario })
+      .update({ activo: true });
+    res.json(editedUsuario);
+  } catch (error) {
+    res.status(400).send(error);
+    console.error(error);
+  }
+};
+
 module.exports = {
   getAllUsuarios,
   getUsuarioById,
@@ -369,4 +405,6 @@ module.exports = {
   editUsuario,
   removeUsuarioById,
   getUsuarioInfo,
+  changePassword,
+  activateUser,
 };

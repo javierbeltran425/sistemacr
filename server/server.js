@@ -74,6 +74,14 @@ app.put("/usuarios/editusuario", (req, res) => {
   usuarios.editUsuario(req, res);
 });
 
+app.put("/usuarios/changepassword", (req, res) => {
+  usuarios.changePassword(req, res);
+});
+
+app.put("/usuarios/activateuser/:id_usuario", (req, res) => {
+  usuarios.activateUser(req, res);
+});
+
 app.delete("/usuarios/removeusuariobyid/:id_usuario", (req, res) => {
   usuarios.removeUsuarioById(req, res);
 });

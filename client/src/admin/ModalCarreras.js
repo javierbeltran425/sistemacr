@@ -6,6 +6,7 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import FormControl from "@mui/material/FormControl";
 import PropTypes from "prop-types";
+import { InputText } from "primereact/inputtext";
 
 const ModalCarreras = ({
   mode,
@@ -109,26 +110,26 @@ const ModalCarreras = ({
           <form>
             {!editMode && (
               <FormControl fullWidth>
-                <TextField
-                  id="filled-basic"
-                  label="ID"
-                  variant="filled"
+                <label>ID de carrera</label>
+                <InputText
+                  placeholder="ID"
                   name="id_carrera"
                   value={newCarrera.id_carrera}
                   onChange={handleChange}
-                  sx={{ my: 2 }}
+                  className="w-full"
+                  keyfilter="int"
                 />
               </FormControl>
             )}
             <FormControl fullWidth>
-              <TextField
-                id="filled-basic"
-                label="Nombre"
-                variant="filled"
+              <label>Nombre de carrera</label>
+              <InputText
+                placeholder="Nombre"
                 name="nombre"
                 value={newCarrera.nombre}
                 onChange={handleChange}
-                sx={{ my: 2 }}
+                className="w-full"
+                keyfilter={/^[a-zA-Z0-9 ]*$/}
               />
             </FormControl>
             <FormControl fullWidth>
