@@ -80,6 +80,12 @@ CREATE TABLE IF NOT EXISTS usuariosXmaterias (
   CONSTRAINT fk_seccion FOREIGN KEY(id_seccion) REFERENCES secciones(id_seccion) ON DELETE CASCADE
 );
 
+ALTER TABLE materiasxcarreras
+ADD UNIQUE (id_materia, id_carrera);
+
+ALTER TABLE usuariosxmaterias
+ADD UNIQUE (id_materia, id_usuario);
+
 /*
 
 ### Query para crear usuario administrador en caso de perdida de acceso ###

@@ -273,7 +273,10 @@ const bulkCreateUsuario = async function (req, res) {
       .ignore();
 
     console.log("--> Importando materiasXCarreras");
-    await knex("materiasxcarreras").insert(cleanMteriasxcarrerasData);
+    await knex("materiasxcarreras")
+    .insert(cleanMteriasxcarrerasData)
+    .onConflict(['id_materia', 'id_carrera'])
+    .ignore();
 
     console.log("--> Importando usuarios");
     const newUsuarios = await knex("usuarios")
@@ -283,7 +286,10 @@ const bulkCreateUsuario = async function (req, res) {
       .ignore();
 
     console.log("--> Importando usuariosXMaterias");
-    await knex("usuariosxmaterias").insert(cleanUsuariosXMateriasData);
+    await knex("usuariosxmaterias")
+          .insert(cleanUsuariosXMateriasData)
+          .onConflict(['id_materia', 'id_usuario'])
+          .ignore();
 
     res.json(newUsuarios);
   } catch (error) {
