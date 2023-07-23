@@ -10,15 +10,21 @@ import { Divider } from "primereact/divider";
 import { Tooltip } from 'primereact/tooltip';
 
 const Header = () => {
-  const [visible, setVisible] = useState(false);
-  const navigate = useNavigate();
   const [cookies, setCookie, removeCookie] = useCookies(null);
+  const [visible, setVisible] = useState(false);
+  const [rol, setRol] = useState("")
+  const navigate = useNavigate();
   const [titulo, setTitulo] = useState('')
   const contextUSuario = useContext(ContextUsuario);
 
   useEffect(() => {
-    tituloHeader()
+    getRol()
   }, [])
+
+  useEffect(() => {
+    tituloHeader()
+  }, [rol])
+
 
   const signOut = () => {
     removeCookie("id_usuario");
@@ -29,11 +35,24 @@ const Header = () => {
     window.location.reload();
   };
 
+  const getRol = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${cookies.id_usuario}`
+      );
+      const json = await resp.json();
+
+      setRol(json[0].rol)
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const tituloHeader = () => {
     const location = window.location.hash
     console.log("🚀 ~ file: Header.js:50 ~ titulo ~ location:", location)
 
-    switch (contextUSuario.rol) {
+    switch (rol) {
       case 'estudiante':
         setTitulo('Panel de estudiantes')
         break;
@@ -49,7 +68,8 @@ const Header = () => {
   }
 
   const headerTemplate = () => {
-    switch (contextUSuario.rol) {
+
+    switch (rol) {
       case 'estudiante':
         return (
           <></>
@@ -80,6 +100,8 @@ const Header = () => {
         )
 
       default:
+        <>
+        </>
         break;
     }
   }
@@ -91,7 +113,7 @@ const Header = () => {
       <div className="flex md:flex-row w-full h-2 px-1 md:px-6 justify-content-between align-items-center bg-gray-100 shadow-1">
 
         {
-          contextUSuario.activo ? (
+          cookies.act ? (
             <div className="hidden md:inline">
               {headerTemplate()}
             </div>
@@ -114,7 +136,7 @@ const Header = () => {
 
         <div className="py-2 px-1 flex w-full md:hidden">
           {
-            contextUSuario.rol !== "estudiante" ? (
+            rol !== "estudiante" ? (
               <i className="pi pi-bars font-bold text-lg" onClick={() => setVisible(true)}></i>
             ) : (
               <div className="flex w-full flex-row justify-content-end">

@@ -31,6 +31,7 @@ import ListItemText from "@mui/material/ListItemText";
 import SquareIcon from "@mui/icons-material/Square";
 import Divider from "@mui/material/Divider";
 import LeyendaColores from "./LeyendaColores";
+import Cookies from "universal-cookie";
 
 // constantes
 import {
@@ -54,9 +55,9 @@ import { Square } from "@mui/icons-material";
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
+const cookies = new Cookies()
 
 class CalendarAlt extends React.Component {
-  static contextType = ContextUsuario;
 
   messages = {
     allDay: "Todo el día",
@@ -94,7 +95,7 @@ class CalendarAlt extends React.Component {
   }
 
   componentDidMount() {
-    this.getSeccionesByIdUsuario();
+    this.getSeccionesByIdUsuario(cookies.get("id_usuario"));
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -108,7 +109,7 @@ class CalendarAlt extends React.Component {
   getSeccionesByIdUsuario = async () => {
     try {
       const response = await getSeccionesByIdUsuario(
-        this.context.id_usuario
+        cookies.get("id_usuario")
       ).catch((err) => {
         console.error(err);
       });
@@ -253,7 +254,7 @@ class CalendarAlt extends React.Component {
   // Onclick callback function that pushes new appointment into events array.
   async setNewAppointment() {
     const { start, end, title, desc, tipo, email } = this.state;
-    const id_usuario = this.context.id_usuario;
+    const id_usuario = cookies.get("id_usuario");
     const id_materia = this.state.seccionSeleccionada.id_materia;
     const id_seccion = this.state.seccionSeleccionada.id_seccion;
     const estado = "PENDIENTE";
@@ -309,7 +310,7 @@ class CalendarAlt extends React.Component {
         );
 
         const response3 = await getInfoUsuario({
-          id_usuario: this.context.id_usuario,
+          id_usuario: cookies.get("id_usuario"),
         }).catch((err) => {
           console.error(err);
         });
@@ -361,7 +362,7 @@ class CalendarAlt extends React.Component {
       });
 
       const response3 = await getInfoUsuario({
-        id_usuario: this.context.id_usuario,
+        id_usuario: cookies.get("id_usuario"),
       }).catch((err) => {
         console.error(err);
       });
@@ -513,7 +514,7 @@ class CalendarAlt extends React.Component {
     };
 
     const customEventPropGetter = (event) => {
-      if (event.id_usuario != this.context.id_usuario) {
+      if (event.id_usuario != cookies.get("id_usuario")) {
         return {
           style: { backgroundColor: "#adb5bd", borderColor: "#adb5bd" },
         };
@@ -615,9 +616,9 @@ class CalendarAlt extends React.Component {
           min={new Date(0, 0, 0, 6, 0, 0)}
           //max={new Date(0, 0, 0, 23, 0, 0)}
           onSelectEvent={(event) => {
-            event.id_usuario == this.context.id_usuario
+            event.id_usuario == cookies.get("id_usuario")
               ? this.handleEventSelected(event)
-              : console.log(event.id_usuario, this.context.id_usuario);
+              : console.log(event.id_usuario, cookies.get("id_usuario"));
           }}
           onSelectSlot={(slotInfo) => {
             !this.concurrentEventExists(slotInfo) &&

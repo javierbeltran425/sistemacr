@@ -38,6 +38,7 @@ import Collapse from "@mui/material/Collapse";
 import CloseIcon from "@mui/icons-material/Close";
 import Zoom from "@mui/material/Zoom";
 import Modal from "@mui/material/Modal";
+import Cookies from "universal-cookie";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -67,6 +68,7 @@ import { EnviaNotificacione } from "../services/NotificacionesServices";
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
+const cookies = new Cookies()
 
 class CalendarAlt extends React.Component {
   static contextType = ContextUsuario;
@@ -127,7 +129,7 @@ class CalendarAlt extends React.Component {
   getSeccionesByIdUsuario = async () => {
     try {
       const response = await getSeccionesByIdUsuario(
-        this.context.id_usuario
+        cookies.get("id_usuario")
       ).catch((err) => {
         console.error(err);
       });
@@ -162,7 +164,7 @@ class CalendarAlt extends React.Component {
       console.log("Materia seleccionada: ", this.state.seccionSeleccionada);
       let response;
       if (this.state.seccionSeleccionada.id_seccion === -1) {
-        response = await getHorariosByIdUsuario(this.context.id_usuario);
+        response = await getHorariosByIdUsuario(cookies.get("id_usuario"));
       } else {
         response = await getHorariosByIdSeccion(
           this.state.seccionSeleccionada.id_seccion

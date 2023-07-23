@@ -16,16 +16,33 @@ import "../constants/usuario";
 import { USUARIO_ROLES } from "../constants/usuario";
 
 const HomePage = () => {
+  const [rol, setRol] = useState("")
+
   const usuario = useContext(ContextUsuario);
   const navigate = useNavigate();
   const [cookies] = useCookies(null);
 
   useEffect(() => {
     cookies.id_usuario === "" && navigate('/')
+    getRol()
   }, [])
 
+  const getRol = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${cookies.id_usuario}`
+      );
+      const json = await resp.json();
+
+      setRol(json[0].rol)
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const switchRoute = () => {
-    switch (usuario.rol) {
+
+    switch (rol) {
       case "profesor":
         return <CalendarTeacher />;
 
@@ -36,6 +53,7 @@ const HomePage = () => {
         navigate("/admin");
 
       default:
+        <></>
         break;
     }
   };
@@ -43,7 +61,9 @@ const HomePage = () => {
   return (
     <Layout>
       <div className="w-full lg:px-6 py-3">
-        <div className="mt-4">{switchRoute()}</div>
+        <div className="mt-4">
+          {switchRoute()}
+        </div>
       </div>
     </Layout>
   );

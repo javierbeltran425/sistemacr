@@ -30,6 +30,7 @@ import moment from "moment";
 import React from "react";
 import "moment/locale/es";
 import "moment-timezone";
+import Cookies from "universal-cookie";
 
 // servicios
 import {
@@ -43,6 +44,7 @@ import { InputText } from "primereact/inputtext";
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
+const cookies = new Cookies()
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -100,7 +102,7 @@ class CalendarAlt extends React.Component {
   getSeccionesByIdUsuario = async () => {
     try {
       const response = await getSeccionesByIdUsuario(
-        this.context.id_usuario
+        cookies.get("id_usuario")
       ).catch((err) => {
         console.error(err);
       });
@@ -124,7 +126,7 @@ class CalendarAlt extends React.Component {
     try {
       console.log("Materia seleccionada: ", this.state.seccionSeleccionada);
       const response = await getHorariosByIdUsuario(
-        this.context.id_usuario
+        cookies.get("id_usuario")
       ).catch((err) => {
         console.error(err);
       });
@@ -208,7 +210,7 @@ class CalendarAlt extends React.Component {
   // Onclick callback function that pushes new appointment into events array.
   async setNewHorario() {
     const { start, end, title, desc } = this.state;
-    const id_usuario = this.context.id_usuario;
+    const id_usuario = cookies.get("id_usuario");
 
     let cadena = "";
     const caracteresPermitidos = "0123456789";

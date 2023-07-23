@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
@@ -18,6 +18,8 @@ import { useCookies } from "react-cookie";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
+  const [rol, setRol] = useState("");
+
   const [cookies] = useCookies(null)
   const navigate = useNavigate();
 
@@ -25,19 +27,34 @@ function TabPanel(props) {
 
   useEffect(() => {
     cookies.id_usuario === "" && navigate('/')
+    getRol()
   }, [])
 
-  /*
   useEffect(() => {
-    const checkLogin = () => {
-      if (contextUsuario.rol !== "admin") {
-        navigation('/')
+    if (rol !== "") {
+      const checkLogin = () => {
+        if (rol !== "admin") {
+          navigate('/')
+        }
       }
+
+      checkLogin()
     }
 
-    checkLogin()
-  }, [])
-*/
+  }, [rol])
+
+  const getRol = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${cookies.id_usuario}`
+      );
+      const json = await resp.json();
+
+      setRol(json[0].rol)
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div

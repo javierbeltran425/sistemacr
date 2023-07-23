@@ -44,6 +44,7 @@ const Login = () => {
       setCookie("email", data.email);
       setCookie("authToken", data.token);
       setCookie("nombre", data.nombre);
+      setCookie("act", data.activo)
 
       contextUsuario.setId_usuario(data.id_usuario)
       contextUsuario.setEmail(data.email)
