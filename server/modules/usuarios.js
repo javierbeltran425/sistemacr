@@ -214,6 +214,16 @@ const bulkCreateUsuario = async function (req, res) {
       index === self.findIndex((t) => t.id_carrera === carrerassData.id_carrera)
   );
 
+  let cleanMteriasxcarrerasData = materiasxcarrerasData.filter(
+    (materiasxcarrerasData, index, self) =>
+      index === self.findIndex((t) => t.id_carrera === materiasxcarrerasData.id_carrera && t.id_materia === materiasxcarrerasData.id_materia )
+  );
+
+  let cleanUsuariosXMateriasData = usuariosXMateriasData.filter(
+    (usuariosXMateriasData, index, self) =>
+      index === self.findIndex((t) => t.id_usuario === usuariosXMateriasData.id_usuario && t.id_materia === usuariosXMateriasData.id_materia )
+  );
+
 
   try {
     //Borrando datos si se eleigio purgar la base de datos
@@ -263,7 +273,10 @@ const bulkCreateUsuario = async function (req, res) {
       .ignore();
 
     console.log("--> Importando materiasXCarreras");
-    await knex("materiasxcarreras").insert(materiasxcarrerasData);
+    await knex("materiasxcarreras")
+    .insert(cleanMteriasxcarrerasData)
+    .onConflict(['id_materia', 'id_carrera'])
+    .ignore();
 
     console.log("--> Importando usuarios");
     const newUsuarios = await knex("usuarios")
@@ -273,7 +286,10 @@ const bulkCreateUsuario = async function (req, res) {
       .ignore();
 
     console.log("--> Importando usuariosXMaterias");
-    await knex("usuariosxmaterias").insert(usuariosXMateriasData);
+    await knex("usuariosxmaterias")
+          .insert(cleanUsuariosXMateriasData)
+          .onConflict(['id_materia', 'id_usuario'])
+          .ignore();
 
     res.json(newUsuarios);
   } catch (error) {
