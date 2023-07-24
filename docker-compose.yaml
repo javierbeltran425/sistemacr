@@ -35,6 +35,8 @@ services:
       - DB_PASS=$POSTGRES_PASSWORD
       - DB_NAME=$POSTGRES_DB
       - DB_PORT=$POSTGRES_DOCKER_PORT
+      - NODEM_USER=javier.beltmart@gmail.com
+      - NODEM_PASSWORD=jyldoinnuzqxqprg
     networks:
       - web-internal
       - web-external
