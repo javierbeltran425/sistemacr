@@ -80,11 +80,15 @@ CREATE TABLE IF NOT EXISTS usuariosXmaterias (
   CONSTRAINT fk_seccion FOREIGN KEY(id_seccion) REFERENCES secciones(id_seccion) ON DELETE CASCADE
 );
 
+ALTER TABLE materiasXcarreras 
+DROP CONSTRAINT IF EXISTS MxC_unique;
 ALTER TABLE materiasxcarreras
-ADD UNIQUE (id_materia, id_carrera);
+ADD CONSTRAINT MxC_unique UNIQUE (id_materia, id_carrera);
 
+ALTER TABLE usuariosXmaterias 
+DROP CONSTRAINT IF EXISTS UxM_unique;
 ALTER TABLE usuariosxmaterias
-ADD UNIQUE (id_materia, id_usuario);
+ADD CONSTRAINT UxM_unique UNIQUE (id_materia, id_usuario);
 
 /*
 
@@ -93,6 +97,6 @@ ADD UNIQUE (id_materia, id_usuario);
   - contraseña: admin
 
 */
-INSERT INTO USUARIOS (id_usuario, email, hashed_password, rol, activo)
-VALUES('admin', 'admin@uca.edu.sv', '$2b$10$8GMI1pz7/k6tYYmnzmbnO./4kxXrsoe4LR9fmMYnKu6xvVCqHny/2', 'admin', true)
+INSERT INTO USUARIOS (id_usuario, email, hashed_password, rol, activo, nombre)
+VALUES('admin', 'admin@uca.edu.sv', '$2b$10$8GMI1pz7/k6tYYmnzmbnO./4kxXrsoe4LR9fmMYnKu6xvVCqHny/2', 'admin', true, 'admin')
 ON CONFLICT (id_usuario) DO NOTHING;

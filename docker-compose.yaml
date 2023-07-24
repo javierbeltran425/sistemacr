@@ -1,51 +1,62 @@
-version: "3"
+version: "3.9"
+
 services:
-  postgres:
-    image: "postgres:latest"
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
+  db:
+    container_name: db
+    image: postgres:alpine
+    restart: unless-stopped
+    env_file: ./.env
     volumes:
-      - "./setup.sql:/docker-entrypoint-initdb.d/setup.sql"
-  nginx:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=$POSTGRES_DB
+    ports:
+      - $POSTGRES_LOCAL_PORT:$POSTGRES_DOCKER_PORT
+    networks:
+      - web-internal
+
+  server:
+    container_name: server
     depends_on:
-      - api
-      - client
-    restart: always
+      - db
     build:
-      dockerfile: Dockerfile.dev
-      context: ./nginx
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
     ports:
-      - "3050:80"
-  api:
-    build:
-      dockerfile: Dockerfile.dev
-      context: "./server"
-    volumes:
-      - /app/node_modules
-      - ./server:/app
+      - $NODE_LOCAL_PORT:$NODE_LOCAL_PORT
+    env_file: ./.env
     environment:
-      - PORT=8000
-      - DB_USER=postgres
-      - DB_PASS=postgres
-      - DB_NAME=postgres
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - NODEM_USER=javier.beltmart@gmail.com
-      - NODEM_PASSWORD=jyldoinnuzqxqprg
+      - DB_HOST=db
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
+      - DB_NAME=$POSTGRES_DB
+      - DB_PORT=$POSTGRES_DOCKER_PORT
+    networks:
+      - web-internal
+      - web-external
+
   client:
-    stdin_open: true
-    environment:
-      - REACT_APP_SERVER_URL='http://localhost:8000'
-      - ESLINT_NO_DEV_ERRORS=true
-        #REACT_APP_SERVER_URL='https://server-dot-sistemacr-392918.uc.r.appspot.com'
-      - DISABLE_ESLINT_PLUGIN=true
+    container_name: client
+    depends_on:
+      - server
     build:
-      dockerfile: Dockerfile.dev
       context: ./client
-    volumes:
-      - /app/node_modules
-      - ./client:/app
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_SERVER_URL=$CLIENT_API_BASE_URL
+    ports:
+      - $REACT_LOCAL_PORT:$REACT_DOCKER_PORT
+    networks:
+      - web-external
+      - web-internal
+
+networks:
+  web-internal:
+  web-external:
+
+volumes:
+  pgdata:

@@ -1,11 +1,14 @@
 require("dotenv").config();
-const port = process.env.PORT || 3000;
+const port = process.env.NODE_LOCAL_PORT || 3000;
 
 const express = require("express");
 const app = express();
 const cors = require("cors");
 
-app.use(cors());
+var corsOptions = {
+  origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // MODULES
