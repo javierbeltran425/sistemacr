@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
-const port = process.env.NODE_LOCAL_PORT || 3000;
+const port = process.env.NODE_LOCAL_PORT || 8000;
 const basePath = process.env.BASE_PATH || "http://localhost:8000";
 
 const corsOptions = {
@@ -11,7 +11,7 @@ const corsOptions = {
 };
 
 const app = express();
-app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(cors(corsOptions));
 app.use(express.json());
 

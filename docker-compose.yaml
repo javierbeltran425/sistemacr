@@ -37,12 +37,12 @@ services:
       - DB_PORT=$POSTGRES_DOCKER_PORT
       - NODEM_USER=javier.beltmart@gmail.com
       - NODEM_PASSWORD=jyldoinnuzqxqprg
-      - REACT_APP_SERVER_URL=$CLIENT_API_BASE_URL
+      - REACT_APP_SERVER_URL=$BASE_PATH
     networks:
       - web-internal
       - web-external
     volumes:
-      - public:/usr/src/app/public:rw
+      - public:/app/public:rw
 
 networks:
   web-internal:
