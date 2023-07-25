@@ -1,13 +1,17 @@
 require("dotenv").config();
-const port = process.env.NODE_LOCAL_PORT || 3000;
-
 const express = require("express");
-const app = express();
 const cors = require("cors");
+const path = require("path");
 
-var corsOptions = {
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+const port = process.env.NODE_LOCAL_PORT || 3000;
+const basePath = process.env.BASE_PATH || "http://localhost:8000";
+
+const corsOptions = {
+  origin: basePath || "http://localhost:8000",
 };
+
+const app = express();
+app.use(express.static(path.join(__dirname, "/public")));
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -21,25 +25,6 @@ const materias = require("./modules/materias");
 const horarios = require("./modules/horarios");
 const secciones = require("./modules/secciones");
 const notificaciones = require("./modules/notificaciones");
-
-// CONEXION CON WHATSAPP
-// const qrcode = require('qrcode-terminal');
-
-// const { Client, LocalAuth } = require('whatsapp-web.js');
-
-// const client = new Client({
-//     authStrategy: new LocalAuth()
-// });
-
-// client.on('qr', qr => {
-//     qrcode.generate(qr, {small: true});
-// });
-
-// client.on('ready', () => {
-//     console.log('Conexión con WhatsApp exitosa!');
-// });
-
-// client.initialize();
 
 // AUTHENTICATION
 
