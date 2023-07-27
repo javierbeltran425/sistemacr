@@ -4,15 +4,11 @@ const cors = require("cors");
 const path = require("path");
 
 const port = process.env.NODE_LOCAL_PORT || 8000;
-const basePath = process.env.BASE_PATH || "http://localhost:8000";
-
-const corsOptions = {
-  origin: basePath || "http://localhost:8000",
-};
+const basePath = process.env.BASE_PATH || "/";
 
 const app = express();
-app.use(express.static(path.join(__dirname, "public")));
-app.use(cors(corsOptions));
+app.use(basePath, express.static(path.join(__dirname, "public")));
+app.use(cors());
 app.use(express.json());
 
 // MODULES

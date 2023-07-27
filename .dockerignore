@@ -1,7 +1,7 @@
 client/node_modules
 client/.vscode
-client.env
 client/.eslint.json
+client/.env
 client/.gcloudignore
 client/.gitignore
 client/.git

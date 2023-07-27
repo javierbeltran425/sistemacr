@@ -35,9 +35,12 @@ services:
       - DB_PASS=$POSTGRES_PASSWORD
       - DB_NAME=$POSTGRES_DB
       - DB_PORT=$POSTGRES_DOCKER_PORT
-      - NODEM_USER=javier.beltmart@gmail.com
-      - NODEM_PASSWORD=jyldoinnuzqxqprg
-      - REACT_APP_SERVER_URL=$BASE_PATH
+
+      - BASE_PATH=$BASE_PATH
+      - REACT_APP_SERVER_URL=$REACT_APP_SERVER_URL
+
+      - NODEM_USER=$NODEM_USER
+      - NODEM_PASSWORD=$NODEM_PASSWORD
     networks:
       - web-internal
       - web-external
