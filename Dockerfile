@@ -23,4 +23,4 @@ RUN npm i --omit=dev
 COPY server/ .
 
 COPY --from=build-stage /app/build /app/public
-CMD ["npm", "run", "deploy"]
+CMD ["npm", "run", "start"]
