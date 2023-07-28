@@ -53,7 +53,7 @@ export default function RegisterView() {
   const [error, setError] = React.useState(null);
   const toast = React.useRef(null);
   const navigate = useNavigate();
-  const [cookies] = useCookies(null);
+  const [cookies, setCookie] = useCookies(null);
 
   useEffect(() => {
     cookies.id_usuario === "" && navigate('/')
@@ -80,6 +80,7 @@ export default function RegisterView() {
       );
       if (response.status == 200) {
         setUsuario(response.data[0]);
+        contextUsuario.setActivo(response.data[0].activo)
       }
     } catch (error) {
       console.error(error);
@@ -141,6 +142,8 @@ export default function RegisterView() {
         response
       );
       if (response.status == 200) {
+        contextUsuario.setActivo(true)
+        setCookie("act", true)
         navigate("/");
       }
     } catch (error) {
@@ -158,18 +161,18 @@ export default function RegisterView() {
   };
 
   React.useEffect(() => {
-    getUsuario(contextUsuario.id_usuario);
-    getSecciones(contextUsuario.id_usuario);
+    getUsuario(cookies.id_usuario);
+    getSecciones(cookies.id_usuario);
   }, []);
 
   React.useEffect(() => {
-    contextUsuario.id_usuario === "" && navigate('/login')
+    cookies.id_usuario === "" && navigate('/login')
   }, [])
 
   return (
     <Layout>
       <Toast ref={toast} />
-      {contextUsuario.activo ? (
+      {cookies.act ? (
         <div className="w-full flex flex-row justify-content-start">
           <div className="flex flex-row justify-content-center align-items-center m-2 cursor-pointer" onClick={() => navigate('/')} >
             <i className="pi pi-angle-left" style={{ fontSize: '1.5rem' }}></i>
