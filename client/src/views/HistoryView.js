@@ -49,7 +49,7 @@ const HistoryView = () => {
         (solicitud) => solicitud.estado.toUpperCase() === "RECHAZADO"
       );
       let aceptadas = historyData.filter(
-        (solicitud) => solicitud.estado.toUpperCase() === "ACEPTADA"
+        (solicitud) => solicitud.estado.toUpperCase() === "ACEPTADO"
       );
 
       setContAtendidas(atendidas.length);
