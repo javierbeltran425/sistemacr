@@ -52,8 +52,7 @@ const getSolicitudesByIdSeccion = async function (req, res) {
         "estado"
       )
       .from("solicitudes")
-      .where({ id_seccion: id_seccion })
-      .whereNot({ archivada: true });
+      .where({ id_seccion: id_seccion });
     res.json(solicitudes);
   } catch (error) {
     res.status(400).send(error);
