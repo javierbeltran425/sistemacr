@@ -179,20 +179,18 @@ const ModalUsuarios = ({
                 className="w-full my-1"
               />
             </FormControl>
-            {!editMode && (
-              <FormControl fullWidth>
-                <Password
-                  placeholder="Contraseña"
-                  name="password"
-                  value={newUsuario.password}
-                  onChange={handleChange}
-                  keyfilter={/^[\w!@#$%^&*()\-+=<>?/\|{}\[\]~]*$/}
-                  toggleMask={true}
-                  inputStyle={{ width: "100%" }}
-                  className="my-1"
-                />
-              </FormControl>
-            )}
+            <FormControl fullWidth>
+              <Password
+                placeholder="Contraseña"
+                name="password"
+                value={newUsuario.password}
+                onChange={handleChange}
+                keyfilter={/^[\w!@#$%^&*()\-+=<>?/\|{}\[\]~]*$/}
+                toggleMask={true}
+                inputStyle={{ width: "100%" }}
+                className="my-1"
+              />
+            </FormControl>
             <FormControl fullWidth sx={{ my: 1 }}>
               <InputLabel id="demo-simple-select-label">Rol</InputLabel>
               <Select

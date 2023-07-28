@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
-import { Tooltip } from 'primereact/tooltip';
-import { InputText } from 'primereact/inputtext';
+import React, { useState, useEffect, useRef } from "react";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Button } from "primereact/button";
+import { Tooltip } from "primereact/tooltip";
+import { InputText } from "primereact/inputtext";
 
 export default function ExportDemo(props) {
   const [products, setProducts] = useState([]);
@@ -11,19 +11,18 @@ export default function ExportDemo(props) {
   const dt = useRef(null);
 
   useEffect(() => {
-    props.historyData && setProducts(props.historyData)
-  }, [props.historyData])
-
+    props.historyData && setProducts(props.historyData);
+  }, [props.historyData]);
 
   const cols = [
-    { field: 'nombreAlumno', header: 'Nombre del alumno' },
-    { field: 'correoAlumno', header: 'Correo del alumno' },
-    { field: 'nombreMateria', header: 'Materia' },
-    { field: 'seccion', header: 'Seccion' },
-    { field: 'titulo', header: 'Titulo' },
-    { field: 'descripcion', header: 'Descripción' },
-    { field: 'tipo', header: 'Tipo' },
-    { field: 'estado', header: 'Estado' }
+    { field: "nombreAlumno", header: "Nombre del alumno" },
+    { field: "correoAlumno", header: "Correo del alumno" },
+    { field: "nombreMateria", header: "Materia" },
+    { field: "seccion", header: "Seccion" },
+    { field: "titulo", header: "Titulo" },
+    { field: "descripcion", header: "Descripción" },
+    { field: "tipo", header: "Tipo" },
+    { field: "estado", header: "Estado" },
   ];
 
   const exportColumns = cols.map((col) => ({
@@ -81,12 +80,36 @@ export default function ExportDemo(props) {
     <div className="flex flex-column md:flex-row align-items-center justify-content-end gap-2">
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
-        <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Filtrar..." />
+        <InputText
+          type="search"
+          onInput={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Filtrar..."
+        />
       </span>
-      <div className='flex gap-2'>
-        <Button type="button" icon="pi pi-file" rounded onClick={() => exportCSV(false)} data-pr-tooltip="CSV" />
-        <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
-        <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" />
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          icon="pi pi-file"
+          rounded
+          onClick={() => exportCSV(false)}
+          data-pr-tooltip="CSV"
+        />
+        <Button
+          type="button"
+          icon="pi pi-file-excel"
+          severity="success"
+          rounded
+          onClick={exportExcel}
+          data-pr-tooltip="XLS"
+        />
+        <Button
+          type="button"
+          icon="pi pi-file-pdf"
+          severity="warning"
+          rounded
+          onClick={exportPdf}
+          data-pr-tooltip="PDF"
+        />
       </div>
     </div>
   );
@@ -95,7 +118,13 @@ export default function ExportDemo(props) {
     <div className="card">
       <Tooltip target=".export-buttons>button" position="bottom" />
 
-      <DataTable globalFilter={globalFilter} ref={dt} value={products} header={header} tableStyle={{ minWidth: '50rem' }}>
+      <DataTable
+        globalFilter={globalFilter}
+        ref={dt}
+        value={products}
+        header={header}
+        tableStyle={{ minWidth: "50rem" }}
+      >
         {cols.map((col, index) => (
           <Column key={index} field={col.field} header={col.header} />
         ))}

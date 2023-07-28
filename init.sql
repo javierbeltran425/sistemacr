@@ -88,7 +88,7 @@ ADD CONSTRAINT MxC_unique UNIQUE (id_materia, id_carrera);
 ALTER TABLE usuariosXmaterias 
 DROP CONSTRAINT IF EXISTS UxM_unique;
 ALTER TABLE usuariosxmaterias
-ADD CONSTRAINT UxM_unique UNIQUE (id_materia, id_usuario);
+ADD CONSTRAINT UxM_unique UNIQUE (id_seccion, id_usuario);
 
 /*
 

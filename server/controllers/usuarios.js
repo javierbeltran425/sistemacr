@@ -216,14 +216,23 @@ const bulkCreateUsuario = async function (req, res) {
 
   let cleanMteriasxcarrerasData = materiasxcarrerasData.filter(
     (materiasxcarrerasData, index, self) =>
-      index === self.findIndex((t) => t.id_carrera === materiasxcarrerasData.id_carrera && t.id_materia === materiasxcarrerasData.id_materia )
+      index ===
+      self.findIndex(
+        (t) =>
+          t.id_carrera === materiasxcarrerasData.id_carrera &&
+          t.id_materia === materiasxcarrerasData.id_materia
+      )
   );
 
   let cleanUsuariosXMateriasData = usuariosXMateriasData.filter(
     (usuariosXMateriasData, index, self) =>
-      index === self.findIndex((t) => t.id_usuario === usuariosXMateriasData.id_usuario && t.id_materia === usuariosXMateriasData.id_materia )
+      index ===
+      self.findIndex(
+        (t) =>
+          t.id_usuario === usuariosXMateriasData.id_usuario &&
+          t.id_materia === usuariosXMateriasData.id_materia
+      )
   );
-
 
   try {
     //Borrando datos si se eleigio purgar la base de datos
@@ -247,7 +256,7 @@ const bulkCreateUsuario = async function (req, res) {
 
       console.log("secciones deleted");
 
-      await knex("usuarios").where('rol', 'estudiante').del();
+      await knex("usuarios").where("rol", "estudiante").del();
 
       console.log("usuarios deleted");
     }
@@ -274,9 +283,9 @@ const bulkCreateUsuario = async function (req, res) {
 
     console.log("--> Importando materiasXCarreras");
     await knex("materiasxcarreras")
-    .insert(cleanMteriasxcarrerasData)
-    .onConflict(['id_materia', 'id_carrera'])
-    .ignore();
+      .insert(cleanMteriasxcarrerasData)
+      .onConflict(["id_materia", "id_carrera"])
+      .ignore();
 
     console.log("--> Importando usuarios");
     const newUsuarios = await knex("usuarios")
@@ -287,9 +296,9 @@ const bulkCreateUsuario = async function (req, res) {
 
     console.log("--> Importando usuariosXMaterias");
     await knex("usuariosxmaterias")
-          .insert(cleanUsuariosXMateriasData)
-          .onConflict(['id_materia', 'id_usuario'])
-          .ignore();
+      .insert(cleanUsuariosXMateriasData)
+      .onConflict(["id_seccion", "id_usuario"])
+      .ignore();
 
     res.json(newUsuarios);
   } catch (error) {
@@ -302,10 +311,18 @@ const editUsuario = async function (req, res) {
   const { id_usuario, id_carrera, email, nombre, rol, password, materias } =
     req.body;
 
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(password, salt);
+
   try {
     const editedUsuario = await knex("usuarios")
       .where({ id_usuario: id_usuario })
-      .update({ nombre: nombre, rol: rol, id_carrera: id_carrera });
+      .update({
+        nombre: nombre,
+        rol: rol,
+        id_carrera: id_carrera,
+        hashed_password: hashedPassword,
+      });
 
     await knex("usuariosxmaterias").where({ id_usuario: id_usuario }).del();
 

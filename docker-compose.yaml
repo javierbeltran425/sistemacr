@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - $NODE_LOCAL_PORT:$NODE_LOCAL_PORT
+      - $PORT:$PORT
     env_file: ./.env
     environment:
       - DB_HOST=db

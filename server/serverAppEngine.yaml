@@ -6,6 +6,5 @@ env_variables:
   DB_USER: "postgres"
   DB_PASS: "uca"
   DB_NAME: "postgres"
-  DB_HOST: "35.193.14.64"
-  DB_ADDRESS: "/cloudsql/sistemacr-392918:us-central1:sistemacr"
   DB_PORT: "5432"
+  DB_ADDRESS: "/cloudsql/sistemacr-392918:us-central1:sistemacr"
