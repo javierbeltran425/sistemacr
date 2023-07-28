@@ -131,7 +131,7 @@ const Header = () => {
             </p>
           </div>
 
-          <Avatar icon='pi pi-user' size="large" className="logo cursor-pointer" onClick={() => navigate('register')} />
+          <Avatar icon='pi pi-user' size="large" className="logo cursor-pointer" onClick={() => navigate('/register')} />
         </div>
 
         <div className="py-2 px-1 flex w-full md:hidden">
@@ -156,7 +156,7 @@ const Header = () => {
         <Sidebar visible={visible} onHide={() => setVisible(false)}>
           <div className="flex w-full justify-content-start">
             <div className="flex gap-2 align-items-end">
-              <Avatar icon='pi pi-user' size="large" className="logo cursor-pointer" onClick={() => navigate('register')} />
+              <Avatar icon='pi pi-user' size="large" className="logo cursor-pointer" onClick={() => navigate('/register')} />
               <div className="text-start">
                 <h5 className="p-0 m-0">{cookies.nombre}</h5>
                 <p
