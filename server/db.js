@@ -1,4 +1,12 @@
 require("dotenv").config();
+const { cleanEnv, host, str, num } = require("envalid");
+const env = cleanEnv(process.env, {
+  DB_USER: str(),
+  DB_PASS: str(),
+  DB_HOST: host(),
+  DB_NAME: str(),
+  DB_PORT: num(),
+});
 
 // createUnixSocketPool initializes a Unix socket connection pool for
 // a Cloud SQL instance of Postgres.
@@ -9,19 +17,14 @@ let dbConfig = {
   // keep secrets safe.
   client: "pg",
   connection: {
-    user: process.env.DB_USER, // e.g. 'my-user'
-    password: process.env.DB_PASS, // e.g. 'my-user-password'
-    database: process.env.DB_NAME, // e.g. 'my-database'3000
+    user: env.DB_USER, // e.g. 'my-user'
+    password: env.DB_PASS, // e.g. 'my-user-password'
+    database: env.DB_NAME, // e.g. 'my-database'3000
+    host: env.DB_HOST,
+    port: env.DB_PORT,
   },
   // ... Specify additional properties here.
 };
-
-if (process.env.NODE_ENV == "production") {
-  // dbConfig.connection.host = process.env.DB_ADDRESS;
-} else {
-  dbConfig.connection.host = process.env.DB_HOST;
-  dbConfig.connection.port = process.env.DB_PORT;
-}
 
 const knex = require("knex")(dbConfig);
 

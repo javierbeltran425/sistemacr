@@ -16,6 +16,11 @@ import ModalCarreras from "./ModalCarreras";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import { styled } from "@mui/material/styles";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -80,7 +85,7 @@ const CRUDcarreras = () => {
     if (window.confirm("Estás seguro que quieres eliminar esta carrera?")) {
       try {
         const resp = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/carreras/removecarrerabyid/${id_carrera}`,
+          `${serverUrl}/carreras/removecarrerabyid/${id_carrera}`,
           {
             method: "DELETE",
           }

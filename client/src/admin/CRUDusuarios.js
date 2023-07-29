@@ -17,6 +17,11 @@ import "../constants/usuario";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import { styled } from "@mui/material/styles";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -85,7 +90,7 @@ const CRUDusuarios = () => {
     if (window.confirm("Estás seguro que quieres eliminar este usuario?")) {
       try {
         const resp = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/usuarios/removeusuariobyid/${id_usuario}`,
+          `${serverUrl}/usuarios/removeusuariobyid/${id_usuario}`,
           {
             method: "DELETE",
           }

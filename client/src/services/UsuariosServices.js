@@ -1,4 +1,9 @@
 import axios from "axios";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
 
 export const getUsuarioById = async (id_usuario, authToken) => {
 
@@ -8,7 +13,7 @@ export const getUsuarioById = async (id_usuario, authToken) => {
       'Authorization': authToken
     },
     method: "GET",
-    url: `${process.env.REACT_APP_SERVER_URL}/usuarios/getusuariobyid/${id_usuario}`,
+    url: `${serverUrl}/usuarios/getusuariobyid/${id_usuario}`,
   });
 };
 
@@ -20,7 +25,7 @@ export const getInfoUsuario = async (data, authToken) => {
       'Authorization': authToken
     },
     method: "POST",
-    url: `${process.env.REACT_APP_SERVER_URL}/usuarios/usuarioinfo`,
+    url: `${serverUrl}/usuarios/usuarioinfo`,
     data,
   });
 };
@@ -45,7 +50,7 @@ export const changePassword = async (data, authToken) => {
       'Authorization': authToken
     },
     method: "PUT",
-    url: `${process.env.REACT_APP_SERVER_URL}/usuarios/changepassword`,
+    url: `${serverUrl}/usuarios/changepassword`,
     data,
   });
 };
@@ -58,6 +63,6 @@ export const activateUser = async (id_usuario, authToken) => {
       'Authorization': authToken
     },
     method: "PUT",
-    url: `${process.env.REACT_APP_SERVER_URL}/usuarios/activateuser/${id_usuario}`,
+    url: `${serverUrl}/usuarios/activateuser/${id_usuario}`,
   });
 };

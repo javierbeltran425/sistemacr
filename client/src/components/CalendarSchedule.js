@@ -2,7 +2,7 @@ import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { InputTextarea } from 'primereact/inputtextarea';
+import { InputTextarea } from "primereact/inputtextarea";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import { InputSwitch } from "primereact/inputswitch";
@@ -12,7 +12,6 @@ import ContextUsuario from "../context/ContextUsuario";
 import FormControl from "@mui/material/FormControl";
 import Typography from "@mui/material/Typography";
 import InputLabel from "@mui/material/InputLabel";
-import TextField from "@mui/material/TextField";
 import Snackbar from "@mui/material/Snackbar";
 import MenuItem from "@mui/material/MenuItem";
 import MuiAlert from "@mui/material/Alert";
@@ -39,12 +38,11 @@ import {
 } from "../services/HorariosServices";
 import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
 import { getHorariosByIdUsuario } from "../services/HorariosServices";
-import { InputText } from "primereact/inputtext";
 
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
-const cookies = new Cookies()
+const cookies = new Cookies();
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;

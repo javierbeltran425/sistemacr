@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
@@ -18,6 +17,11 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Chip from "@mui/material/Chip";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
 
 const ModalUsuarios = ({
   mode,
@@ -49,14 +53,11 @@ const ModalUsuarios = ({
 
       console.log(data);
 
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/createusuario`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
+      const resp = await fetch(`${serverUrl}/usuarios/createusuario`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
       if (resp.status === 200) {
         console.log("Ok!");
         getAllUsuarios();
@@ -72,14 +73,11 @@ const ModalUsuarios = ({
     try {
       let data = newUsuario;
       data.materias = newMaterias;
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/editusuario`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await fetch(`${serverUrl}/usuarios/editusuario`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
       if (response.status === 200) {
         console.log("Ok!");
         getAllUsuarios();
@@ -116,7 +114,7 @@ const ModalUsuarios = ({
   const getMateriasByIdUsuario = async () => {
     try {
       const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/getmateriasbyidusuario/${newUsuario.id_usuario}`
+        `${serverUrl}/materias/getmateriasbyidusuario/${newUsuario.id_usuario}`
       );
       const json = await resp.json();
       setNewMaterias(json);
@@ -185,7 +183,7 @@ const ModalUsuarios = ({
                 name="password"
                 value={newUsuario.password}
                 onChange={handleChange}
-                keyfilter={/^[\w!@#$%^&*()\-+=<>?/\|{}\[\]~]*$/}
+                keyfilter={/^[\w!@#$%^&*()\-+=<>?/|{}[\]~]*$/}
                 toggleMask={true}
                 inputStyle={{ width: "100%" }}
                 className="my-1"

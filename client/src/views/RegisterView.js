@@ -56,8 +56,8 @@ export default function RegisterView() {
   const [cookies, setCookie] = useCookies(null);
 
   useEffect(() => {
-    cookies.id_usuario === "" && navigate('/')
-  }, [])
+    cookies.id_usuario === "" && navigate("/");
+  }, []);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -77,7 +77,7 @@ export default function RegisterView() {
 
       if (response.status == 200) {
         setUsuario(response.data[0]);
-        contextUsuario.setActivo(response.data[0].activo)
+        contextUsuario.setActivo(response.data[0].activo);
       }
     } catch (error) {
       console.error(error);
@@ -126,8 +126,8 @@ export default function RegisterView() {
     try {
       const response = await activateUser(id_usuario);
       if (response.status == 200) {
-        contextUsuario.setActivo(true)
-        setCookie("act", true)
+        contextUsuario.setActivo(true);
+        setCookie("act", true);
         navigate("/");
       }
     } catch (error) {
@@ -150,20 +150,27 @@ export default function RegisterView() {
   }, []);
 
   React.useEffect(() => {
-    cookies.id_usuario === "" && navigate('/login')
-  }, [])
+    cookies.id_usuario === "" && navigate("/login");
+  }, []);
 
   return (
     <Layout>
       <Toast ref={toast} />
       {cookies.act ? (
         <div className="w-full flex flex-row justify-content-start">
-          <div className="flex flex-row justify-content-center align-items-center m-2 cursor-pointer" onClick={() => navigate('/')} >
-            <i className="pi pi-angle-left" style={{ fontSize: '1.5rem' }}></i>
-            <p className="m-0" style={{ fontSize: '1.5rem' }}>Regresar</p>
+          <div
+            className="flex flex-row justify-content-center align-items-center m-2 cursor-pointer"
+            onClick={() => navigate("/")}
+          >
+            <i className="pi pi-angle-left" style={{ fontSize: "1.5rem" }}></i>
+            <p className="m-0" style={{ fontSize: "1.5rem" }}>
+              Regresar
+            </p>
           </div>
         </div>
-      ) : ""}
+      ) : (
+        ""
+      )}
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Cambiar contraseña</DialogTitle>
@@ -296,7 +303,7 @@ export default function RegisterView() {
                   ActivateUser(usuario.id_usuario);
                 }}
               >
-                Activar mi cuenta
+                Ingresar
               </Button>
             )}
           </Stack>

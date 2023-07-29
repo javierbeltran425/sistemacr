@@ -11,7 +11,6 @@ import TextField from "@mui/material/TextField";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
-import ContextUsuario from "../context/ContextUsuario";
 import "../constants/usuario";
 import "../styles/Calendar.css";
 import "moment/locale/es";
@@ -28,7 +27,6 @@ import Typography from "@mui/material/Typography";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import SquareIcon from "@mui/icons-material/Square";
 import Divider from "@mui/material/Divider";
 import LeyendaColores from "./LeyendaColores";
 import Cookies from "universal-cookie";
@@ -43,9 +41,9 @@ import {
 import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
 import { getHorariosByIdSeccion } from "../services/HorariosServices";
 import {
+  createSolicitud,
   getSolicitudesByIdSeccion,
   deleteSolicitud,
-  editSolicitud,
 } from "../services/SolicitudesServices";
 import { SOLICITUDES_TIPOS } from "../constants/solicitudes";
 import { EnviaNotificacione } from "../services/NotificacionesServices";
@@ -55,10 +53,9 @@ import { Square } from "@mui/icons-material";
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
-const cookies = new Cookies()
+const cookies = new Cookies();
 
 class CalendarAlt extends React.Component {
-
   messages = {
     allDay: "Todo el día",
     previous: "Anterior",
@@ -271,17 +268,10 @@ class CalendarAlt extends React.Component {
     };
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/solicitudes/createsolicitud`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await createSolicitud(data);
       if (response.status === 200) {
         console.log("Ok!");
-        const json = await response.json();
+        const json = response.data;
         let appointment = {
           id: json[0].id_solicitud,
           id_usuario,
@@ -528,6 +518,14 @@ class CalendarAlt extends React.Component {
             return {
               style: { backgroundColor: "#17594a", borderColor: "#17594a" },
             };
+          case SOLICITUDES_ESTADOS.AUSENTE:
+            return {
+              style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+            };
+          case SOLICITUDES_ESTADOS.ATENDIDO:
+            return {
+              style: { backgroundColor: "#17594a", borderColor: "#17594a" },
+            };
           default:
             return;
         }
@@ -622,7 +620,7 @@ class CalendarAlt extends React.Component {
           }}
           onSelectSlot={(slotInfo) => {
             !this.concurrentEventExists(slotInfo) &&
-              this.fitsOnSchedule(slotInfo)
+            this.fitsOnSchedule(slotInfo)
               ? this.handleSlotSelected(slotInfo)
               : this.showError("El horario seleccionado no está disponible.");
           }}
@@ -790,18 +788,6 @@ class CalendarAlt extends React.Component {
                   ELIMINAR SOLICITUD
                 </Button>
               )}
-              {/*<Button
-                label="Confirm Edit"
-                secondary={"true"}
-                onClick={() => {
-                  this.updateEvent(), this.handleClose();
-                }}
-                color="success"
-                variant="outlined"
-                sx={{ marginLeft: 1 }}
-              >
-                GUARDAR CAMBIOS
-              </Button>*/}
             </Stack>
           </DialogActions>
         </Dialog>

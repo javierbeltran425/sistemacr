@@ -19,6 +19,11 @@ import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
 
 import { getMaterias } from "../services/MateriasServices";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -87,7 +92,7 @@ const CRUDmaterias = () => {
     if (window.confirm("Estás seguro que quieres eliminar esta materia?")) {
       try {
         const resp = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/materias/removemateriabyid/${id_materia}`,
+          `${serverUrl}/materias/removemateriabyid/${id_materia}`,
           {
             method: "DELETE",
           }
