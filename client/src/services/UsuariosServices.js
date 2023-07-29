@@ -50,7 +50,7 @@ export const getRolByID = async (id_usuario, authToken) => {
   });
 };
 
-export const CreateUsuario = async (data, authToken) => {
+export const createUsuario = async (data, authToken) => {
   return axios({
     headers: {
       "Content-Type": "application/json ",
@@ -58,6 +58,18 @@ export const CreateUsuario = async (data, authToken) => {
     },
     method: "POST",
     url: `${serverUrl}/usuarios/createusuario`,
+    data,
+  });
+};
+
+export const editUsuario = async (data, authToken) => {
+  return axios({
+    headers: {
+      "Content-Type": "application/json ",
+      Authorization: authToken,
+    },
+    method: "PUT",
+    url: `${serverUrl}/usuarios/editusuario`,
     data,
   });
 };

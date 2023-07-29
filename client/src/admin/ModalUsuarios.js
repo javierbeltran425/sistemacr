@@ -20,7 +20,8 @@ import { Password } from "primereact/password";
 import { useCookies } from "react-cookie";
 import { cleanEnv, url } from "envalid";
 
-import { CreateUsuario } from "../services/UsuariosServices";
+import { createUsuario, editUsuario } from "../services/UsuariosServices";
+import { getMateriasByIdUsuario } from "../services/MateriasServices";
 
 const serverUrl = cleanEnv(process.env, {
   REACT_APP_SERVER_URL: url(),
@@ -50,32 +51,12 @@ const ModalUsuarios = ({
 
   const [cookies] = useCookies(null);
 
-  const createUsuario = async (e) => {
-    /*
+  const CreateUsuario = async (e) => {
+    e.preventDefault();
     try {
       let data = newUsuario;
       data.materias = newMaterias;
-
-      console.log(data);
-
-      const resp = await fetch(`${serverUrl}/usuarios/createusuario`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (resp.status === 200) {
-        console.log("Ok!");
-        getAllUsuarios();
-        handleClose();
-      }
-    } catch (error) {
-      console.error(error);
-    }
-    */
-    try {
-      let data = newUsuario;
-      data.materias = newMaterias;
-      const response = await CreateUsuario(data, cookies.authToken);
+      const response = await createUsuario(data, cookies.authToken);
 
       if (response.status === 200) {
         getAllUsuarios();
@@ -86,23 +67,19 @@ const ModalUsuarios = ({
     }
   };
 
-  const editUsuario = async (e) => {
+  const EditUsuario = async (e) => {
     e.preventDefault();
     try {
       let data = newUsuario;
       data.materias = newMaterias;
-      const response = await fetch(`${serverUrl}/usuarios/editusuario`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const response = await editUsuario(data, cookies.authToken);
+
       if (response.status === 200) {
-        console.log("Ok!");
         getAllUsuarios();
         handleClose();
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
@@ -129,15 +106,18 @@ const ModalUsuarios = ({
     p: 4,
   };
 
-  const getMateriasByIdUsuario = async () => {
+  const GetMateriasByIdUsuario = async () => {
     try {
-      const resp = await fetch(
-        `${serverUrl}/materias/getmateriasbyidusuario/${newUsuario.id_usuario}`
+      const response = await getMateriasByIdUsuario(
+        newUsuario.id_usuario,
+        cookies.authToken
       );
-      const json = await resp.json();
-      setNewMaterias(json);
+
+      if (response.status === 200) {
+        setNewMaterias(response.data);
+      }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
@@ -149,7 +129,7 @@ const ModalUsuarios = ({
 
   useEffect(() => {
     if (editMode) {
-      getMateriasByIdUsuario();
+      GetMateriasByIdUsuario();
     }
   }, []);
 
@@ -397,7 +377,7 @@ const ModalUsuarios = ({
             <FormControl fullWidth sx={{ my: 1 }}>
               <Button
                 type="submit"
-                onClick={editMode ? editUsuario : createUsuario}
+                onClick={editMode ? EditUsuario : CreateUsuario}
                 sx={{ mx: "auto" }}
                 variant="outlined"
               >
