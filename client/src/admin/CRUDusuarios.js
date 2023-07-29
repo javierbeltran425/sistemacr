@@ -22,6 +22,7 @@ import { cleanEnv, url } from "envalid";
 
 import { getUsuarios, deleteUsuario } from "../services/UsuariosServices";
 import { getMaterias } from "../services/MateriasServices";
+import { getCarreras } from "../services/CarrerasServices";
 
 const serverUrl = cleanEnv(process.env, {
   REACT_APP_SERVER_URL: url(),
@@ -56,7 +57,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     width: "100%",
@@ -119,15 +119,17 @@ const CRUDusuarios = () => {
   };
 
   const getAllCarreras = async () => {
-    // try {
-    //   const resp = await fetch(
-    //     `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
-    //   );
-    //   const json = await resp.json();
-    //   setCarreras(json);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    try {
+
+      const response = await getCarreras(cookies.authToken)
+
+      if (response.status === 200) {
+        setCarreras(response.data)
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const getAllMaterias = async () => {
@@ -170,11 +172,11 @@ const CRUDusuarios = () => {
     searchValue == ""
       ? setDataSet(usuarios)
       : setDataSet(
-          usuarios.filter(
-            (e) =>
-              e.email.includes(searchValue) || e.nombre.includes(searchValue)
-          )
-        );
+        usuarios.filter(
+          (e) =>
+            e.email.includes(searchValue) || e.nombre.includes(searchValue)
+        )
+      );
   }, [searchValue]);
 
   return (

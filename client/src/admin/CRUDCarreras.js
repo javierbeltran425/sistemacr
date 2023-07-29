@@ -16,6 +16,10 @@ import ModalCarreras from "./ModalCarreras";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import { styled } from "@mui/material/styles";
+import { useCookies } from "react-cookie";
+
+import { getCarreras } from "../services/CarrerasServices";
+
 import { cleanEnv, url } from "envalid";
 
 const serverUrl = cleanEnv(process.env, {
@@ -78,6 +82,8 @@ const CRUDcarreras = () => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = useState("");
 
+  const [cookies] = useCookies(null);
+
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
@@ -101,16 +107,17 @@ const CRUDcarreras = () => {
   };
 
   const getAllCarreras = async () => {
-    // try {
-    //   const resp = await fetch(
-    //     `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
-    //   );
-    //   const json = await resp.json();
-    //   setCarreras(json);
-    //   setDataSet(json);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    try {
+
+      const response = await getCarreras(cookies.authToken)
+
+      if (response.status === 200) {
+        setCarreras(response.data);
+        setDataSet(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
