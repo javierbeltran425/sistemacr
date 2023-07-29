@@ -55,10 +55,9 @@ import { Square } from "@mui/icons-material";
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
-const cookies = new Cookies()
+const cookies = new Cookies();
 
 class CalendarAlt extends React.Component {
-
   messages = {
     allDay: "Todo el día",
     previous: "Anterior",
@@ -528,6 +527,14 @@ class CalendarAlt extends React.Component {
             return {
               style: { backgroundColor: "#17594a", borderColor: "#17594a" },
             };
+          case SOLICITUDES_ESTADOS.AUSENTE:
+            return {
+              style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+            };
+          case SOLICITUDES_ESTADOS.ATENDIDO:
+            return {
+              style: { backgroundColor: "#17594a", borderColor: "#17594a" },
+            };
           default:
             return;
         }
@@ -622,7 +629,7 @@ class CalendarAlt extends React.Component {
           }}
           onSelectSlot={(slotInfo) => {
             !this.concurrentEventExists(slotInfo) &&
-              this.fitsOnSchedule(slotInfo)
+            this.fitsOnSchedule(slotInfo)
               ? this.handleSlotSelected(slotInfo)
               : this.showError("El horario seleccionado no está disponible.");
           }}
@@ -790,18 +797,6 @@ class CalendarAlt extends React.Component {
                   ELIMINAR SOLICITUD
                 </Button>
               )}
-              {/*<Button
-                label="Confirm Edit"
-                secondary={"true"}
-                onClick={() => {
-                  this.updateEvent(), this.handleClose();
-                }}
-                color="success"
-                variant="outlined"
-                sx={{ marginLeft: 1 }}
-              >
-                GUARDAR CAMBIOS
-              </Button>*/}
             </Stack>
           </DialogActions>
         </Dialog>

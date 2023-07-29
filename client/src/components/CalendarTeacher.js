@@ -68,7 +68,7 @@ import { EnviaNotificacione } from "../services/NotificacionesServices";
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
-const cookies = new Cookies()
+const cookies = new Cookies();
 
 class CalendarAlt extends React.Component {
   static contextType = ContextUsuario;
@@ -412,7 +412,7 @@ class CalendarAlt extends React.Component {
             break;
 
           default:
-            this.envioNotificacionAceptada(email)
+            this.envioNotificacionAceptada(email);
             break;
         }
       } else {
@@ -461,6 +461,10 @@ class CalendarAlt extends React.Component {
       case SOLICITUDES_ESTADOS.RECHAZADO:
         return <SquareRoundedIcon sx={{ color: "#7E1717" }} />;
       case SOLICITUDES_ESTADOS.ACEPTADO:
+        return <SquareRoundedIcon color="success" />;
+      case SOLICITUDES_ESTADOS.AUSENTE:
+        return <SquareRoundedIcon sx={{ color: "#7E1717" }} />;
+      case SOLICITUDES_ESTADOS.ATENDIDO:
         return <SquareRoundedIcon color="success" />;
       default:
         return <SquareRoundedIcon color="primary" />;
@@ -670,7 +674,7 @@ class CalendarAlt extends React.Component {
           onSelectEvent={(event) => {
             this.handleEventSelected(event);
           }}
-        /*onSelectSlot={(slotInfo) => {
+          /*onSelectSlot={(slotInfo) => {
         !this.concurrentEventExists(slotInfo) &&
         this.fitsOnSchedule(slotInfo)
           ? this.handleSlotSelected(slotInfo)
