@@ -6,7 +6,6 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Typography from "@mui/material/Typography";
 import { InputText } from "primereact/inputtext";
-import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
@@ -14,6 +13,11 @@ import Modal from "@mui/material/Modal";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
 
 const ModalMaterias = ({
   mode,
@@ -36,14 +40,11 @@ const ModalMaterias = ({
   const createMateria = async (e) => {
     e.preventDefault();
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/createmateria`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newMateria),
-        }
-      );
+      const resp = await fetch(`${serverUrl}/materias/createmateria`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMateria),
+      });
       if (resp.status === 200) {
         console.log("Ok!");
         getAllMaterias();
@@ -57,14 +58,11 @@ const ModalMaterias = ({
   const editMateria = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/editmateria`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newMateria),
-        }
-      );
+      const response = await fetch(`${serverUrl}/materias/editmateria`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMateria),
+      });
       if (response.status === 200) {
         console.log("Ok!");
         getAllMaterias();
@@ -101,7 +99,7 @@ const ModalMaterias = ({
   const getCarrerasByIdMateria = async () => {
     try {
       const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/getcarrerasbyidmateria/${newMateria.id_materia}`
+        `${serverUrl}/carreras/getcarrerasbyidmateria/${newMateria.id_materia}`
       );
       const json = await resp.json();
       var arr = [];

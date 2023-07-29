@@ -17,6 +17,11 @@ import "../constants/usuario";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import { styled } from "@mui/material/styles";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -85,7 +90,7 @@ const CRUDusuarios = () => {
     if (window.confirm("Estás seguro que quieres eliminar este usuario?")) {
       try {
         const resp = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/usuarios/removeusuariobyid/${id_usuario}`,
+          `${serverUrl}/usuarios/removeusuariobyid/${id_usuario}`,
           {
             method: "DELETE",
           }
@@ -102,9 +107,7 @@ const CRUDusuarios = () => {
 
   const getAllUsuarios = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/getallusuarios`
-      );
+      const resp = await fetch(`${serverUrl}/usuarios/getallusuarios`);
       const json = await resp.json();
       setUsuarios(json);
       setDataSet(json);
@@ -115,9 +118,7 @@ const CRUDusuarios = () => {
 
   const getAllCarreras = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
-      );
+      const resp = await fetch(`${serverUrl}/carreras/getallcarreras`);
       const json = await resp.json();
       setCarreras(json);
     } catch (error) {
@@ -127,9 +128,7 @@ const CRUDusuarios = () => {
 
   const getAllMaterias = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/getallmaterias`
-      );
+      const resp = await fetch(`${serverUrl}/materias/getallmaterias`);
       const json = await resp.json();
       setMaterias(json);
     } catch (error) {

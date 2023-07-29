@@ -16,6 +16,11 @@ import ModalMaterias from "./ModalMaterias";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import { styled } from "@mui/material/styles";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -82,7 +87,7 @@ const CRUDmaterias = () => {
     if (window.confirm("Estás seguro que quieres eliminar esta materia?")) {
       try {
         const resp = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/materias/removemateriabyid/${id_materia}`,
+          `${serverUrl}/materias/removemateriabyid/${id_materia}`,
           {
             method: "DELETE",
           }
@@ -99,9 +104,7 @@ const CRUDmaterias = () => {
 
   const getAllMaterias = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/getallmaterias`
-      );
+      const resp = await fetch(`${serverUrl}/materias/getallmaterias`);
       const json = await resp.json();
       setMaterias(json);
       setDataSet(json);
@@ -112,9 +115,7 @@ const CRUDmaterias = () => {
 
   const getAllCarreras = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
-      );
+      const resp = await fetch(`${serverUrl}/carreras/getallcarreras`);
       const json = await resp.json();
       if (json.length > 0) {
         json.sort(function (a, b) {

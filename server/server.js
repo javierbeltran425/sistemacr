@@ -1,10 +1,15 @@
 require("dotenv").config();
+const { cleanEnv, port, str } = require("envalid");
+const env = cleanEnv(process.env, {
+  PORT: port(),
+  BASE_PATH: str(),
+});
+const nodePort = env.PORT;
+const basePath = env.BASE_PATH;
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-
-const port = process.env.PORT || 3000;
-const basePath = process.env.BASE_PATH || "/";
 
 const app = express();
 //app.use(basePath, express.static(path.join(__dirname, "public")));
@@ -54,4 +59,4 @@ app.use(basePath, secciones_routes);
 
 app.use(basePath, notificaciones_routes);
 
-app.listen(port, () => console.log(`Server running on PORT ${port}`));
+app.listen(nodePort, () => console.log(`Server running on PORT ${nodePort}`));

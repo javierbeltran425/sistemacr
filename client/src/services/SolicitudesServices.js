@@ -1,17 +1,30 @@
 import axios from "axios";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
+
+export const createSolicitud = async (data) => {
+  return axios({
+    method: "POST",
+    url: `${serverUrl}/solicitudes/createsolicitud`,
+    data,
+  });
+};
 
 export const getSolicitudesByIdSeccion = async (id_seccion) => {
   return axios({
     method: "GET",
 
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesbyidseccion/${id_seccion}`,
+    url: `${serverUrl}/solicitudes/getsolicitudesbyidseccion/${id_seccion}`,
   });
 };
 
 export const getSolicitudesUsuariosByIdSeccion = async (data) => {
   return axios({
     method: "POST",
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesusuariosbyidseccion`,
+    url: `${serverUrl}/solicitudes/getsolicitudesusuariosbyidseccion`,
     data,
   });
 };
@@ -19,14 +32,14 @@ export const getSolicitudesUsuariosByIdSeccion = async (data) => {
 export const deleteSolicitud = async (id_solicitud) => {
   return axios({
     method: "PUT",
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/deletesolicitud/${id_solicitud}`,
+    url: `${serverUrl}/solicitudes/deletesolicitud/${id_solicitud}`,
   });
 };
 
 export const editSolicitud = async (data) => {
   return axios({
     method: "PUT",
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/editsolicitud`,
+    url: `${serverUrl}/solicitudes/editsolicitud`,
     data,
   });
 };
@@ -34,7 +47,7 @@ export const editSolicitud = async (data) => {
 export const actualizaEstadoSolicitud = async (data) => {
   return axios({
     method: "POST",
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/actualizaestado`,
+    url: `${serverUrl}/solicitudes/actualizaestado`,
     data,
   });
 };
@@ -42,13 +55,13 @@ export const actualizaEstadoSolicitud = async (data) => {
 export const archivarSolicitud = async (id_solicitud) => {
   return axios({
     method: "PUT",
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/archivarsolicitud/${id_solicitud}`,
+    url: `${serverUrl}/solicitudes/archivarsolicitud/${id_solicitud}`,
   });
 };
 
 export const getReporte = async () => {
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_SERVER_URL}/solicitudes/getsolicitudesreporte`,
+    url: `${serverUrl}/solicitudes/getsolicitudesreporte`,
   });
 };

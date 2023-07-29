@@ -3,10 +3,14 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import TextField from "@mui/material/TextField";
 import FormControl from "@mui/material/FormControl";
 import PropTypes from "prop-types";
 import { InputText } from "primereact/inputtext";
+import { cleanEnv, url } from "envalid";
+
+const serverUrl = cleanEnv(process.env, {
+  REACT_APP_SERVER_URL: url(),
+}).REACT_APP_SERVER_URL;
 
 const ModalCarreras = ({
   mode,
@@ -27,14 +31,11 @@ const ModalCarreras = ({
   const createCarrera = async (e) => {
     e.preventDefault();
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/createcarrera`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newCarrera),
-        }
-      );
+      const resp = await fetch(`${serverUrl}/carreras/createcarrera`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCarrera),
+      });
       if (resp.status === 200) {
         console.log("Ok!");
         getAllCarreras();
@@ -48,14 +49,11 @@ const ModalCarreras = ({
   const editCarrera = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/editcarrera`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newCarrera),
-        }
-      );
+      const response = await fetch(`${serverUrl}/carreras/editcarrera`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCarrera),
+      });
       if (response.status === 200) {
         console.log("Ok!");
         getAllCarreras();
