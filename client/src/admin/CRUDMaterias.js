@@ -18,7 +18,9 @@ import Table from "@mui/material/Table";
 import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
 
-import { getMaterias } from "../services/MateriasServices";
+import { getMaterias, removeMateria } from "../services/MateriasServices";
+import { getCarreras } from "../services/CarrerasServices";
+
 import { cleanEnv, url } from "envalid";
 
 const serverUrl = cleanEnv(process.env, {
@@ -89,16 +91,12 @@ const CRUDmaterias = () => {
   const [cookies] = useCookies(null);
 
   const removeMateriaById = async (id_materia) => {
+    console.log("🚀 ~ file: CRUDMaterias.js:94 ~ removeMateriaById ~ id_materia:", id_materia)
     if (window.confirm("Estás seguro que quieres eliminar esta materia?")) {
       try {
-        const resp = await fetch(
-          `${serverUrl}/materias/removemateriabyid/${id_materia}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (resp.status == 200) {
-          console.log("Ok!");
+        const response = await removeMateria(id_materia, cookies.authToken)
+
+        if (response.status === 200) {
           getAllMaterias();
         }
       } catch (error) {
@@ -123,20 +121,23 @@ const CRUDmaterias = () => {
   };
 
   const getAllCarreras = async () => {
-    // try {
-    //   const resp = await fetch(
-    //     `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
-    //   );
-    //   const json = await resp.json();
-    //   if (json.length > 0) {
-    //     json.sort(function (a, b) {
-    //       return a.nombre.localeCompare(b.nombre);
-    //     });
-    //     setCarreras(json);
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
+
+    try {
+      const response = await getCarreras(cookies.authToken)
+
+      if (response.status === 200) {
+        const data = response.data
+
+        if (data.length > 0) {
+          data.sort(function (a, b) {
+            return a.nombre.localeCompare(b.nombre);
+          });
+          setCarreras(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const columns = [

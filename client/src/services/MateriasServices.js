@@ -40,3 +40,15 @@ export const getMateriaById = async (id_materia, authToken) => {
     url: `${serverUrl}/materias/getMateriaById/${id_materia}`,
   });
 };
+
+export const removeMateria = async (id_materia, authToken) => {
+
+  return axios({
+    headers: {
+      'Content-Type': 'application/json ',
+      'Authorization': authToken
+    },
+    method: "DELETE",
+    url: `${serverUrl}/materias/removemateriabyid/${id_materia}`,
+  });
+};
