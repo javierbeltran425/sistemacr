@@ -1,92 +1,75 @@
 const knex = require("../db");
 const bcrypt = require("bcrypt");
+const { tryCatch } = require("../utils/tryCatch");
 
-const getAllUsuarios = async function (req, res) {
-  try {
-    const usuarios = await knex
-      .select(
-        "usuarios.id_usuario",
-        "usuarios.id_carrera",
-        "usuarios.email",
-        "usuarios.nombre",
-        "usuarios.rol",
-        knex.raw("STRING_AGG(DISTINCT carreras.nombre, '\n') as carrera"),
-        knex.raw("STRING_AGG(DISTINCT materias.nombre,  '\n') as materias"),
-        knex.raw("ARRAY_AGG(materias.id_materia) as id_materia")
-      )
-      .from("usuarios")
-      .leftJoin("carreras", "usuarios.id_carrera", "carreras.id_carrera")
-      .leftJoin(
-        "usuariosxmaterias",
-        "usuarios.id_usuario",
-        "usuariosxmaterias.id_usuario"
-      )
-      .leftJoin(
-        "materias",
-        "materias.id_materia",
-        "usuariosxmaterias.id_materia"
-      )
-      .groupBy("usuarios.id_usuario")
-      .orderBy("usuarios.id_usuario", "desc");
-    res.json(usuarios);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
+const getAllUsuarios = tryCatch(async function (req, res) {
+  const usuarios = await knex
+    .select(
+      "usuarios.id_usuario",
+      "usuarios.id_carrera",
+      "usuarios.email",
+      "usuarios.nombre",
+      "usuarios.rol",
+      knex.raw("STRING_AGG(DISTINCT carreras.nombre, '\n') as carrera"),
+      knex.raw("STRING_AGG(DISTINCT materias.nombre,  '\n') as materias"),
+      knex.raw("ARRAY_AGG(materias.id_materia) as id_materia")
+    )
+    .from("usuarios")
+    .leftJoin("carreras", "usuarios.id_carrera", "carreras.id_carrera")
+    .leftJoin(
+      "usuariosxmaterias",
+      "usuarios.id_usuario",
+      "usuariosxmaterias.id_usuario"
+    )
+    .leftJoin("materias", "materias.id_materia", "usuariosxmaterias.id_materia")
+    .groupBy("usuarios.id_usuario")
+    .orderBy("usuarios.id_usuario", "desc");
 
-const getUsuarioById = async function (req, res) {
+  res.json(usuarios);
+});
+
+const getUsuarioById = tryCatch(async function (req, res) {
   const { id_usuario } = req.params;
-  try {
-    const usuarios = await knex
-      .select(
-        "usuarios.id_usuario",
-        "usuarios.id_carrera",
-        "usuarios.email",
-        "usuarios.nombre",
-        "usuarios.rol",
-        "usuarios.activo",
-        knex.raw("STRING_AGG(DISTINCT carreras.nombre, '\n') as carrera"),
-        knex.raw("STRING_AGG(DISTINCT materias.nombre,  '\n') as materias"),
-        knex.raw("ARRAY_AGG(materias.id_materia) as id_materia")
-      )
-      .from("usuarios")
-      .where({ "usuarios.id_usuario": id_usuario })
-      .leftJoin("carreras", "usuarios.id_carrera", "carreras.id_carrera")
-      .leftJoin(
-        "usuariosxmaterias",
-        "usuarios.id_usuario",
-        "usuariosxmaterias.id_usuario"
-      )
-      .leftJoin(
-        "materias",
-        "materias.id_materia",
-        "usuariosxmaterias.id_materia"
-      )
-      .groupBy("usuarios.id_usuario")
-      .orderBy("usuarios.id_usuario", "desc");
-    res.json(usuarios);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
 
-const getRolById = async function (req, res) {
+  const usuarios = await knex
+    .select(
+      "usuarios.id_usuario",
+      "usuarios.id_carrera",
+      "usuarios.email",
+      "usuarios.nombre",
+      "usuarios.rol",
+      "usuarios.activo",
+      knex.raw("STRING_AGG(DISTINCT carreras.nombre, '\n') as carrera"),
+      knex.raw("STRING_AGG(DISTINCT materias.nombre,  '\n') as materias"),
+      knex.raw("ARRAY_AGG(materias.id_materia) as id_materia")
+    )
+    .from("usuarios")
+    .where({ "usuarios.id_usuario": id_usuario })
+    .leftJoin("carreras", "usuarios.id_carrera", "carreras.id_carrera")
+    .leftJoin(
+      "usuariosxmaterias",
+      "usuarios.id_usuario",
+      "usuariosxmaterias.id_usuario"
+    )
+    .leftJoin("materias", "materias.id_materia", "usuariosxmaterias.id_materia")
+    .groupBy("usuarios.id_usuario")
+    .orderBy("usuarios.id_usuario", "desc");
+
+  res.json(usuarios);
+});
+
+const getRolById = tryCatch(async function (req, res) {
   const { id_usuario } = req.params;
-  try {
-    const rol = await knex
-      .select("rol")
-      .from("usuarios")
-      .where({ id_usuario: id_usuario });
-    res.json(rol);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
 
-const createUsuario = async function (req, res) {
+  const rol = await knex
+    .select("rol")
+    .from("usuarios")
+    .where({ id_usuario: id_usuario });
+
+  res.json(rol);
+});
+
+const createUsuario = tryCatch(async function (req, res) {
   const { id_usuario, id_carrera, email, nombre, rol, password, materias } =
     req.body;
   const salt = bcrypt.genSaltSync(10);
@@ -94,51 +77,46 @@ const createUsuario = async function (req, res) {
 
   const IdUsuario = email.split("@")[0];
 
-  try {
-    const newUsuario = await knex("usuarios").returning("id_usuario").insert({
-      id_usuario: IdUsuario,
-      email: email,
-      nombre: nombre,
-      hashed_password: hashedPassword,
-      rol: rol,
-      id_carrera: id_carrera,
-    });
+  const newUsuario = await knex("usuarios").returning("id_usuario").insert({
+    id_usuario: IdUsuario,
+    email: email,
+    nombre: nombre,
+    hashed_password: hashedPassword,
+    rol: rol,
+    id_carrera: id_carrera,
+  });
 
-    if (materias.length == 0) return res.json(newUsuario);
+  if (materias.length == 0) return res.json(newUsuario);
 
-    let fieldsToInsert = [];
-    let fieldsToUpdate = [];
+  let fieldsToInsert = [];
+  let fieldsToUpdate = [];
 
-    materias.forEach((materia) => {
-      materia.arrsecciones.forEach((id_seccion) => {
-        fieldsToInsert.push({
-          id_usuario: IdUsuario,
-          id_materia: materia.id_materia,
-          id_seccion: id_seccion,
-        });
+  materias.forEach((materia) => {
+    materia.arrsecciones.forEach((id_seccion) => {
+      fieldsToInsert.push({
+        id_usuario: IdUsuario,
+        id_materia: materia.id_materia,
+        id_seccion: id_seccion,
       });
-
-      if (rol == "profesor") {
-        materia.arrsecciones.forEach((e) => fieldsToUpdate.push(e));
-      }
     });
-
-    await knex("usuariosxmaterias").insert(fieldsToInsert);
 
     if (rol == "profesor") {
-      await knex("secciones")
-        .whereIn("id_seccion", fieldsToUpdate)
-        .update({ id_profesor: IdUsuario });
+      materia.arrsecciones.forEach((e) => fieldsToUpdate.push(e));
     }
+  });
 
-    res.json(newUsuario);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
+  await knex("usuariosxmaterias").insert(fieldsToInsert);
+
+  if (rol == "profesor") {
+    await knex("secciones")
+      .whereIn("id_seccion", fieldsToUpdate)
+      .update({ id_profesor: IdUsuario });
   }
-};
 
-const bulkCreateUsuario = async function (req, res) {
+  res.json(newUsuario);
+});
+
+const bulkCreateUsuario = tryCatch(async function (req, res) {
   const purge = req.body[0];
   const reqData = req.body[1];
 
@@ -234,209 +212,173 @@ const bulkCreateUsuario = async function (req, res) {
       )
   );
 
-  try {
-    //Borrando datos si se eleigio purgar la base de datos
-    if (purge) {
-      await knex("usuariosxmaterias").del();
-      console.log("usuariosxmaterias deleted");
+  //Borrando datos si se eleigio purgar la base de datos
+  if (purge) {
+    await knex("usuariosxmaterias").del();
+    console.log("usuariosxmaterias deleted");
 
-      await knex("materiasxcarreras").del();
+    await knex("materiasxcarreras").del();
 
-      console.log("materiasxcarreras deleted");
+    console.log("materiasxcarreras deleted");
 
-      await knex("solicitudes").del();
+    await knex("solicitudes").del();
 
-      console.log("solicitudes deleted");
+    console.log("solicitudes deleted");
 
-      await knex("horarios").del();
+    await knex("horarios").del();
 
-      console.log("horarios deleted");
+    console.log("horarios deleted");
 
-      await knex("secciones").del();
+    await knex("secciones").del();
 
-      console.log("secciones deleted");
+    console.log("secciones deleted");
 
-      await knex("usuarios").where("rol", "estudiante").del();
+    await knex("usuarios").where("rol", "estudiante").del();
 
-      console.log("usuarios deleted");
-    }
-
-    //Insertando datos
-
-    console.log("--> Importando materias");
-    await knex("materias")
-      .insert(cleanMaterias)
-      .onConflict("id_materia")
-      .ignore();
-
-    console.log("--> Importando secciones");
-    await knex("secciones")
-      .insert(cleanSecciones)
-      .onConflict("id_seccion")
-      .ignore();
-
-    console.log("--> Importando carreras");
-    await knex("carreras")
-      .insert(cleanCarreras)
-      .onConflict("id_carrera")
-      .ignore();
-
-    console.log("--> Importando materiasXCarreras");
-    await knex("materiasxcarreras")
-      .insert(cleanMteriasxcarrerasData)
-      .onConflict(["id_materia", "id_carrera"])
-      .ignore();
-
-    console.log("--> Importando usuarios");
-    const newUsuarios = await knex("usuarios")
-      .returning("email")
-      .insert(cleanUsuarios)
-      .onConflict("id_usuario")
-      .ignore();
-
-    console.log("--> Importando usuariosXMaterias");
-    await knex("usuariosxmaterias")
-      .insert(cleanUsuariosXMateriasData)
-      .onConflict(["id_seccion", "id_usuario"])
-      .ignore();
-
-    res.json(newUsuarios);
-  } catch (error) {
-    console.error("Error: ", error);
-    res.status(400).send(error);
+    console.log("usuarios deleted");
   }
-};
 
-const editUsuario = async function (req, res) {
+  //Insertando datos
+
+  await knex("materias")
+    .insert(cleanMaterias)
+    .onConflict("id_materia")
+    .ignore();
+
+  await knex("secciones")
+    .insert(cleanSecciones)
+    .onConflict("id_seccion")
+    .ignore();
+
+  await knex("carreras")
+    .insert(cleanCarreras)
+    .onConflict("id_carrera")
+    .ignore();
+
+  await knex("materiasxcarreras")
+    .insert(cleanMteriasxcarrerasData)
+    .onConflict(["id_materia", "id_carrera"])
+    .ignore();
+
+  const newUsuarios = await knex("usuarios")
+    .returning("email")
+    .insert(cleanUsuarios)
+    .onConflict("id_usuario")
+    .ignore();
+
+  await knex("usuariosxmaterias")
+    .insert(cleanUsuariosXMateriasData)
+    .onConflict(["id_seccion", "id_usuario"])
+    .ignore();
+
+  res.json(newUsuarios);
+});
+
+const editUsuario = tryCatch(async function (req, res) {
   const { id_usuario, id_carrera, email, nombre, rol, password, materias } =
     req.body;
 
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
 
-  try {
-    const editedUsuario = await knex("usuarios")
-      .where({ id_usuario: id_usuario })
-      .update({
-        nombre: nombre,
-        rol: rol,
-        id_carrera: id_carrera,
-        hashed_password: hashedPassword,
-      });
-
-    await knex("usuariosxmaterias").where({ id_usuario: id_usuario }).del();
-
-    if (materias.length == 0) return res.json(editedUsuario);
-
-    let fieldsToInsert = [];
-    let fieldsToUpdate = [];
-
-    materias.forEach((materia) => {
-      materia.arrsecciones.forEach((id_seccion) => {
-        fieldsToInsert.push({
-          id_usuario: id_usuario,
-          id_materia: materia.id_materia,
-          id_seccion: id_seccion,
-        });
-      });
-
-      if (rol == "profesor") {
-        materia.arrsecciones.forEach((e) => fieldsToUpdate.push(e));
-      }
+  const editedUsuario = await knex("usuarios")
+    .where({ id_usuario: id_usuario })
+    .update({
+      nombre: nombre,
+      rol: rol,
+      id_carrera: id_carrera,
+      hashed_password: hashedPassword,
     });
 
-    await knex("usuariosxmaterias").insert(fieldsToInsert);
+  await knex("usuariosxmaterias").where({ id_usuario: id_usuario }).del();
+
+  if (materias.length == 0) return res.json(editedUsuario);
+
+  let fieldsToInsert = [];
+  let fieldsToUpdate = [];
+
+  materias.forEach((materia) => {
+    materia.arrsecciones.forEach((id_seccion) => {
+      fieldsToInsert.push({
+        id_usuario: id_usuario,
+        id_materia: materia.id_materia,
+        id_seccion: id_seccion,
+      });
+    });
 
     if (rol == "profesor") {
-      await knex("secciones")
-        .whereIn("id_seccion", fieldsToUpdate)
-        .update({ id_profesor: id_usuario });
+      materia.arrsecciones.forEach((e) => fieldsToUpdate.push(e));
     }
+  });
 
-    res.json(editedUsuario);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
+  await knex("usuariosxmaterias").insert(fieldsToInsert);
+
+  if (rol == "profesor") {
+    await knex("secciones")
+      .whereIn("id_seccion", fieldsToUpdate)
+      .update({ id_profesor: id_usuario });
   }
-};
 
-const removeUsuarioById = async function (req, res) {
+  res.json(editedUsuario);
+});
+
+const removeUsuarioById = tryCatch(async function (req, res) {
   const { id_usuario } = req.params;
-  try {
-    const removedUsuario = await knex("usuarios")
-      .where({ id_usuario: id_usuario })
-      .del();
-    res.json(removedUsuario);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
 
-const getUsuarioInfo = async (req, res) => {
+  const removedUsuario = await knex("usuarios")
+    .where({ id_usuario: id_usuario })
+    .del();
+
+  res.json(removedUsuario);
+});
+
+const getUsuarioInfo = tryCatch(async (req, res) => {
   const { id_usuario } = req.body;
 
-  try {
-    const responseUsuarioInfo = await knex("usuarios")
-      .select("id_usuario", "email", "nombre")
-      .from("usuarios")
-      .where({ id_usuario: id_usuario });
+  const responseUsuarioInfo = await knex("usuarios")
+    .select("id_usuario", "email", "nombre")
+    .from("usuarios")
+    .where({ id_usuario: id_usuario });
 
-    res.json(responseUsuarioInfo);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-};
+  res.json(responseUsuarioInfo);
+});
 
-const changePassword = async (req, res) => {
+const changePassword = tryCatch(async (req, res) => {
   const { email, oldPassword, newPassword } = req.body;
   console.log(email, oldPassword, newPassword);
-  try {
-    const usuario = await knex
-      .select("id_usuario", "email", "hashed_password", "nombre")
-      .from("usuarios")
-      .where({ email: email });
 
-    if (Object.keys(usuario).length === 0)
-      return res.json({ error: "El usuario no existe!" });
+  const usuario = await knex
+    .select("id_usuario", "email", "hashed_password", "nombre")
+    .from("usuarios")
+    .where({ email: email });
 
-    const success = await bcrypt.compare(
-      oldPassword,
-      usuario[0].hashed_password
-    );
+  if (Object.keys(usuario).length === 0)
+    return res.json({ error: "El usuario no existe!" });
 
-    if (success) {
-      const salt = bcrypt.genSaltSync(10);
-      const hashedPassword = bcrypt.hashSync(newPassword, salt);
+  const success = await bcrypt.compare(oldPassword, usuario[0].hashed_password);
 
-      const editedUsuario = await knex("usuarios")
-        .where({ email: email })
-        .update({ hashed_password: hashedPassword });
-      res.json(editedUsuario);
-    } else {
-      res.status(400).json({ error: "La contraseña actual es incorrecta!" });
-    }
-  } catch (error) {
-    res
-      .status(400)
-      .send({ error: "El servicio no está disponible en este momento" });
-    console.log(error);
+  if (success) {
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+    const editedUsuario = await knex("usuarios")
+      .where({ email: email })
+      .update({ hashed_password: hashedPassword });
+    res.json(editedUsuario);
+  } else {
+    res.status(400).json({ error: "La contraseña actual es incorrecta!" });
   }
-};
+});
 
-const activateUser = async (req, res) => {
+const activateUser = tryCatch(async (req, res) => {
   const { id_usuario } = req.params;
 
-  try {
-    const editedUsuario = await knex("usuarios")
-      .where({ id_usuario: id_usuario })
-      .update({ activo: true });
-    res.json(editedUsuario);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
+  const editedUsuario = await knex("usuarios")
+    .where({ id_usuario: id_usuario })
+    .update({ activo: true });
+
+  res.json(editedUsuario);
+});
 
 module.exports = {
   getAllUsuarios,

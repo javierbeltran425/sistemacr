@@ -1,82 +1,66 @@
 const { httpCodes } = require("../constants/httpCodes");
 const knex = require("../db");
-const { errorDetails } = require("../utils/errorDetails");
+const apiError = require("../common/apiError");
+const { tryCatch } = require("../utils/tryCatch");
 
-const getAllCarreras = async function (req, res) {
-  try {
-    const carreras = await knex
-      .select("id_carrera", "nombre", "facultad")
-      .from("carreras")
-      .orderBy("id_carrera", "desc");
-    res.json(carreras);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
+const getAllCarreras = tryCatch(async function (req, res) {
+  const carreras = await knex
+    .select("id_carrera", "nombre", "facultad")
+    .from("carreras")
+    .orderBy("id_carrera", "desc");
 
-const getCarrerasByIdMateria = async function (req, res) {
+  res.json(carreras);
+});
+
+const getCarrerasByIdMateria = tryCatch(async function (req, res) {
   const { id_materia } = req.params;
 
-  try {
-    const carreras = await knex
-      .select("materiasxcarreras.id_carrera")
-      .from("materiasxcarreras")
-      .where({ id_materia: id_materia });
-    res.json(carreras);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
+  const carreras = await knex
+    .select("materiasxcarreras.id_carrera")
+    .from("materiasxcarreras")
+    .where({ id_materia: id_materia });
 
-const createCarrera = async function (req, res, next) {
+  res.json(carreras);
+});
+
+const createCarrera = tryCatch(async function (req, res) {
   const { id_carrera, nombre, facultad } = req.body;
 
-  try {
-    const newCarrera = await knex("carreras").insert({
+  const newCarrera = await knex("carreras")
+    .insert({
       id_carrera: id_carrera,
       nombre: nombre,
       facultad: facultad,
+    })
+    .catch(() => {
+      throw new apiError(
+        httpCodes.BAD_REQUEST,
+        "Ya existe una carrera con el ID ingresado."
+      );
     });
 
-    res.json(newCarrera);
-  } catch (error) {
-    next(
-      errorDetails(
-        error,
-        httpCodes.BAD_REQUEST,
-        "Ya existe una carrera con el mismo ID."
-      )
-    );
-  }
-};
+  res.json(newCarrera);
+});
 
-const removeCarreraById = async function (req, res) {
+const removeCarreraById = tryCatch(async function (req, res) {
   const { id_carrera } = req.params;
-  try {
-    const removedCarrera = await knex("carreras")
-      .where({ id_carrera: id_carrera })
-      .del();
-    res.json(removedCarrera);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
 
-const editCarrera = async function (req, res) {
+  const removedCarrera = await knex("carreras")
+    .where({ id_carrera: id_carrera })
+    .del();
+
+  res.json(removedCarrera);
+});
+
+const editCarrera = tryCatch(async function (req, res) {
   const { id_carrera, nombre, facultad } = req.body;
-  try {
-    const updatedCarrera = await knex("carreras")
-      .where({ id_carrera: id_carrera })
-      .update({ nombre: nombre, facultad: facultad });
-    res.json(updatedCarrera);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
+
+  const updatedCarrera = await knex("carreras")
+    .where({ id_carrera: id_carrera })
+    .update({ nombre: nombre, facultad: facultad });
+
+  res.json(updatedCarrera);
+});
 
 module.exports = {
   getAllCarreras,

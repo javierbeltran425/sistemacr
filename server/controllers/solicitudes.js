@@ -1,6 +1,7 @@
 const knex = require("../db");
+const { tryCatch } = require("../utils/tryCatch");
 
-const createSolicitud = async function (req, res) {
+const createSolicitud = tryCatch(async function (req, res) {
   const {
     id_usuario,
     id_materia,
@@ -12,166 +13,137 @@ const createSolicitud = async function (req, res) {
     end,
   } = req.body;
 
-  try {
-    const newSolicitud = await knex("solicitudes")
-      .returning("id_solicitud")
-      .insert({
-        id_usuario: id_usuario,
-        id_materia: id_materia,
-        id_seccion: id_seccion,
-        titulo: title,
-        descripcion: description,
-        tipo: tipo,
-        hora_inicio: start,
-        hora_final: end,
-        estado: "PENDIENTE",
-      });
-    console.log(newSolicitud);
-    res.json(newSolicitud);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
+  const newSolicitud = await knex("solicitudes")
+    .returning("id_solicitud")
+    .insert({
+      id_usuario: id_usuario,
+      id_materia: id_materia,
+      id_seccion: id_seccion,
+      titulo: title,
+      descripcion: description,
+      tipo: tipo,
+      hora_inicio: start,
+      hora_final: end,
+      estado: "PENDIENTE",
+    });
 
-const getSolicitudesByIdSeccion = async function (req, res) {
-  const { id_usuario, id_seccion } = req.params;
-  console.log(req.params);
-  try {
-    const solicitudes = await knex
-      .select(
-        "id_solicitud as id",
-        "id_usuario",
-        "id_materia",
-        "id_seccion",
-        "titulo as title",
-        "hora_inicio as start",
-        "hora_final as end",
-        "descripcion as desc",
-        "tipo",
-        "estado"
-      )
-      .from("solicitudes")
-      .where({ id_seccion: id_seccion });
-    res.json(solicitudes);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
+  res.json(newSolicitud);
+});
 
-const getSolicitudesUsuariosByIdSeccion = async function (req, res) {
+const getSolicitudesByIdSeccion = tryCatch(async function (req, res) {
+  const { id_seccion } = req.params;
+
+  const solicitudes = await knex
+    .select(
+      "id_solicitud as id",
+      "id_usuario",
+      "id_materia",
+      "id_seccion",
+      "titulo as title",
+      "hora_inicio as start",
+      "hora_final as end",
+      "descripcion as desc",
+      "tipo",
+      "estado"
+    )
+    .from("solicitudes")
+    .where({ id_seccion: id_seccion });
+
+  res.json(solicitudes);
+});
+
+const getSolicitudesUsuariosByIdSeccion = tryCatch(async function (req, res) {
   const { id_seccion } = req.body;
-  try {
-    const solicitudes = await knex
-      .select(
-        "solicitudes.id_solicitud as id",
-        "solicitudes.id_usuario",
-        "solicitudes.id_materia",
-        "solicitudes.id_seccion",
-        "solicitudes.titulo as title",
-        "solicitudes.hora_inicio as start",
-        "solicitudes.hora_final as end",
-        "solicitudes.descripcion as desc",
-        "solicitudes.tipo",
-        "solicitudes.estado",
-        "usuarios.nombre",
-        "usuarios.email"
-      )
-      .from("solicitudes")
-      .whereIn("id_seccion", id_seccion)
-      .whereNot({ archivada: true })
-      .join("usuarios", "usuarios.id_usuario", "solicitudes.id_usuario");
-    res.json(solicitudes);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
 
-const getAllSolicitudes = async (req, res) => {
-  try {
-    const solicitudes = await knex
-      .select(
-        "solicitudes.id_usuario",
-        "solicitudes.id_materia",
-        "solicitudes.id_seccion",
-        "solicitudes.titulo",
-        "solicitudes.descripcion",
-        "solicitudes.tipo",
-        "solicitudes.estado"
-      )
-      .from("solicitudes");
+  const solicitudes = await knex
+    .select(
+      "solicitudes.id_solicitud as id",
+      "solicitudes.id_usuario",
+      "solicitudes.id_materia",
+      "solicitudes.id_seccion",
+      "solicitudes.titulo as title",
+      "solicitudes.hora_inicio as start",
+      "solicitudes.hora_final as end",
+      "solicitudes.descripcion as desc",
+      "solicitudes.tipo",
+      "solicitudes.estado",
+      "usuarios.nombre",
+      "usuarios.email"
+    )
+    .from("solicitudes")
+    .whereIn("id_seccion", id_seccion)
+    .whereNot({ archivada: true })
+    .join("usuarios", "usuarios.id_usuario", "solicitudes.id_usuario");
 
-    res.json(solicitudes);
-  } catch (error) {
-    console.error(error);
-  }
-};
+  res.json(solicitudes);
+});
 
-const editSolicitud = async function (req, res) {
+const getAllSolicitudes = tryCatch(async (req, res) => {
+  const solicitudes = await knex
+    .select(
+      "solicitudes.id_usuario",
+      "solicitudes.id_materia",
+      "solicitudes.id_seccion",
+      "solicitudes.titulo",
+      "solicitudes.descripcion",
+      "solicitudes.tipo",
+      "solicitudes.estado"
+    )
+    .from("solicitudes");
+
+  res.json(solicitudes);
+});
+
+const editSolicitud = tryCatch(async function (req, res) {
   const { id_solicitud, title, description, tipo, start, end, estado } =
     req.body;
-  try {
-    const updatedSolicitud = await knex("solicitudes")
-      .where({ id_solicitud: id_solicitud })
-      .update({
-        titulo: title,
-        descripcion: description,
-        tipo: tipo,
-        hora_inicio: start,
-        hora_final: end,
-        estado: estado,
-      });
-    res.json(updatedSolicitud);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
 
-const actualizaEstadoSolicitud = async function (req, res) {
+  const updatedSolicitud = await knex("solicitudes")
+    .where({ id_solicitud: id_solicitud })
+    .update({
+      titulo: title,
+      descripcion: description,
+      tipo: tipo,
+      hora_inicio: start,
+      hora_final: end,
+      estado: estado,
+    });
+
+  res.json(updatedSolicitud);
+});
+
+const actualizaEstadoSolicitud = tryCatch(async function (req, res) {
   const { id_solicitud, estado } = req.body;
-  try {
-    const updatedSolicitud = await knex("solicitudes")
-      .where({ id_solicitud: id_solicitud })
-      .update({
-        estado: estado,
-      });
-    res.json(updatedSolicitud);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
 
-const archivarSolicitud = async function (req, res) {
-  const { id_solicitud } = req.params;
-  try {
-    const updatedSolicitud = await knex("solicitudes")
-      .where({ id_solicitud: id_solicitud })
-      .update({
-        archivada: true,
-      });
-    res.json(updatedSolicitud);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
+  const updatedSolicitud = await knex("solicitudes")
+    .where({ id_solicitud: id_solicitud })
+    .update({
+      estado: estado,
+    });
+  res.json(updatedSolicitud);
+});
 
-const deleteSolicitud = async function (req, res) {
+const archivarSolicitud = tryCatch(async function (req, res) {
   const { id_solicitud } = req.params;
-  try {
-    const deletedSolicitud = await knex("solicitudes")
-      .where({ id_solicitud: id_solicitud })
-      .del();
-    res.json(deletedSolicitud);
-  } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
-  }
-};
+
+  const updatedSolicitud = await knex("solicitudes")
+    .where({ id_solicitud: id_solicitud })
+    .update({
+      archivada: true,
+    });
+
+  res.json(updatedSolicitud);
+});
+
+const deleteSolicitud = tryCatch(async function (req, res) {
+  const { id_solicitud } = req.params;
+
+  const deletedSolicitud = await knex("solicitudes")
+    .where({ id_solicitud: id_solicitud })
+    .del();
+
+  res.json(deletedSolicitud);
+});
 
 module.exports = {
   createSolicitud,
