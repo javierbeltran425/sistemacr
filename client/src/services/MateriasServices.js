@@ -6,11 +6,10 @@ const serverUrl = cleanEnv(process.env, {
 }).REACT_APP_SERVER_URL;
 
 export const getMaterias = async (authToken) => {
-
   return axios({
     headers: {
-      'Content-Type': 'application/json ',
-      'Authorization': authToken
+      "Content-Type": "application/json ",
+      Authorization: authToken,
     },
     method: "GET",
     url: `${serverUrl}/materias/getallmaterias`,
@@ -18,11 +17,10 @@ export const getMaterias = async (authToken) => {
 };
 
 export const getMateriasByIdUsuario = async (id_usuario, authToken) => {
-
   return axios({
     headers: {
-      'Content-Type': 'application/json ',
-      'Authorization': authToken
+      "Content-Type": "application/json ",
+      Authorization: authToken,
     },
     method: "GET",
     url: `${serverUrl}/materias/getmateriasbyidusuario/${id_usuario}`,
@@ -30,23 +28,45 @@ export const getMateriasByIdUsuario = async (id_usuario, authToken) => {
 };
 
 export const getMateriaById = async (id_materia, authToken) => {
-
   return axios({
     headers: {
-      'Content-Type': 'application/json ',
-      'Authorization': authToken
+      "Content-Type": "application/json ",
+      Authorization: authToken,
     },
     method: "GET",
     url: `${serverUrl}/materias/getMateriaById/${id_materia}`,
   });
 };
 
-export const removeMateria = async (id_materia, authToken) => {
-
+export const createMateria = async (data, authToken) => {
   return axios({
     headers: {
-      'Content-Type': 'application/json ',
-      'Authorization': authToken
+      "Content-Type": "application/json ",
+      Authorization: authToken,
+    },
+    method: "POST",
+    url: `${serverUrl}/materias/createmateria`,
+    data,
+  });
+};
+
+export const editMateria = async (data, authToken) => {
+  return axios({
+    headers: {
+      "Content-Type": "application/json ",
+      Authorization: authToken,
+    },
+    method: "PUT",
+    url: `${serverUrl}/materias/editmateria`,
+    data,
+  });
+};
+
+export const removeMateria = async (id_materia, authToken) => {
+  return axios({
+    headers: {
+      "Content-Type": "application/json ",
+      Authorization: authToken,
     },
     method: "DELETE",
     url: `${serverUrl}/materias/removemateriabyid/${id_materia}`,

@@ -18,14 +18,9 @@ import Chip from "@mui/material/Chip";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { useCookies } from "react-cookie";
-import { cleanEnv, url } from "envalid";
 
 import { createUsuario, editUsuario } from "../services/UsuariosServices";
 import { getMateriasByIdUsuario } from "../services/MateriasServices";
-
-const serverUrl = cleanEnv(process.env, {
-  REACT_APP_SERVER_URL: url(),
-}).REACT_APP_SERVER_URL;
 
 const ModalUsuarios = ({
   mode,

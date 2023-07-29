@@ -18,15 +18,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import { styled } from "@mui/material/styles";
 import { useCookies } from "react-cookie";
-import { cleanEnv, url } from "envalid";
 
 import { getUsuarios, deleteUsuario } from "../services/UsuariosServices";
 import { getMaterias } from "../services/MateriasServices";
 import { getCarreras } from "../services/CarrerasServices";
-
-const serverUrl = cleanEnv(process.env, {
-  REACT_APP_SERVER_URL: url(),
-}).REACT_APP_SERVER_URL;
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -120,13 +115,11 @@ const CRUDusuarios = () => {
 
   const getAllCarreras = async () => {
     try {
-
-      const response = await getCarreras(cookies.authToken)
+      const response = await getCarreras(cookies.authToken);
 
       if (response.status === 200) {
-        setCarreras(response.data)
+        setCarreras(response.data);
       }
-
     } catch (error) {
       console.log(error);
     }
@@ -172,11 +165,11 @@ const CRUDusuarios = () => {
     searchValue == ""
       ? setDataSet(usuarios)
       : setDataSet(
-        usuarios.filter(
-          (e) =>
-            e.email.includes(searchValue) || e.nombre.includes(searchValue)
-        )
-      );
+          usuarios.filter(
+            (e) =>
+              e.email.includes(searchValue) || e.nombre.includes(searchValue)
+          )
+        );
   }, [searchValue]);
 
   return (

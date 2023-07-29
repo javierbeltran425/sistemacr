@@ -13,11 +13,10 @@ import Modal from "@mui/material/Modal";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
-import { cleanEnv, url } from "envalid";
+import { useCookies } from "react-cookie";
 
-const serverUrl = cleanEnv(process.env, {
-  REACT_APP_SERVER_URL: url(),
-}).REACT_APP_SERVER_URL;
+import { createMateria, editMateria } from "../services/MateriasServices";
+import { getCarrerasByIdMateria } from "../services/CarrerasServices";
 
 const ModalMaterias = ({
   mode,
@@ -36,40 +35,33 @@ const ModalMaterias = ({
     numsecciones: editMode ? materiaToEdit.numsecciones : 1,
     carreras: [],
   });
+  const [cookies] = useCookies(null);
 
-  const createMateria = async (e) => {
+  const CreateMateria = async (e) => {
     e.preventDefault();
     try {
-      const resp = await fetch(`${serverUrl}/materias/createmateria`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMateria),
-      });
-      if (resp.status === 200) {
-        console.log("Ok!");
+      const response = await createMateria(newMateria, cookies.authToken);
+
+      if (response.status === 200) {
         getAllMaterias();
         handleClose();
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
-  const editMateria = async (e) => {
+  const EditMateria = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${serverUrl}/materias/editmateria`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMateria),
-      });
+      const response = await editMateria(newMateria, cookies.authToken);
+
       if (response.status === 200) {
-        console.log("Ok!");
         getAllMaterias();
         handleClose();
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
@@ -96,20 +88,24 @@ const ModalMaterias = ({
     p: 4,
   };
 
-  const getCarrerasByIdMateria = async () => {
+  const GetCarrerasByIdMateria = async () => {
     try {
-      const resp = await fetch(
-        `${serverUrl}/carreras/getcarrerasbyidmateria/${newMateria.id_materia}`
+      const response = await getCarrerasByIdMateria(
+        newMateria.id_materia,
+        cookies.authToken
       );
-      const json = await resp.json();
-      var arr = [];
-      json.forEach((element) => {
-        arr.push(element.id_carrera);
-      });
-      setNewMateria({
-        ...newMateria,
-        carreras: arr,
-      });
+
+      if (response.status === 200) {
+        const json = await response.data;
+        var arr = [];
+        json.forEach((element) => {
+          arr.push(element.id_carrera);
+        });
+        setNewMateria({
+          ...newMateria,
+          carreras: arr,
+        });
+      }
     } catch (error) {
       console.log(error);
     }
@@ -117,7 +113,7 @@ const ModalMaterias = ({
 
   useEffect(() => {
     if (editMode) {
-      getCarrerasByIdMateria();
+      GetCarrerasByIdMateria();
     }
   }, []);
 
@@ -270,7 +266,7 @@ const ModalMaterias = ({
             <FormControl fullWidth sx={{ my: 2 }}>
               <Button
                 type="submit"
-                onClick={editMode ? editMateria : createMateria}
+                onClick={editMode ? EditMateria : CreateMateria}
                 sx={{ mx: "auto" }}
                 variant="outlined"
               >
