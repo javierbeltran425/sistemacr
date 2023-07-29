@@ -1,6 +1,11 @@
 const knex = require("../db");
 const bcrypt = require("bcrypt");
+const { httpCodes } = require("../constants/httpCodes");
+const { errorMessages } = require("../constants/errorMessages");
+const apiError = require("../common/apiError");
 const { tryCatch } = require("../utils/tryCatch");
+const isEmail = require("is-email");
+const { emit } = require("nodemon");
 
 const getAllUsuarios = tryCatch(async function (req, res) {
   const usuarios = await knex
@@ -72,19 +77,34 @@ const getRolById = tryCatch(async function (req, res) {
 const createUsuario = tryCatch(async function (req, res) {
   const { id_usuario, id_carrera, email, nombre, rol, password, materias } =
     req.body;
+
+  if (!isEmail(email))
+    throw new apiError(
+      httpCodes.BAD_REQUEST,
+      "El email ingresado no es valido."
+    );
+
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
 
   const IdUsuario = email.split("@")[0];
 
-  const newUsuario = await knex("usuarios").returning("id_usuario").insert({
-    id_usuario: IdUsuario,
-    email: email,
-    nombre: nombre,
-    hashed_password: hashedPassword,
-    rol: rol,
-    id_carrera: id_carrera,
-  });
+  const newUsuario = await knex("usuarios")
+    .returning("id_usuario")
+    .insert({
+      id_usuario: IdUsuario,
+      email: email,
+      nombre: nombre,
+      hashed_password: hashedPassword,
+      rol: rol,
+      id_carrera: id_carrera,
+    })
+    .catch(() => {
+      throw new apiError(
+        httpCodes.BAD_REQUEST,
+        "Ya existe un usuario con el mismo email."
+      );
+    });
 
   if (materias.length == 0) return res.json(newUsuario);
 
@@ -105,7 +125,14 @@ const createUsuario = tryCatch(async function (req, res) {
     }
   });
 
-  await knex("usuariosxmaterias").insert(fieldsToInsert);
+  await knex("usuariosxmaterias")
+    .insert(fieldsToInsert)
+    .catch(() => {
+      throw new apiError(
+        httpCodes.BAD_REQUEST,
+        "Se produjo un error al intentar asignar materias al usuario creado."
+      );
+    });
 
   if (rol == "profesor") {
     await knex("secciones")

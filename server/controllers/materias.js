@@ -1,4 +1,7 @@
+const { httpCodes } = require("../constants/httpCodes");
+const { errorMessages } = require("../constants/errorMessages");
 const knex = require("../db");
+const apiError = require("../common/apiError");
 const { tryCatch } = require("../utils/tryCatch");
 
 const getAllMaterias = tryCatch(async function (req, res) {
@@ -64,14 +67,27 @@ const createMateria = tryCatch(async function (req, res) {
 
   const newMateria = await knex("materias")
     .returning("id_materia")
-    .insert({ id_materia: id_materia, nombre: nombre, uv: uv });
+    .insert({ id_materia: id_materia, nombre: nombre, uv: uv })
+    .catch(() => {
+      throw new apiError(
+        httpCodes.BAD_REQUEST,
+        errorMessages.UNIQUE_CONSTRAINT
+      );
+    });
 
   if (carreras.length > 0) {
     const fieldsToInsert = carreras.map((carrera) => ({
       id_materia: newMateria[0].id_materia,
       id_carrera: carrera,
     }));
-    await knex("materiasxcarreras").insert(fieldsToInsert);
+    await knex("materiasxcarreras")
+      .insert(fieldsToInsert)
+      .catch(() => {
+        throw new apiError(
+          httpCodes.BAD_REQUEST,
+          "Se produjo un error al intentar asignar carreras a la materia creada."
+        );
+      });
   }
 
   const arrsecciones = Array.from({ length: numsecciones }, (_, i) => i + 1);
@@ -80,7 +96,14 @@ const createMateria = tryCatch(async function (req, res) {
     id_materia: newMateria[0].id_materia,
     numero: seccion,
   }));
-  await knex("secciones").insert(fieldsToInsert);
+  await knex("secciones")
+    .insert(fieldsToInsert)
+    .catch(() => {
+      throw new apiError(
+        httpCodes.BAD_REQUEST,
+        "Se produjo un error al intentar asignar secciones a la materia creada."
+      );
+    });
 
   res.json(newMateria);
 });
@@ -88,7 +111,7 @@ const createMateria = tryCatch(async function (req, res) {
 const removeMateriaById = tryCatch(async function (req, res) {
   const { id_materia } = req.params;
 
-  const deletedMateria = await knex("materiasxcarreras")
+  const deletedMateria = await knex("materias")
     .del()
     .where({ id_materia: id_materia });
 

@@ -18,14 +18,21 @@ import Chip from "@mui/material/Chip";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { useCookies } from "react-cookie";
+import { USUARIO_ROLES } from "../constants/usuario";
+import Stack from "@mui/material/Stack";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 
 import { createUsuario, editUsuario } from "../services/UsuariosServices";
 import { getMateriasByIdUsuario } from "../services/MateriasServices";
 
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 const ModalUsuarios = ({
   mode,
   showModal,
-  handleOpen,
   handleClose,
   getAllUsuarios,
   usuarioToEdit,
@@ -35,19 +42,47 @@ const ModalUsuarios = ({
   const editMode = mode === "edit" ? true : false;
 
   const [newUsuario, setNewUsuario] = useState({
-    id_usuario: editMode ? usuarioToEdit.id_usuario : null,
-    id_carrera: editMode ? usuarioToEdit.id_carrera : null,
+    id_usuario: editMode ? usuarioToEdit.id_usuario : "",
+    id_carrera: editMode ? usuarioToEdit.id_carrera : "",
     email: editMode ? usuarioToEdit.email : "",
     nombre: editMode ? usuarioToEdit.nombre : "",
-    rol: editMode ? usuarioToEdit.rol : "",
+    rol: editMode ? usuarioToEdit.rol : USUARIO_ROLES.ESTUDIANTE,
     password: "",
   });
   const [newMaterias, setNewMaterias] = useState([]);
 
   const [cookies] = useCookies(null);
 
+  const [emailEmpty, setEmailEmpty] = useState(false);
+  const [nameEmpty, setNameEmpty] = useState(false);
+  const [passEmpty, setPassEmpty] = useState(false);
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpenSnack = (error) => {
+    setSnackError("ERROR: " + error.response.data.message);
+    setOpen(true);
+  };
+  const [snackError, setSnackError] = useState("");
+  const handleCloseSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
+
   const CreateUsuario = async (e) => {
     e.preventDefault();
+    newUsuario.email == "" ? setEmailEmpty(true) : setEmailEmpty(false);
+    newUsuario.nombre == "" ? setNameEmpty(true) : setNameEmpty(false);
+    newUsuario.password == "" ? setPassEmpty(true) : setPassEmpty(false);
+    if (
+      newUsuario.email == "" ||
+      newUsuario.nombre == "" ||
+      newUsuario.password == ""
+    )
+      return;
+
     try {
       let data = newUsuario;
       data.materias = newMaterias;
@@ -58,12 +93,15 @@ const ModalUsuarios = ({
         handleClose();
       }
     } catch (error) {
-      console.log(error);
+      handleOpenSnack(error);
     }
   };
 
   const EditUsuario = async (e) => {
     e.preventDefault();
+    newUsuario.nombre == "" ? setNameEmpty(true) : setNameEmpty(false);
+    if (newUsuario.nombre == "") return;
+
     try {
       let data = newUsuario;
       data.materias = newMaterias;
@@ -74,7 +112,7 @@ const ModalUsuarios = ({
         handleClose();
       }
     } catch (error) {
-      console.log(error);
+      handleOpenSnack(error);
     }
   };
 
@@ -85,8 +123,6 @@ const ModalUsuarios = ({
       ...newUsuario,
       [name]: value,
     }));
-
-    console.log(newUsuario);
   };
 
   const style = {
@@ -112,7 +148,7 @@ const ModalUsuarios = ({
         setNewMaterias(response.data);
       }
     } catch (error) {
-      console.log(error);
+      handleOpenSnack(error);
     }
   };
 
@@ -130,7 +166,22 @@ const ModalUsuarios = ({
 
   return (
     <div>
-      <Button onClick={handleOpen}>Open modal</Button>
+      <Stack spacing={2} sx={{ width: "100%" }}>
+        <Snackbar
+          open={open}
+          autoHideDuration={6000}
+          onClose={handleCloseSnack}
+        >
+          <Alert
+            onClose={handleCloseSnack}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            {snackError}
+          </Alert>
+        </Snackbar>
+      </Stack>
+
       <Modal
         open={showModal}
         onClose={handleClose}
@@ -156,7 +207,9 @@ const ModalUsuarios = ({
                   value={newUsuario.email}
                   onChange={handleChange}
                   keyfilter={/^[a-zA-Z0-9@._+-]*$/}
-                  className="w-full my-1"
+                  className={
+                    emailEmpty ? "w-full my-1 p-invalid" : "w-full my-1"
+                  }
                 />
               </FormControl>
             )}
@@ -167,21 +220,25 @@ const ModalUsuarios = ({
                 value={newUsuario.nombre}
                 onChange={handleChange}
                 keyfilter={/^[a-zA-Z0-9 ]*$/}
-                className="w-full my-1"
+                className={nameEmpty ? "w-full my-1 p-invalid" : "w-full my-1"}
               />
             </FormControl>
-            <FormControl fullWidth>
-              <Password
-                placeholder="Contraseña"
-                name="password"
-                value={newUsuario.password}
-                onChange={handleChange}
-                keyfilter={/^[\w!@#$%^&*()\-+=<>?/|{}[\]~]*$/}
-                toggleMask={true}
-                inputStyle={{ width: "100%" }}
-                className="my-1"
-              />
-            </FormControl>
+            {!editMode && (
+              <FormControl fullWidth>
+                <Password
+                  placeholder="Contraseña"
+                  name="password"
+                  value={newUsuario.password}
+                  onChange={handleChange}
+                  keyfilter={/^[\w!@#$%^&*()\-+=<>?/|{}[\]~]*$/}
+                  toggleMask={true}
+                  inputStyle={{ width: "100%" }}
+                  className={
+                    passEmpty ? "w-full my-1 p-invalid" : "w-full my-1"
+                  }
+                />
+              </FormControl>
+            )}
             <FormControl fullWidth sx={{ my: 1 }}>
               <InputLabel id="demo-simple-select-label">Rol</InputLabel>
               <Select
@@ -245,12 +302,6 @@ const ModalUsuarios = ({
                       arr[index].id_materia = e.target.value;
                       arr[index].arrsecciones = [];
                       setNewMaterias(arr);
-                      console.log(
-                        materias.find(
-                          (materia) =>
-                            materia.id_materia == newMateria.id_materia
-                        ).id_materia
-                      );
                     }}
                   >
                     {materias.map((element) => (

@@ -20,12 +20,6 @@ import { useCookies } from "react-cookie";
 
 import { getCarreras, removeCarreraID } from "../services/CarrerasServices";
 
-import { cleanEnv, url } from "envalid";
-
-const serverUrl = cleanEnv(process.env, {
-  REACT_APP_SERVER_URL: url(),
-}).REACT_APP_SERVER_URL;
-
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -90,12 +84,11 @@ const CRUDcarreras = () => {
   const removeCarreraById = async (id_carrera) => {
     if (window.confirm("Estás seguro que quieres eliminar esta carrera?")) {
       try {
-        const response = await removeCarreraID(id_carrera, cookies.authToken)
+        const response = await removeCarreraID(id_carrera, cookies.authToken);
 
         if (response.status === 200) {
           getAllCarreras();
         }
-
       } catch (error) {
         console.log(error);
       }
@@ -104,8 +97,7 @@ const CRUDcarreras = () => {
 
   const getAllCarreras = async () => {
     try {
-
-      const response = await getCarreras(cookies.authToken)
+      const response = await getCarreras(cookies.authToken);
 
       if (response.status === 200) {
         setCarreras(response.data);
@@ -139,12 +131,12 @@ const CRUDcarreras = () => {
     searchValue == ""
       ? setDataSet(carreras)
       : setDataSet(
-        carreras.filter(
-          (e) =>
-            e.id_carrera.includes(searchValue) ||
-            e.nombre.includes(searchValue)
-        )
-      );
+          carreras.filter(
+            (e) =>
+              e.id_carrera.includes(searchValue) ||
+              e.nombre.toUpperCase().includes(searchValue.toUpperCase())
+          )
+        );
   }, [searchValue]);
 
   return (
@@ -175,7 +167,7 @@ const CRUDcarreras = () => {
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Buscar.."
+              placeholder="Buscar..."
               inputProps={{ "aria-label": "search" }}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -200,7 +192,7 @@ const CRUDcarreras = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {dataSet &&
+                  {dataSet.length > 0 ? (
                     dataSet
                       .slice(
                         page * rowsPerPage,
@@ -252,7 +244,14 @@ const CRUDcarreras = () => {
                             </TableCell>
                           </TableRow>
                         );
-                      })}
+                      })
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="ml-5">
+                        No hay elementos para mostrar.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

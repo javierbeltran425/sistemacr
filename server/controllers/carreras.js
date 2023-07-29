@@ -1,4 +1,5 @@
 const { httpCodes } = require("../constants/httpCodes");
+const { errorMessages } = require("../constants/errorMessages");
 const knex = require("../db");
 const apiError = require("../common/apiError");
 const { tryCatch } = require("../utils/tryCatch");
@@ -35,7 +36,7 @@ const createCarrera = tryCatch(async function (req, res) {
     .catch(() => {
       throw new apiError(
         httpCodes.BAD_REQUEST,
-        "Ya existe una carrera con el ID ingresado."
+        errorMessages.UNIQUE_CONSTRAINT
       );
     });
 

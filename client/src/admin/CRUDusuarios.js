@@ -167,7 +167,8 @@ const CRUDusuarios = () => {
       : setDataSet(
           usuarios.filter(
             (e) =>
-              e.email.includes(searchValue) || e.nombre.includes(searchValue)
+              e.email.toUpperCase().includes(searchValue) ||
+              e.nombre.toUpperCase().includes(searchValue)
           )
         );
   }, [searchValue]);
@@ -202,7 +203,7 @@ const CRUDusuarios = () => {
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Buscar.."
+              placeholder="Buscar..."
               inputProps={{ "aria-label": "search" }}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -227,7 +228,7 @@ const CRUDusuarios = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {dataSet &&
+                  {dataSet.length > 0 ? (
                     dataSet
                       .slice(
                         page * rowsPerPage,
@@ -285,7 +286,14 @@ const CRUDusuarios = () => {
                             </TableCell>
                           </TableRow>
                         );
-                      })}
+                      })
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} className="ml-5">
+                        No hay elementos para mostrar.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

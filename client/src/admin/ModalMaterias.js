@@ -14,14 +14,20 @@ import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
 import { useCookies } from "react-cookie";
+import Stack from "@mui/material/Stack";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 
 import { createMateria, editMateria } from "../services/MateriasServices";
 import { getCarrerasByIdMateria } from "../services/CarrerasServices";
 
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 const ModalMaterias = ({
   mode,
   showModal,
-  handleOpen,
   handleClose,
   getAllMaterias,
   materiaToEdit,
@@ -36,9 +42,29 @@ const ModalMaterias = ({
     carreras: [],
   });
   const [cookies] = useCookies(null);
+  const [idEmpty, setIdEmpty] = useState(false);
+  const [nameEmpty, setNameEmpty] = useState(false);
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpenSnack = (error) => {
+    setSnackError("ERROR: " + error.response.data.message);
+    setOpen(true);
+  };
+  const [snackError, setSnackError] = useState("");
+  const handleCloseSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   const CreateMateria = async (e) => {
     e.preventDefault();
+    newMateria.id_materia == "" ? setIdEmpty(true) : setIdEmpty(false);
+    newMateria.nombre == "" ? setNameEmpty(true) : setNameEmpty(false);
+    if (newMateria.id_materia == "" || newMateria.nombre == "") return;
+
     try {
       const response = await createMateria(newMateria, cookies.authToken);
 
@@ -47,12 +73,15 @@ const ModalMaterias = ({
         handleClose();
       }
     } catch (error) {
-      console.log(error);
+      handleOpenSnack(error);
     }
   };
 
   const EditMateria = async (e) => {
     e.preventDefault();
+    newMateria.nombre == "" ? setNameEmpty(true) : setNameEmpty(false);
+    if (newMateria.nombre == "") return;
+
     try {
       const response = await editMateria(newMateria, cookies.authToken);
 
@@ -61,7 +90,7 @@ const ModalMaterias = ({
         handleClose();
       }
     } catch (error) {
-      console.log(error);
+      handleOpenSnack(error);
     }
   };
 
@@ -72,8 +101,6 @@ const ModalMaterias = ({
       ...newMateria,
       [name]: value,
     }));
-
-    console.log(newMateria);
   };
 
   const style = {
@@ -107,7 +134,7 @@ const ModalMaterias = ({
         });
       }
     } catch (error) {
-      console.log(error);
+      handleOpenSnack(error);
     }
   };
 
@@ -119,7 +146,22 @@ const ModalMaterias = ({
 
   return (
     <div>
-      <Button onClick={handleOpen}>Open modal</Button>
+      <Stack spacing={2} sx={{ width: "100%" }}>
+        <Snackbar
+          open={open}
+          autoHideDuration={6000}
+          onClose={handleCloseSnack}
+        >
+          <Alert
+            onClose={handleCloseSnack}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            {snackError}
+          </Alert>
+        </Snackbar>
+      </Stack>
+
       <Modal
         open={showModal}
         onClose={handleClose}
@@ -138,54 +180,44 @@ const ModalMaterias = ({
           <form className="flex flex-column gap-2">
             {!editMode && (
               <FormControl fullWidth>
-                <label>ID de la materia</label>
+                <label>ID de la materia*</label>
                 <InputText
                   placeholder="ID"
                   name="id_materia"
                   value={newMateria.id_materia}
                   onChange={handleChange}
-                  className="w-full"
+                  className={idEmpty ? "w-full p-invalid" : "w-full"}
                   keyfilter="int"
                 />
               </FormControl>
             )}
             <FormControl fullWidth>
-              <label>Nombre</label>
+              <label>Nombre*</label>
               <InputText
                 placeholder="Nombre"
                 name="nombre"
                 value={newMateria.nombre}
                 onChange={handleChange}
-                className="w-full"
+                className={nameEmpty ? "w-full p-invalid" : "w-full"}
                 keyfilter={/^[a-zA-Z0-9 ]*$/}
               />
             </FormControl>
             <FormControl fullWidth>
               <label>Unidades valorativas</label>
               <InputNumber
-                placeholder="UVs"
+                inputId="uv"
                 name="uv"
-                min={1}
-                max={9}
                 value={newMateria.uv}
                 onChange={(e) => {
-                  if (e.value > 0 && e.value < 10) {
-                    setNewMateria((newMateria) => ({
-                      ...newMateria,
-                      ["uv"]: e.value,
-                    }));
-                  } else if (e.value > 9) {
-                    setNewMateria((newMateria) => ({
-                      ...newMateria,
-                      ["uv"]: 9,
-                    }));
-                  } else if (e.value < 1) {
-                    setNewMateria((newMateria) => ({
-                      ...newMateria,
-                      ["uv"]: 1,
-                    }));
-                  }
+                  setNewMateria((newMateria) => ({
+                    ...newMateria,
+                    ["uv"]: e.value,
+                  }));
                 }}
+                mode="decimal"
+                showButtons
+                min={0}
+                max={9}
               />
             </FormControl>
             <FormControl fullWidth sx={{ my: 2 }}>
@@ -237,30 +269,19 @@ const ModalMaterias = ({
             <FormControl fullWidth>
               <label>Número de secciones</label>
               <InputNumber
-                placeholder="Número de secciones"
+                inputId="numsecciones"
                 name="numsecciones"
-                min={1}
-                max={9}
                 value={newMateria.numsecciones}
                 onChange={(e) => {
-                  if (e.value > 0 && e.value < 10) {
-                    setNewMateria((newMateria) => ({
-                      ...newMateria,
-                      ["numsecciones"]: e.value,
-                    }));
-                  } else if (e.value > 9) {
-                    setNewMateria((newMateria) => ({
-                      ...newMateria,
-                      ["numsecciones"]: 9,
-                    }));
-                  } else if (e.value < 1) {
-                    setNewMateria((newMateria) => ({
-                      ...newMateria,
-                      ["numsecciones"]: 1,
-                    }));
-                  }
+                  setNewMateria((newMateria) => ({
+                    ...newMateria,
+                    ["numsecciones"]: e.value,
+                  }));
                 }}
-                className="w-full"
+                mode="decimal"
+                showButtons
+                min={1}
+                max={9}
               />
             </FormControl>
             <FormControl fullWidth sx={{ my: 2 }}>

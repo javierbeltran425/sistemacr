@@ -21,12 +21,6 @@ import Box from "@mui/material/Box";
 import { getMaterias, removeMateria } from "../services/MateriasServices";
 import { getCarreras } from "../services/CarrerasServices";
 
-import { cleanEnv, url } from "envalid";
-
-const serverUrl = cleanEnv(process.env, {
-  REACT_APP_SERVER_URL: url(),
-}).REACT_APP_SERVER_URL;
-
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -91,10 +85,10 @@ const CRUDmaterias = () => {
   const [cookies] = useCookies(null);
 
   const removeMateriaById = async (id_materia) => {
-    console.log("🚀 ~ file: CRUDMaterias.js:94 ~ removeMateriaById ~ id_materia:", id_materia)
     if (window.confirm("Estás seguro que quieres eliminar esta materia?")) {
       try {
-        const response = await removeMateria(id_materia, cookies.authToken)
+        const response = await removeMateria(id_materia, cookies.authToken);
+        console.log(response);
 
         if (response.status === 200) {
           getAllMaterias();
@@ -107,13 +101,11 @@ const CRUDmaterias = () => {
 
   const getAllMaterias = async () => {
     try {
-
-      const response = await getMaterias(cookies.authToken)
+      const response = await getMaterias(cookies.authToken);
 
       if (response.status === 200) {
-
-        setMaterias(response.data)
-        setDataSet(response.data)
+        setMaterias(response.data);
+        setDataSet(response.data);
       }
     } catch (error) {
       console.log(error);
@@ -121,12 +113,11 @@ const CRUDmaterias = () => {
   };
 
   const getAllCarreras = async () => {
-
     try {
-      const response = await getCarreras(cookies.authToken)
+      const response = await getCarreras(cookies.authToken);
 
       if (response.status === 200) {
-        const data = response.data
+        const data = response.data;
 
         if (data.length > 0) {
           data.sort(function (a, b) {
@@ -171,12 +162,12 @@ const CRUDmaterias = () => {
     searchValue == ""
       ? setDataSet(materias)
       : setDataSet(
-        materias.filter(
-          (e) =>
-            e.id_materia.includes(searchValue) ||
-            e.nombre.includes(searchValue)
-        )
-      );
+          materias.filter(
+            (e) =>
+              e.id_materia.includes(searchValue) ||
+              e.nombre.toUpperCase().includes(searchValue.toUpperCase())
+          )
+        );
   }, [searchValue]);
 
   return (
@@ -208,7 +199,7 @@ const CRUDmaterias = () => {
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Buscar.."
+              placeholder="Buscar..."
               inputProps={{ "aria-label": "search" }}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -235,7 +226,7 @@ const CRUDmaterias = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {dataSet &&
+                  {dataSet.length > 0 ? (
                     dataSet
                       .slice(
                         page * rowsPerPage,
@@ -293,7 +284,14 @@ const CRUDmaterias = () => {
                             </TableCell>
                           </TableRow>
                         );
-                      })}
+                      })
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="ml-5">
+                        No hay elementos para mostrar.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

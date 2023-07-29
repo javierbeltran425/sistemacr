@@ -10,7 +10,7 @@ module.exports = ErrorHandler = (error, req, res, next) => {
     errMsg = error.message;
   } else {
     errStatus = httpCodes.INTERNAL_SERVER_ERROR;
-    errMsg = "Algo salió mal.";
+    errMsg = "Se produjo un problema en el servidor.";
   }
 
   res.status(errStatus).json({

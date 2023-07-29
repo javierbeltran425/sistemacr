@@ -7,13 +7,19 @@ import FormControl from "@mui/material/FormControl";
 import PropTypes from "prop-types";
 import { InputText } from "primereact/inputtext";
 import { useCookies } from "react-cookie";
+import Stack from "@mui/material/Stack";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 
 import { createCarrera, editCarrera } from "../services/CarrerasServices";
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const ModalCarreras = ({
   mode,
   showModal,
-  handleOpen,
   handleClose,
   getAllCarreras,
   carreraToEdit,
@@ -25,11 +31,31 @@ const ModalCarreras = ({
     nombre: editMode ? carreraToEdit.nombre : "",
     facultad: editMode ? carreraToEdit.facultad : "",
   });
+  const [idEmpty, setIdEmpty] = useState(false);
+  const [nameEmpty, setNameEmpty] = useState(false);
 
   const [cookies] = useCookies(null);
 
+  const [open, setOpen] = React.useState(false);
+  const handleOpenSnack = (error) => {
+    setSnackError("ERROR: " + error.response.data.message);
+    setOpen(true);
+  };
+  const [snackError, setSnackError] = useState("");
+  const handleCloseSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
+
   const CreateCarrera = async (e) => {
     e.preventDefault();
+    newCarrera.id_carrera == "" ? setIdEmpty(true) : setIdEmpty(false);
+    newCarrera.nombre == "" ? setNameEmpty(true) : setNameEmpty(false);
+    if (newCarrera.id_carrera == "" || newCarrera.nombre == "") return;
+
     try {
       const response = await createCarrera(newCarrera, cookies.authToken);
 
@@ -38,11 +64,15 @@ const ModalCarreras = ({
         handleClose();
       }
     } catch (error) {
-      console.log(error);
+      handleOpenSnack(error);
     }
   };
 
   const EditCarrera = async (e) => {
+    e.preventDefault();
+    newCarrera.nombre == "" ? setNameEmpty(true) : setNameEmpty(false);
+    if (newCarrera.nombre == "") return;
+
     e.preventDefault();
     try {
       const response = await editCarrera(newCarrera, cookies.authToken);
@@ -52,7 +82,7 @@ const ModalCarreras = ({
         handleClose();
       }
     } catch (error) {
-      console.log(error);
+      handleOpenSnack(error);
     }
   };
 
@@ -63,8 +93,6 @@ const ModalCarreras = ({
       ...newCarrera,
       [name]: value,
     }));
-
-    console.log(newCarrera);
   };
 
   const style = {
@@ -81,7 +109,22 @@ const ModalCarreras = ({
 
   return (
     <div>
-      <Button onClick={handleOpen}>Open modal</Button>
+      <Stack spacing={2} sx={{ width: "100%" }}>
+        <Snackbar
+          open={open}
+          autoHideDuration={6000}
+          onClose={handleCloseSnack}
+        >
+          <Alert
+            onClose={handleCloseSnack}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            {snackError}
+          </Alert>
+        </Snackbar>
+      </Stack>
+
       <Modal
         open={showModal}
         onClose={handleClose}
@@ -100,25 +143,25 @@ const ModalCarreras = ({
           <form className="flex flex-column gap-3">
             {!editMode && (
               <FormControl fullWidth>
-                <label>ID de carrera</label>
+                <label>ID de carrera*</label>
                 <InputText
                   placeholder="ID"
                   name="id_carrera"
                   value={newCarrera.id_carrera}
                   onChange={handleChange}
-                  className="w-full"
+                  className={idEmpty ? "w-full p-invalid" : "w-full"}
                   keyfilter="int"
                 />
               </FormControl>
             )}
             <FormControl fullWidth>
-              <label>Nombre de carrera</label>
+              <label>Nombre de carrera*</label>
               <InputText
                 placeholder="Nombre"
                 name="nombre"
                 value={newCarrera.nombre}
                 onChange={handleChange}
-                className="w-full"
+                className={nameEmpty ? "w-full p-invalid" : "w-full"}
                 keyfilter={/^[a-zA-Z0-9 ]*$/}
               />
             </FormControl>
@@ -132,6 +175,7 @@ const ModalCarreras = ({
                 keyfilter={/^[a-zA-Z0-9 ]*$/}
               />
             </FormControl>
+
             <FormControl fullWidth sx={{ my: 2 }}>
               <Button
                 type="submit"
