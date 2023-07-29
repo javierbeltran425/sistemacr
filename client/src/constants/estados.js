@@ -1,0 +1,8 @@
+const ESTADOS = {
+    PENDIENTE: "PENDIENTE",
+    AUSENTE: "AUSENTE",
+    RECHAZADO: "RECHAZADO",
+    ACEPTADO: "ACEPTADO",
+};
+
+export { ESTADOS };

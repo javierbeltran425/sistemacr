@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from "react";
-import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
+import TablePagination from "@mui/material/TablePagination";
+import TableContainer from "@mui/material/TableContainer";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
+import SearchIcon from "@mui/icons-material/Search";
+import React, { useEffect, useState } from "react";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import ModalMaterias from "./ModalMaterias";
-import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
+import TableRow from "@mui/material/TableRow";
 import { styled } from "@mui/material/styles";
+import ModalMaterias from "./ModalMaterias";
+import Button from "@mui/material/Button";
+import { useCookies } from "react-cookie";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import Card from "@mui/material/Card";
+import Box from "@mui/material/Box";
+
+import { getMaterias } from "../services/MateriasServices";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -78,6 +81,8 @@ const CRUDmaterias = () => {
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
+  const [cookies] = useCookies(null);
+
   const removeMateriaById = async (id_materia) => {
     if (window.confirm("Estás seguro que quieres eliminar esta materia?")) {
       try {
@@ -99,32 +104,34 @@ const CRUDmaterias = () => {
 
   const getAllMaterias = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/getallmaterias`
-      );
-      const json = await resp.json();
-      setMaterias(json);
-      setDataSet(json);
+
+      const response = await getMaterias(cookies.authToken)
+
+      if (response.status === 200) {
+
+        setMaterias(response.data)
+        setDataSet(response.data)
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
   const getAllCarreras = async () => {
-    try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
-      );
-      const json = await resp.json();
-      if (json.length > 0) {
-        json.sort(function (a, b) {
-          return a.nombre.localeCompare(b.nombre);
-        });
-        setCarreras(json);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   const resp = await fetch(
+    //     `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
+    //   );
+    //   const json = await resp.json();
+    //   if (json.length > 0) {
+    //     json.sort(function (a, b) {
+    //       return a.nombre.localeCompare(b.nombre);
+    //     });
+    //     setCarreras(json);
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   const columns = [
@@ -158,12 +165,12 @@ const CRUDmaterias = () => {
     searchValue == ""
       ? setDataSet(materias)
       : setDataSet(
-          materias.filter(
-            (e) =>
-              e.id_materia.includes(searchValue) ||
-              e.nombre.includes(searchValue)
-          )
-        );
+        materias.filter(
+          (e) =>
+            e.id_materia.includes(searchValue) ||
+            e.nombre.includes(searchValue)
+        )
+      );
   }, [searchValue]);
 
   return (

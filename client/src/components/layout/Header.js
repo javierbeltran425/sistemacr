@@ -9,6 +9,9 @@ import { Sidebar } from "primereact/sidebar";
 import { Divider } from "primereact/divider";
 import { Tooltip } from 'primereact/tooltip';
 
+// servicios
+import { getRolByID } from "../../services/UsuariosServices";
+
 const Header = () => {
   const [cookies, setCookie, removeCookie] = useCookies(null);
   const [visible, setVisible] = useState(false);
@@ -37,12 +40,10 @@ const Header = () => {
 
   const getRol = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${cookies.id_usuario}`
-      );
-      const json = await resp.json();
 
-      setRol(json[0].rol)
+      const response = await getRolByID(cookies.id_usuario, cookies.authToken)
+
+      if (response.status === 200) setRol(response.data[0].rol)
     } catch (error) {
       console.error(error);
     }

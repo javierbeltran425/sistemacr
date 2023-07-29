@@ -12,6 +12,8 @@ import CRUDMaterias from "../admin/CRUDMaterias";
 import Layout from "../components/layout/Layout";
 import ContextUsuario from "../context/ContextUsuario";
 
+import { getRolByID } from "../services/UsuariosServices";
+
 import HistoryView from "./HistoryView";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
@@ -45,12 +47,10 @@ function TabPanel(props) {
 
   const getRol = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${cookies.id_usuario}`
-      );
-      const json = await resp.json();
+      const response = await getRolByID(cookies.id_usuario, cookies.authToken)
 
-      setRol(json[0].rol)
+      if (response.status === 200) setRol(response.data[0].rol)
+
     } catch (error) {
       console.error(error);
     }

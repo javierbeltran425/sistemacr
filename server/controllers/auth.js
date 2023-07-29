@@ -11,7 +11,8 @@ const signup = async function (req, res) {
     const newUsuario = await knex("usuarios")
       .returning("id_usuario")
       .insert({ email: email, hashed_password: hashedPassword });
-    const token = jwt.sign({ email }, "secret", { expiresIn: "1hr" });
+    const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: "1hr" });
+
     res.json({ id_usuario: newUsuario[0].id_usuario, email, token });
   } catch (error) {
     res.status(400).send(error);
@@ -26,13 +27,12 @@ const login = async function (req, res) {
       .select("id_usuario", "email", "hashed_password", "nombre", "activo")
       .from("usuarios")
       .where({ email: email });
-    console.log("🚀 ~ file: auth.js:29 ~ login ~ usuario:", usuario)
 
     if (Object.keys(usuario).length === 0)
       return res.json({ error: "El usuario ingresado no existe!" });
 
     const success = await bcrypt.compare(password, usuario[0].hashed_password);
-    const token = jwt.sign({ email }, "secret", { expiresIn: "1hr" });
+    const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: "1hr" });
 
     if (success) {
       res.json({

@@ -8,6 +8,8 @@ import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 
+import { getRolByID } from "../services/UsuariosServices";
+
 import ContextUsuario from "../context/ContextUsuario";
 
 const Login = () => {
@@ -60,12 +62,11 @@ const Login = () => {
 
   const getRol = async (idUsuario) => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${idUsuario}`
-      );
-      const json = await resp.json();
 
-      contextUsuario.setRol(json[0].rol)
+      const response = await getRolByID(idUsuario, cookies.authToken)
+
+      if (response.status === 200) contextUsuario.setRol(response.data[0].rol)
+
     } catch (error) {
       console.error(error);
     }

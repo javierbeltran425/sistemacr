@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 
 // componentes
 import DataHistoryTable from "../components/DataHistoryTable";
-import Layout from "../components/layout/Layout";
-import LineChart from "../components/LineChart";
-import BarChart from "../components/BarChart";
 import { Divider } from "primereact/divider";
 
 // servicios
@@ -13,12 +10,10 @@ import { getInfoUsuario } from "../services/UsuariosServices";
 import { getMateriaById } from "../services/MateriasServices";
 import { getSeccionById } from "../services/SeccionesServices";
 
+import { ESTADOS } from "../constants/estados";
+
 const HistoryView = () => {
   const [historyData, setHistoryData] = useState([]);
-  console.log(
-    "🚀 ~ file: HistoryView.js:15 ~ HistoryView ~ historyData:",
-    historyData
-  );
 
   const [contAusentes, setContAusentes] = useState(0);
   const [contAceptadas, setContAceptadas] = useState(0);
@@ -37,19 +32,19 @@ const HistoryView = () => {
   const conteoSolicitudes = () => {
     if (historyData.length > 0) {
       let atendidas = historyData.filter(
-        (solicitud) => solicitud.estado.toUpperCase() === "ATENDIDO"
+        (solicitud) => solicitud.estado.toUpperCase() === {}
       );
       let pendientes = historyData.filter(
-        (solicitud) => solicitud.estado.toUpperCase() === "PENDIENTE"
+        (solicitud) => solicitud.estado.toUpperCase() === ESTADOS.PENDIENTE
       );
       let ausentes = historyData.filter(
-        (solicitud) => solicitud.estado.toUpperCase() === "AUSENTE"
+        (solicitud) => solicitud.estado.toUpperCase() === ESTADOS.AUSENTE
       );
       let rechazadas = historyData.filter(
-        (solicitud) => solicitud.estado.toUpperCase() === "RECHAZADO"
+        (solicitud) => solicitud.estado.toUpperCase() === ESTADOS.RECHAZADO
       );
       let aceptadas = historyData.filter(
-        (solicitud) => solicitud.estado.toUpperCase() === "ACEPTADO"
+        (solicitud) => solicitud.estado.toUpperCase() === ESTADOS.ACEPTADO
       );
 
       setContAtendidas(atendidas.length);

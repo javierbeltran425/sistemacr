@@ -101,40 +101,40 @@ const CRUDusuarios = () => {
   };
 
   const getAllUsuarios = async () => {
-    try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/getallusuarios`
-      );
-      const json = await resp.json();
-      setUsuarios(json);
-      setDataSet(json);
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   const resp = await fetch(
+    //     `${process.env.REACT_APP_SERVER_URL}/usuarios/getallusuarios`
+    //   );
+    //   const json = await resp.json();
+    //   setUsuarios(json);
+    //   setDataSet(json);
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   const getAllCarreras = async () => {
-    try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
-      );
-      const json = await resp.json();
-      setCarreras(json);
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   const resp = await fetch(
+    //     `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
+    //   );
+    //   const json = await resp.json();
+    //   setCarreras(json);
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   const getAllMaterias = async () => {
-    try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/materias/getallmaterias`
-      );
-      const json = await resp.json();
-      setMaterias(json);
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   const resp = await fetch(
+    //     `${process.env.REACT_APP_SERVER_URL}/materias/getallmaterias`
+    //   );
+    //   const json = await resp.json();
+    //   setMaterias(json);
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   useEffect(() => {
@@ -165,11 +165,11 @@ const CRUDusuarios = () => {
     searchValue == ""
       ? setDataSet(usuarios)
       : setDataSet(
-          usuarios.filter(
-            (e) =>
-              e.email.includes(searchValue) || e.nombre.includes(searchValue)
-          )
-        );
+        usuarios.filter(
+          (e) =>
+            e.email.includes(searchValue) || e.nombre.includes(searchValue)
+        )
+      );
   }, [searchValue]);
 
   return (

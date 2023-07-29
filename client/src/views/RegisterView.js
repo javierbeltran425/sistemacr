@@ -1,30 +1,30 @@
-import React, { useEffect } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Layout from "../components/layout/Layout";
-import ContextUsuario from "../context/ContextUsuario";
-import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
-import { ListItem } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-import EmailIcon from "@mui/icons-material/Email";
-import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import { changePassword, activateUser } from "../services/UsuariosServices";
+import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import { getUsuarioById } from "../services/UsuariosServices";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import ContextUsuario from "../context/ContextUsuario";
+import ListItemText from "@mui/material/ListItemText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Typography from "@mui/material/Typography";
+import EmailIcon from "@mui/icons-material/Email";
+import Layout from "../components/layout/Layout";
+import { Password } from "primereact/password";
+import { useNavigate } from "react-router-dom";
+import { styled } from "@mui/material/styles";
+import Dialog from "@mui/material/Dialog";
+import Button from "@mui/material/Button";
+import { useCookies } from "react-cookie";
+import React, { useEffect } from "react";
+import { ListItem } from "@mui/material";
+import { Toast } from "primereact/toast";
 import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import { getUsuarioById } from "../services/UsuariosServices";
-import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
-import { changePassword, activateUser } from "../services/UsuariosServices";
-import { Password } from "primereact/password";
-import { Toast } from "primereact/toast";
-import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
 
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -74,10 +74,7 @@ export default function RegisterView() {
   const getUsuario = async (id_usuario) => {
     try {
       const response = await getUsuarioById(id_usuario);
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
+
       if (response.status == 200) {
         setUsuario(response.data[0]);
         contextUsuario.setActivo(response.data[0].activo)
@@ -102,12 +99,7 @@ export default function RegisterView() {
         oldPassword: oldPass,
         newPassword: newPass,
       };
-      console.log(data);
       const response = await changePassword(data);
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
       if (response.status == 200) {
         showSuccess();
         handleClose();
@@ -122,10 +114,6 @@ export default function RegisterView() {
   const getSecciones = async (id_usuario) => {
     try {
       const response = await getSeccionesByIdUsuario(id_usuario);
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
       if (response.status == 200) {
         setSecciones(response.data);
       }
@@ -137,10 +125,6 @@ export default function RegisterView() {
   const ActivateUser = async (id_usuario) => {
     try {
       const response = await activateUser(id_usuario);
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
       if (response.status == 200) {
         contextUsuario.setActivo(true)
         setCookie("act", true)

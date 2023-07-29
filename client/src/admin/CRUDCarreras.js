@@ -96,16 +96,16 @@ const CRUDcarreras = () => {
   };
 
   const getAllCarreras = async () => {
-    try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
-      );
-      const json = await resp.json();
-      setCarreras(json);
-      setDataSet(json);
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   const resp = await fetch(
+    //     `${process.env.REACT_APP_SERVER_URL}/carreras/getallcarreras`
+    //   );
+    //   const json = await resp.json();
+    //   setCarreras(json);
+    //   setDataSet(json);
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   useEffect(() => {
@@ -131,12 +131,12 @@ const CRUDcarreras = () => {
     searchValue == ""
       ? setDataSet(carreras)
       : setDataSet(
-          carreras.filter(
-            (e) =>
-              e.id_carrera.includes(searchValue) ||
-              e.nombre.includes(searchValue)
-          )
-        );
+        carreras.filter(
+          (e) =>
+            e.id_carrera.includes(searchValue) ||
+            e.nombre.includes(searchValue)
+        )
+      );
   }, [searchValue]);
 
   return (

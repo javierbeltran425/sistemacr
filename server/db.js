@@ -17,7 +17,7 @@ let dbConfig = {
 };
 
 if (process.env.NODE_ENV == "production") {
-  dbConfig.connection.host = process.env.DB_ADDRESS;
+  // dbConfig.connection.host = process.env.DB_ADDRESS;
 } else {
   dbConfig.connection.host = process.env.DB_HOST;
   dbConfig.connection.port = process.env.DB_PORT;

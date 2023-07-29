@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
-import ContextUsuario from "../context/ContextUsuario";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -8,17 +7,14 @@ import Layout from "../components/layout/Layout";
 import CalendarStudent from "../components/CalendarStudent";
 import CalendarTeacher from "../components/CalendarTeacher";
 
-//prime components
-import { Dropdown } from "primereact/dropdown";
-
 //constants
 import "../constants/usuario";
-import { USUARIO_ROLES } from "../constants/usuario";
+
+import { getRolByID } from "../services/UsuariosServices";
 
 const HomePage = () => {
   const [rol, setRol] = useState("")
 
-  const usuario = useContext(ContextUsuario);
   const navigate = useNavigate();
   const [cookies] = useCookies(null);
 
@@ -29,12 +25,10 @@ const HomePage = () => {
 
   const getRol = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${cookies.id_usuario}`
-      );
-      const json = await resp.json();
+      const response = await getRolByID(cookies.id_usuario, cookies.authToken)
 
-      setRol(json[0].rol)
+      if (response.status === 200) setRol(response.data[0].rol)
+
     } catch (error) {
       console.error(error);
     }
