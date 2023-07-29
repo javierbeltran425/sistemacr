@@ -10,6 +10,7 @@ const basePath = env.BASE_PATH;
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 //app.use(basePath, express.static(path.join(__dirname, "public")));
@@ -58,5 +59,7 @@ app.use(basePath, secciones_routes);
 // NOTIFICACIONES
 
 app.use(basePath, notificaciones_routes);
+
+app.use(errorHandler);
 
 app.listen(nodePort, () => console.log(`Server running on PORT ${nodePort}`));

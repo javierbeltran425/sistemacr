@@ -6,11 +6,9 @@ import Modal from "@mui/material/Modal";
 import FormControl from "@mui/material/FormControl";
 import PropTypes from "prop-types";
 import { InputText } from "primereact/inputtext";
-import { cleanEnv, url } from "envalid";
+import { useCookies } from "react-cookie";
 
-const serverUrl = cleanEnv(process.env, {
-  REACT_APP_SERVER_URL: url(),
-}).REACT_APP_SERVER_URL;
+import { createCarrera, editCarrera } from "../services/CarrerasServices";
 
 const ModalCarreras = ({
   mode,
@@ -28,39 +26,33 @@ const ModalCarreras = ({
     facultad: editMode ? carreraToEdit.facultad : "",
   });
 
-  const createCarrera = async (e) => {
+  const [cookies] = useCookies(null);
+
+  const CreateCarrera = async (e) => {
     e.preventDefault();
     try {
-      const resp = await fetch(`${serverUrl}/carreras/createcarrera`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newCarrera),
-      });
-      if (resp.status === 200) {
-        console.log("Ok!");
+      const response = await createCarrera(newCarrera, cookies.authToken);
+
+      if (response.status === 200) {
         getAllCarreras();
         handleClose();
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
-  const editCarrera = async (e) => {
+  const EditCarrera = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${serverUrl}/carreras/editcarrera`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newCarrera),
-      });
+      const response = await editCarrera(newCarrera, cookies.authToken);
+
       if (response.status === 200) {
-        console.log("Ok!");
         getAllCarreras();
         handleClose();
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
@@ -143,7 +135,7 @@ const ModalCarreras = ({
             <FormControl fullWidth sx={{ my: 2 }}>
               <Button
                 type="submit"
-                onClick={editMode ? editCarrera : createCarrera}
+                onClick={editMode ? EditCarrera : CreateCarrera}
                 sx={{ mx: "auto" }}
                 variant="outlined"
               >

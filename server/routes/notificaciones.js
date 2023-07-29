@@ -3,14 +3,14 @@ const router = express.Router();
 
 const notificaciones = require("../controllers/notificaciones");
 
-const Authenticate = require('./authenticator');
+const Authenticate = require("../middleware/authenticator");
 
-router.post("/notificaciones/envia/", Authenticate, (req, res) => {
-  notificaciones.mailer(req, res);
-});
+router.post("/notificaciones/envia/", notificaciones.mailer);
 
-router.post("/notificaciones/whatsapp/", Authenticate, (req, res) => {
-  notificaciones.whatsappMail(req, res);
-});
+router.post(
+  "/notificaciones/whatsapp/",
+  Authenticate,
+  notificaciones.whatsappMail
+);
 
 module.exports = router;

@@ -3,26 +3,25 @@ const router = express.Router();
 
 const carreras = require("../controllers/carreras");
 
-const Authenticate = require('./authenticator');
+const Authenticate = require("../middleware/authenticator");
 
-router.get("/carreras/getallcarreras", Authenticate, (req, res) => {
-  carreras.getAllCarreras(req, res);
-});
+router.get("/carreras/getallcarreras", Authenticate, carreras.getAllCarreras);
 
-router.get("/carreras/getcarrerasbyidmateria/:id_materia", Authenticate, (req, res) => {
-  carreras.getCarrerasByIdMateria(req, res);
-});
+router.get(
+  "/carreras/getcarrerasbyidmateria/:id_materia",
+  Authenticate,
+  carreras.getCarrerasByIdMateria
+);
 
-router.post("/carreras/createcarrera", Authenticate, (req, res) => {
-  carreras.createCarrera(req, res);
-});
+router.post("/carreras/createcarrera", Authenticate, carreras.createCarrera);
 
-router.delete("/carreras/removecarrerabyid/:id_carrera", Authenticate, (req, res) => {
-  carreras.removeCarreraById(req, res);
-});
+router.delete(
+  "/carreras/removecarrerabyid/:id_carrera",
+  Authenticate,
 
-router.put("/carreras/editcarrera", Authenticate, (req, res) => {
-  carreras.editCarrera(req, res);
-});
+  carreras.removeCarreraById
+);
+
+router.put("/carreras/editcarrera", Authenticate, carreras.editCarrera);
 
 module.exports = router;

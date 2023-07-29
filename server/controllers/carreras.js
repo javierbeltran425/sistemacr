@@ -1,4 +1,6 @@
+const { httpCodes } = require("../constants/httpCodes");
 const knex = require("../db");
+const { errorDetails } = require("../utils/errorDetails");
 
 const getAllCarreras = async function (req, res) {
   try {
@@ -28,7 +30,7 @@ const getCarrerasByIdMateria = async function (req, res) {
   }
 };
 
-const createCarrera = async function (req, res) {
+const createCarrera = async function (req, res, next) {
   const { id_carrera, nombre, facultad } = req.body;
 
   try {
@@ -40,8 +42,13 @@ const createCarrera = async function (req, res) {
 
     res.json(newCarrera);
   } catch (error) {
-    res.status(400).send(error);
-    console.error(error);
+    next(
+      errorDetails(
+        error,
+        httpCodes.BAD_REQUEST,
+        "Ya existe una carrera con el mismo ID."
+      )
+    );
   }
 };
 

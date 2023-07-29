@@ -3,46 +3,46 @@ const router = express.Router();
 
 const usuarios = require("../controllers/usuarios");
 
-const Authenticate = require('./authenticator');
+const Authenticate = require("../middleware/authenticator");
 
-router.get("/usuarios/getallusuarios", Authenticate, (req, res) => {
-  usuarios.getAllUsuarios(req, res);
-});
+router.get("/usuarios/getallusuarios", Authenticate, usuarios.getAllUsuarios);
 
-router.get("/usuarios/getusuariobyid/:id_usuario", Authenticate, (req, res) => {
-  usuarios.getUsuarioById(req, res);
-});
+router.get(
+  "/usuarios/getusuariobyid/:id_usuario",
+  Authenticate,
+  usuarios.getUsuarioById
+);
 
-router.get("/usuarios/getrolbyid/:id_usuario", Authenticate, (req, res) => {
-  usuarios.getRolById(req, res);
-});
+router.get(
+  "/usuarios/getrolbyid/:id_usuario",
+  Authenticate,
+  usuarios.getRolById
+);
 
-router.post("/usuarios/createusuario", Authenticate, (req, res) => {
-  usuarios.createUsuario(req, res);
-});
+router.post("/usuarios/createusuario", Authenticate, usuarios.createUsuario);
 
-router.post("/usuarios/bulkcreateusuario", Authenticate, (req, res) => {
-  usuarios.bulkCreateUsuario(req, res);
-});
+router.post(
+  "/usuarios/bulkcreateusuario",
+  Authenticate,
+  usuarios.bulkCreateUsuario
+);
 
-router.put("/usuarios/editusuario", Authenticate, (req, res) => {
-  usuarios.editUsuario(req, res);
-});
+router.put("/usuarios/editusuario", Authenticate, usuarios.editUsuario);
 
-router.put("/usuarios/changepassword", Authenticate, (req, res) => {
-  usuarios.changePassword(req, res);
-});
+router.put("/usuarios/changepassword", Authenticate, usuarios.changePassword);
 
-router.put("/usuarios/activateuser/:id_usuario", Authenticate, (req, res) => {
-  usuarios.activateUser(req, res);
-});
+router.put(
+  "/usuarios/activateuser/:id_usuario",
+  Authenticate,
+  usuarios.activateUser
+);
 
-router.delete("/usuarios/removeusuariobyid/:id_usuario", Authenticate, (req, res) => {
-  usuarios.removeUsuarioById(req, res);
-});
+router.delete(
+  "/usuarios/removeusuariobyid/:id_usuario",
+  Authenticate,
+  usuarios.removeUsuarioById
+);
 
-router.post("/usuarios/usuarioinfo", Authenticate, (req, res) => {
-  usuarios.getUsuarioInfo(req, res);
-});
+router.post("/usuarios/usuarioinfo", Authenticate, usuarios.getUsuarioInfo);
 
 module.exports = router;
