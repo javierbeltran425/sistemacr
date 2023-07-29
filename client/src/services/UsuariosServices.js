@@ -5,12 +5,22 @@ const serverUrl = cleanEnv(process.env, {
   REACT_APP_SERVER_URL: url(),
 }).REACT_APP_SERVER_URL;
 
-export const getUsuarioById = async (id_usuario, authToken) => {
-
+export const getUsuarios = async (authToken) => {
   return axios({
     headers: {
-      'Content-Type': 'application/json ',
-      'Authorization': authToken
+      "Content-Type": "application/json ",
+      Authorization: authToken,
+    },
+    method: "GET",
+    url: `${serverUrl}/usuarios/getallusuarios`,
+  });
+};
+
+export const getUsuarioById = async (id_usuario, authToken) => {
+  return axios({
+    headers: {
+      "Content-Type": "application/json ",
+      Authorization: authToken,
     },
     method: "GET",
     url: `${serverUrl}/usuarios/getusuariobyid/${id_usuario}`,
@@ -18,11 +28,10 @@ export const getUsuarioById = async (id_usuario, authToken) => {
 };
 
 export const getInfoUsuario = async (data, authToken) => {
-
   return axios({
     headers: {
-      'Content-Type': 'application/json ',
-      'Authorization': authToken
+      "Content-Type": "application/json ",
+      Authorization: authToken,
     },
     method: "POST",
     url: `${serverUrl}/usuarios/usuarioinfo`,
@@ -31,23 +40,33 @@ export const getInfoUsuario = async (data, authToken) => {
 };
 
 export const getRolByID = async (id_usuario, authToken) => {
-
   return axios({
     headers: {
-      'Content-Type': 'application/json ',
-      'Authorization': authToken
+      "Content-Type": "application/json ",
+      Authorization: authToken,
     },
     method: "GET",
     url: `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${id_usuario}`,
   });
 };
 
-export const changePassword = async (data, authToken) => {
-
+export const CreateUsuario = async (data, authToken) => {
   return axios({
     headers: {
-      'Content-Type': 'application/json ',
-      'Authorization': authToken
+      "Content-Type": "application/json ",
+      Authorization: authToken,
+    },
+    method: "POST",
+    url: `${serverUrl}/usuarios/createusuario`,
+    data,
+  });
+};
+
+export const changePassword = async (data, authToken) => {
+  return axios({
+    headers: {
+      "Content-Type": "application/json ",
+      Authorization: authToken,
     },
     method: "PUT",
     url: `${serverUrl}/usuarios/changepassword`,
@@ -56,13 +75,23 @@ export const changePassword = async (data, authToken) => {
 };
 
 export const activateUser = async (id_usuario, authToken) => {
-
   return axios({
     headers: {
-      'Content-Type': 'application/json ',
-      'Authorization': authToken
+      "Content-Type": "application/json ",
+      Authorization: authToken,
     },
     method: "PUT",
     url: `${serverUrl}/usuarios/activateuser/${id_usuario}`,
+  });
+};
+
+export const deleteUsuario = async (id_usuario, authToken) => {
+  return axios({
+    headers: {
+      "Content-Type": "application/json ",
+      Authorization: authToken,
+    },
+    method: "DELETE",
+    url: `${serverUrl}/usuarios/removeusuariobyid/${id_usuario}`,
   });
 };

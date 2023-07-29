@@ -17,7 +17,10 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Chip from "@mui/material/Chip";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
+import { useCookies } from "react-cookie";
 import { cleanEnv, url } from "envalid";
+
+import { CreateUsuario } from "../services/UsuariosServices";
 
 const serverUrl = cleanEnv(process.env, {
   REACT_APP_SERVER_URL: url(),
@@ -45,8 +48,10 @@ const ModalUsuarios = ({
   });
   const [newMaterias, setNewMaterias] = useState([]);
 
+  const [cookies] = useCookies(null);
+
   const createUsuario = async (e) => {
-    e.preventDefault();
+    /*
     try {
       let data = newUsuario;
       data.materias = newMaterias;
@@ -65,6 +70,19 @@ const ModalUsuarios = ({
       }
     } catch (error) {
       console.error(error);
+    }
+    */
+    try {
+      let data = newUsuario;
+      data.materias = newMaterias;
+      const response = await CreateUsuario(data, cookies.authToken);
+
+      if (response.status === 200) {
+        getAllUsuarios();
+        handleClose();
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

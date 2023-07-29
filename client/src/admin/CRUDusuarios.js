@@ -17,7 +17,11 @@ import "../constants/usuario";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
 import { styled } from "@mui/material/styles";
+import { useCookies } from "react-cookie";
 import { cleanEnv, url } from "envalid";
+
+import { getUsuarios, deleteUsuario } from "../services/UsuariosServices";
+import { getMaterias } from "../services/MateriasServices";
 
 const serverUrl = cleanEnv(process.env, {
   REACT_APP_SERVER_URL: url(),
@@ -83,20 +87,16 @@ const CRUDusuarios = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState("");
 
+  const [cookies] = useCookies(null);
+
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
   const removeUsuarioById = async (id_usuario) => {
     if (window.confirm("Estás seguro que quieres eliminar este usuario?")) {
       try {
-        const resp = await fetch(
-          `${serverUrl}/usuarios/removeusuariobyid/${id_usuario}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (resp.status == 200) {
-          console.log("Ok!");
+        const response = await deleteUsuario(id_usuario, cookies.authToken);
+        if (response.status === 200) {
           getAllUsuarios();
         }
       } catch (error) {
@@ -106,16 +106,16 @@ const CRUDusuarios = () => {
   };
 
   const getAllUsuarios = async () => {
-    // try {
-    //   const resp = await fetch(
-    //     `${process.env.REACT_APP_SERVER_URL}/usuarios/getallusuarios`
-    //   );
-    //   const json = await resp.json();
-    //   setUsuarios(json);
-    //   setDataSet(json);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    try {
+      const response = await getUsuarios(cookies.authToken);
+
+      if (response.status === 200) {
+        setUsuarios(response.data);
+        setDataSet(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const getAllCarreras = async () => {
@@ -131,15 +131,15 @@ const CRUDusuarios = () => {
   };
 
   const getAllMaterias = async () => {
-    // try {
-    //   const resp = await fetch(
-    //     `${process.env.REACT_APP_SERVER_URL}/materias/getallmaterias`
-    //   );
-    //   const json = await resp.json();
-    //   setMaterias(json);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    try {
+      const response = await getMaterias(cookies.authToken);
+
+      if (response.status === 200) {
+        setMaterias(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -170,11 +170,11 @@ const CRUDusuarios = () => {
     searchValue == ""
       ? setDataSet(usuarios)
       : setDataSet(
-        usuarios.filter(
-          (e) =>
-            e.email.includes(searchValue) || e.nombre.includes(searchValue)
-        )
-      );
+          usuarios.filter(
+            (e) =>
+              e.email.includes(searchValue) || e.nombre.includes(searchValue)
+          )
+        );
   }, [searchValue]);
 
   return (
