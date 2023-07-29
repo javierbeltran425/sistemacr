@@ -18,7 +18,7 @@ import InputBase from "@mui/material/InputBase";
 import { styled } from "@mui/material/styles";
 import { useCookies } from "react-cookie";
 
-import { getCarreras } from "../services/CarrerasServices";
+import { getCarreras, removeCarreraID } from "../services/CarrerasServices";
 
 import { cleanEnv, url } from "envalid";
 
@@ -90,16 +90,12 @@ const CRUDcarreras = () => {
   const removeCarreraById = async (id_carrera) => {
     if (window.confirm("Estás seguro que quieres eliminar esta carrera?")) {
       try {
-        const resp = await fetch(
-          `${serverUrl}/carreras/removecarrerabyid/${id_carrera}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (resp.status == 200) {
-          console.log("Ok!");
+        const response = await removeCarreraID(id_carrera, cookies.authToken)
+
+        if (response.status === 200) {
           getAllCarreras();
         }
+
       } catch (error) {
         console.log(error);
       }

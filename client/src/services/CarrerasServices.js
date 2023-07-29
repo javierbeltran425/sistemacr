@@ -16,3 +16,15 @@ export const getCarreras = async (authToken) => {
         url: `${serverUrl}/carreras/getallcarreras`,
     });
 };
+
+export const removeCarreraID = async (id_carrera, authToken) => {
+
+    return axios({
+        headers: {
+            'Content-Type': 'application/json ',
+            'Authorization': authToken
+        },
+        method: "DELETE",
+        url: `${serverUrl}/carreras/removecarrerabyid/${id_carrera}`,
+    });
+};

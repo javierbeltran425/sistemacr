@@ -9,6 +9,7 @@ import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 
 import { getRolByID } from "../services/UsuariosServices";
+import { login } from "../services/AuthServices";
 
 import ContextUsuario from "../context/ContextUsuario";
 
@@ -23,20 +24,22 @@ const Login = () => {
 
   const contextUsuario = useContext(ContextUsuario)
 
-  const handleSubmit = async (e, endpoint) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true)
 
-    const response = await fetch(
-      `${process.env.REACT_APP_SERVER_URL}/${endpoint}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      }
-    );
+    const body = {
+      email: email,
+      password: password
+    }
+    const response = await login(body)
 
-    const data = await response.json();
+    let data = null
+
+    if (response.status === 200) {
+      data = response.data
+    }
+
 
     if (data.error) {
       setError(data.error);
@@ -109,7 +112,7 @@ const Login = () => {
               label={"Iniciar sesión"}
               onClick={(e) => {
                 e.preventDefault();
-                handleSubmit(e, "auth/login");
+                handleSubmit(e);
               }}
             />
 

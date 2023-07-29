@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 
 // componentes
 import DataHistoryTable from "../components/DataHistoryTable";
@@ -20,6 +21,8 @@ const HistoryView = () => {
   const [contAtendidas, setContAtendidas] = useState(0);
   const [contPendientes, setContPendientes] = useState(0);
   const [contRechazadas, setcontRechazadas] = useState(0);
+
+  const [cookies] = useCookies(null)
 
   useEffect(() => {
     obtieneDatosReporte();
@@ -57,47 +60,35 @@ const HistoryView = () => {
 
   const obtieneDatosReporte = async () => {
     try {
-      const response = await getReporte().catch((err) => {
+      const response = await getReporte(cookies.authToken).catch((err) => {
         console.log(err);
       });
-      console.log(
-        "🚀 ~ file: History.js:20 ~ response ~ obtieneDatosReporte:",
-        response
-      );
 
       let history = response.data;
-      let usersInfoData = [];
 
       for (let i = 0; i < history.length; i++) {
         const bodyUsuario = {
           id_usuario: history[i].id_usuario,
         };
-        const response2 = await getInfoUsuario(bodyUsuario);
-        console.log(
-          "🚀 ~ file: HistoryView.js:36 ~ obtieneDatosReporte ~ response2:",
-          response2
-        );
+        const response2 = await getInfoUsuario(bodyUsuario, cookies.authToken);
 
         if (response2.status === 200) {
           history[i].nombreAlumno = response2.data[0].nombre;
           history[i].correoAlumno = response2.data[0].email;
         }
 
-        const response3 = await getMateriaById(history[i].id_materia);
-        console.log("🚀 ~ file: HistoryView.js:89 ~ obtieneDatosReporte ~ response3:", response3)
+        const response3 = await getMateriaById(history[i].id_materia, cookies.authToken);
 
         if (response3.status === 200) {
           history[i].nombreMateria = response3.data[0].nombre;
         }
 
-        const response4 = await getSeccionById(history[i].id_seccion);
-        console.log("🚀 ~ file: HistoryView.js:93 ~ obtieneDatosReporte ~ response4:", response4)
+        const response4 = await getSeccionById(history[i].id_seccion, cookies.authToken);
 
         if (response.status === 200) {
           history[i].seccion = response4.data[0].numero
         }
 
-        console.log("log de history: ", history);
       }
 
       setHistoryData(response.data);
