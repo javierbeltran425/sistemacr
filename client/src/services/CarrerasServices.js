@@ -6,11 +6,10 @@ const serverUrl = cleanEnv(process.env, {
 }).REACT_APP_SERVER_URL;
 
 export const getCarreras = async (authToken) => {
-
     return axios({
         headers: {
-            'Content-Type': 'application/json ',
-            'Authorization': authToken
+            "Content-Type": "application/json ",
+            Authorization: authToken,
         },
         method: "GET",
         url: `${serverUrl}/carreras/getallcarreras`,
@@ -26,5 +25,16 @@ export const removeCarreraID = async (id_carrera, authToken) => {
         },
         method: "DELETE",
         url: `${serverUrl}/carreras/removecarrerabyid/${id_carrera}`,
+    });
+};
+
+export const getCarrerasByIdMateria = async (id_materia, authToken) => {
+    return axios({
+        headers: {
+            "Content-Type": "application/json ",
+            Authorization: authToken,
+        },
+        method: "GET",
+        url: `${serverUrl}/carreras/getcarrerasbyidmateria/${id_materia}`,
     });
 };
