@@ -1,7 +1,11 @@
 const knex = require("../db");
 const nodemailer = require("nodemailer");
 const { tryCatch } = require("../utils/tryCatch");
-const { error } = require("qrcode-terminal");
+const { cleanEnv, str } = require("envalid");
+const env = cleanEnv(process.env, {
+  NODEM_USER: str(),
+  NODEM_PASSWORD: str(),
+});
 
 const mailer = tryCatch(async function (req, res) {
   let testAccount = await nodemailer.createTestAccount();
@@ -12,14 +16,14 @@ const mailer = tryCatch(async function (req, res) {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: `${process.env.NODEM_USER}`, // generated ethereal user
-      pass: `${process.env.NODEM_PASSWORD}`, // generated ethereal password
+      user: `${env.NODEM_USER}`, // generated ethereal user
+      pass: `${env.NODEM_PASSWORD}`, // generated ethereal password
     },
   });
 
   // send mail with defined transport object
   let info = await transporter.sendMail({
-    from: `${process.env.NODEM_USER}`, // sender address
+    from: `${env.NODEM_USER}`, // sender address
     to: `${req.body.sendemail}`, // list of receivers
     subject: "Mensaje del sistema de solicitudes DEI", // Subject line
     html: `${req.body.emailcontent}`, // html body

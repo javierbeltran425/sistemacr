@@ -46,7 +46,7 @@ export const getRolByID = async (id_usuario, authToken) => {
       Authorization: authToken,
     },
     method: "GET",
-    url: `${process.env.REACT_APP_SERVER_URL}/usuarios/getrolbyid/${id_usuario}`,
+    url: `${serverUrl}/usuarios/getrolbyid/${id_usuario}`,
   });
 };
 
