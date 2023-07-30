@@ -155,6 +155,7 @@ function Upload() {
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         alert("Error: ", error);

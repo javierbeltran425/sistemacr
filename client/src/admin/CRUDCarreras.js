@@ -121,6 +121,7 @@ const CRUDcarreras = () => {
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         alert("Ha ocurrido un error al obtener la lista de carreras.");

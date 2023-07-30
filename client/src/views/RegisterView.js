@@ -83,7 +83,7 @@ export default function RegisterView() {
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
-
+        window.location.reload()
       } else {
         alert("Ha ocurrido un error inesperado");
       }
@@ -121,6 +121,7 @@ export default function RegisterView() {
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         setError(error.response.data.error);
@@ -142,6 +143,7 @@ export default function RegisterView() {
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         alert("Ha ocurrido un error inesperado", error.response.status);
@@ -165,6 +167,7 @@ export default function RegisterView() {
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         alert("Ha ocurrido un error inesperado");

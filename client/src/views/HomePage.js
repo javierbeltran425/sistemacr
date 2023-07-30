@@ -38,6 +38,7 @@ const HomePage = () => {
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         alert("Ha ocurrido un error inesperado.");

@@ -102,6 +102,7 @@ const ModalUsuarios = ({
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         handleOpenSnack(error);
@@ -131,6 +132,7 @@ const ModalUsuarios = ({
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         handleOpenSnack(error);
@@ -177,6 +179,7 @@ const ModalUsuarios = ({
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         handleOpenSnack(error);

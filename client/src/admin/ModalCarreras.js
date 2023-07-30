@@ -73,6 +73,7 @@ const ModalCarreras = ({
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         handleOpenSnack(error);
@@ -101,6 +102,7 @@ const ModalCarreras = ({
         removeCookie("nombre");
         removeCookie("act");
         navigate("/");
+        window.location.reload()
 
       } else {
         handleOpenSnack(error);
