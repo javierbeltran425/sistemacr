@@ -8,6 +8,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import InputBase from "@mui/material/InputBase";
+import { useNavigate } from "react-router-dom";
 import TableRow from "@mui/material/TableRow";
 import { styled } from "@mui/material/styles";
 import ModalMaterias from "./ModalMaterias";
@@ -81,7 +82,8 @@ const CRUDmaterias = () => {
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
-  const [cookies] = useCookies(null);
+  const navigate = useNavigate()
+  const [cookies, removeCookie] = useCookies(null);
 
   const removeMateriaById = async (id_materia) => {
     if (window.confirm("Estás seguro que quieres eliminar esta materia?")) {
@@ -92,7 +94,17 @@ const CRUDmaterias = () => {
           getAllMaterias();
         }
       } catch (error) {
-        console.log(error);
+        if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+          removeCookie("id_usuario");
+          removeCookie("email");
+          removeCookie("authToken");
+          removeCookie("nombre");
+          removeCookie("act");
+          navigate("/");
+
+        } else {
+          alert("Ha ocurrido un error inesperado.");
+        }
       }
     }
   };
@@ -106,7 +118,17 @@ const CRUDmaterias = () => {
         setDataSet(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -125,7 +147,17 @@ const CRUDmaterias = () => {
         }
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 

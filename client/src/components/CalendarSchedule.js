@@ -20,6 +20,7 @@ import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
 import { Toast } from "primereact/toast";
 import Stack from "@mui/material/Stack";
+import Cookies from "universal-cookie";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -29,7 +30,6 @@ import moment from "moment";
 import React from "react";
 import "moment/locale/es";
 import "moment-timezone";
-import Cookies from "universal-cookie";
 
 // servicios
 import {
@@ -100,10 +100,9 @@ class CalendarAlt extends React.Component {
   getSeccionesByIdUsuario = async () => {
     try {
       const response = await getSeccionesByIdUsuario(
-        cookies.get("id_usuario")
-      ).catch((err) => {
-        console.error(err);
-      });
+        cookies.get("id_usuario"),
+        cookies.get("authToken")
+      )
       if (response.status === 200) {
         this.setState({ secciones: response.data });
         if (response.data)
@@ -112,17 +111,25 @@ class CalendarAlt extends React.Component {
           });
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
   getHorariosUsuario = async () => {
     try {
       const response = await getHorariosByIdUsuario(
-        cookies.get("id_usuario")
-      ).catch((err) => {
-        console.error(err);
-      });
+        cookies.get("id_usuario"),
+        cookies.get("authToken")
+      )
 
       if (response.status === 200) {
         const json = response.data;
@@ -135,7 +142,16 @@ class CalendarAlt extends React.Component {
         this.setState({ events: json });
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -224,9 +240,7 @@ class CalendarAlt extends React.Component {
           end: endDate,
         };
 
-        const response = await registrarHorario(data).catch((err) => {
-          console.error(err);
-        });
+        const response = await registrarHorario(data, cookies.get("authToken"))
 
         if (response.status === 200) {
           this.showSuccess("El evento ha sido registrado con éxito");
@@ -235,7 +249,16 @@ class CalendarAlt extends React.Component {
         }
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
     this.getHorariosUsuario();
   }
@@ -258,9 +281,19 @@ class CalendarAlt extends React.Component {
   //  filters out specific event that is to be deleted and set that variable to state
   async deleteEvent() {
     const response = await deleteHorariosUsuarioMateria(
-      this.state.identificador
+      this.state.identificador,
+      cookies.get("authToken")
     ).catch((err) => {
-      console.error(err);
+      if (err.response && (error.response.status === 400 || err.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     });
 
     if (response.status == 200) {

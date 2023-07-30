@@ -38,8 +38,9 @@ const Header = () => {
     removeCookie("email");
     removeCookie("authToken");
     removeCookie("nombre");
+    removeCookie("act");
     navigate("/");
-    window.location.reload();
+
   };
 
   const getRol = async () => {
@@ -49,12 +50,15 @@ const Header = () => {
 
       if (response.status === 200) setRol(response.data[0].rol)
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        signOut()
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
   const tituloHeader = () => {
-    const location = window.location.hash;
 
     switch (rol) {
       case "estudiante":

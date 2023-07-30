@@ -17,10 +17,10 @@ const HomePage = () => {
   const [rol, setRol] = useState("")
 
   const navigate = useNavigate();
-  const [cookies] = useCookies(null);
+  const [cookies, removeCookie] = useCookies(null);
 
   useEffect(() => {
-    cookies.id_usuario === "" && navigate('/')
+
     getRol()
   }, [])
 
@@ -31,7 +31,17 @@ const HomePage = () => {
       if (response.status === 200) setRol(response.data[0].rol)
 
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 

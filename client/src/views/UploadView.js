@@ -1,29 +1,22 @@
-import React, { useMemo, useState, useEffect, useContext } from "react";
+import React, { useMemo, useState } from "react";
+import Layout from "../components/layout/Layout";
+import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import Table from "../components/Table";
-import "../styles/Table.css";
-import Layout from "../components/layout/Layout";
 import { csv } from "csvtojson";
+import "../styles/Table.css";
 const XLSX = require('xlsx');
 
-import ContextUsuario from "../context/ContextUsuario";
-
 function Upload() {
-  const contextUsuario = useContext(ContextUsuario)
-  const [data, setData] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState(undefined);
   const [currentFile, setCurrentFile] = useState(undefined);
+  const [cookies, removeCookie] = useCookies(null);
+  const [jsonArray, setJsonArray] = useState([]);
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
-  const [jsonArray, setJsonArray] = useState([]);
-  const [cookies] = useCookies(null);
+  const [data, setData] = useState([]);
+  const navigate = useNavigate()
 
   let files;
-  let enableButton = true;
-
-  useEffect(() => {
-    cookies.id_usuario === "" && navigate('/')
-  }, [])
 
   const columns = useMemo(
     () => [
@@ -116,7 +109,10 @@ function Upload() {
         `${process.env.REACT_APP_SERVER_URL}/usuarios/bulkcreateusuario`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: authToken,
+          },
           body: JSON.stringify(dataArr),
         }
       );
@@ -152,7 +148,17 @@ function Upload() {
 
 
     } catch (error) {
-      alert("Error: ", error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Error: ", error);
+      }
 
     }
   }

@@ -53,11 +53,7 @@ export default function RegisterView() {
   const [error, setError] = React.useState(null);
   const toast = React.useRef(null);
   const navigate = useNavigate();
-  const [cookies, setCookie] = useCookies(null);
-
-  useEffect(() => {
-    cookies.id_usuario === "" && navigate("/");
-  }, []);
+  const [cookies, setCookie, removeCookie] = useCookies(null);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -73,14 +69,24 @@ export default function RegisterView() {
 
   const getUsuario = async (id_usuario) => {
     try {
-      const response = await getUsuarioById(id_usuario);
+      const response = await getUsuarioById(id_usuario, cookies.authToken);
 
-      if (response.status == 200) {
+      if (response.status == 200 || response.status == 204) {
         setUsuario(response.data[0]);
         contextUsuario.setActivo(response.data[0].activo);
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado");
+      }
     }
   };
 
@@ -99,7 +105,7 @@ export default function RegisterView() {
         oldPassword: oldPass,
         newPassword: newPass,
       };
-      const response = await changePassword(data);
+      const response = await changePassword(data, cookies.authToken);
       if (response.status == 200) {
         showSuccess();
         handleClose();
@@ -107,31 +113,62 @@ export default function RegisterView() {
         setError(response.data.error);
       }
     } catch (error) {
-      setError(error.response.data.error);
+      console.log("🚀 ~ file: RegisterView.js:116 ~ ChangePassword ~ error:", error)
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        setError(error.response.data.error);
+      }
     }
   };
 
   const getSecciones = async (id_usuario) => {
     try {
-      const response = await getSeccionesByIdUsuario(id_usuario);
+      const response = await getSeccionesByIdUsuario(id_usuario, cookies.authToken);
       if (response.status == 200) {
         setSecciones(response.data);
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado", error.response.status);
+      }
     }
   };
 
   const ActivateUser = async (id_usuario) => {
     try {
-      const response = await activateUser(id_usuario);
+      const response = await activateUser(id_usuario, cookies.authToken);
       if (response.status == 200) {
         contextUsuario.setActivo(true);
         setCookie("act", true);
         navigate("/");
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado");
+      }
     }
   };
 
@@ -147,10 +184,6 @@ export default function RegisterView() {
   React.useEffect(() => {
     getUsuario(cookies.id_usuario);
     getSecciones(cookies.id_usuario);
-  }, []);
-
-  React.useEffect(() => {
-    cookies.id_usuario === "" && navigate("/login");
   }, []);
 
   return (

@@ -6,17 +6,18 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Typography from "@mui/material/Typography";
 import { InputText } from "primereact/inputtext";
+import { useNavigate } from "react-router-dom";
+import Snackbar from "@mui/material/Snackbar";
 import MenuItem from "@mui/material/MenuItem";
+import MuiAlert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
+import { useCookies } from "react-cookie";
 import Modal from "@mui/material/Modal";
+import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
-import { useCookies } from "react-cookie";
-import Stack from "@mui/material/Stack";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
 
 import { createMateria, editMateria } from "../services/MateriasServices";
 import { getCarrerasByIdMateria } from "../services/CarrerasServices";
@@ -41,7 +42,9 @@ const ModalMaterias = ({
     numsecciones: editMode ? materiaToEdit.numsecciones : 1,
     carreras: [],
   });
-  const [cookies] = useCookies(null);
+
+  const navigate = useNavigate()
+  const [cookies, removeCookie] = useCookies(null);
   const [idEmpty, setIdEmpty] = useState(false);
   const [nameEmpty, setNameEmpty] = useState(false);
 
@@ -73,7 +76,17 @@ const ModalMaterias = ({
         handleClose();
       }
     } catch (error) {
-      handleOpenSnack(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        handleOpenSnack(error);
+      }
     }
   };
 
@@ -90,7 +103,17 @@ const ModalMaterias = ({
         handleClose();
       }
     } catch (error) {
-      handleOpenSnack(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        handleOpenSnack(error);
+      }
     }
   };
 
@@ -134,7 +157,17 @@ const ModalMaterias = ({
         });
       }
     } catch (error) {
-      handleOpenSnack(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        handleOpenSnack(error);
+      }
     }
   };
 

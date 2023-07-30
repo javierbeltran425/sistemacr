@@ -129,10 +129,9 @@ class CalendarAlt extends React.Component {
   getSeccionesByIdUsuario = async () => {
     try {
       const response = await getSeccionesByIdUsuario(
-        cookies.get("id_usuario")
-      ).catch((err) => {
-        console.error(err);
-      });
+        cookies.get("id_usuario"),
+        cookies.get("authToken")
+      )
 
       if (response.status === 200) {
         if (response.data) {
@@ -152,7 +151,16 @@ class CalendarAlt extends React.Component {
         }
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -161,10 +169,11 @@ class CalendarAlt extends React.Component {
 
       let response;
       if (this.state.seccionSeleccionada.id_seccion === -1) {
-        response = await getHorariosByIdUsuario(cookies.get("id_usuario"));
+        response = await getHorariosByIdUsuario(cookies.get("id_usuario"), cookies.get("authToken"));
       } else {
         response = await getHorariosByIdSeccion(
-          this.state.seccionSeleccionada.id_seccion
+          this.state.seccionSeleccionada.id_seccion,
+          cookies.get("authToken")
         );
       }
 
@@ -178,7 +187,16 @@ class CalendarAlt extends React.Component {
         this.setState({ backgroundEvents: json });
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -188,11 +206,11 @@ class CalendarAlt extends React.Component {
       if (this.state.seccionSeleccionada.id_seccion === -1) {
         response = await getSolicitudesUsuariosByIdSeccion({
           id_seccion: this.state.secciones.map((e) => e.id_seccion),
-        });
+        }, cookies.get("authToken"));
       } else {
         response = await getSolicitudesUsuariosByIdSeccion({
           id_seccion: [this.state.seccionSeleccionada.id_seccion],
-        });
+        }, cookies.get("authToken"));
       }
       if (response.status === 200) {
         const json = response.data;
@@ -207,7 +225,16 @@ class CalendarAlt extends React.Component {
         });
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -281,17 +308,31 @@ class CalendarAlt extends React.Component {
       start: start,
       end: end,
     };
-    const response = await editSolicitud(data).catch((err) => {
-      console.error(err);
-    });
 
-    if (response.status === 200) {
-      this.envioNotificacionModifica(email);
-      this.showSuccess("El evento ha sido actualizado con éxito");
-      this.getSolicitudes();
-    } else {
-      this.showError("Ha ocurrido un error al actualizar el evento");
+    try {
+      const response = await editSolicitud(data, cookies.get("authToken"))
+
+      if (response.status === 200) {
+        this.envioNotificacionModifica(email);
+        this.showSuccess("El evento ha sido actualizado con éxito");
+        this.getSolicitudes();
+      } else {
+        this.showError("Ha ocurrido un error al actualizar el evento");
+      }
+
+    } catch (error) {
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
+
   }
 
   envioNotificacionRechazo = async (email) => {
@@ -306,12 +347,19 @@ class CalendarAlt extends React.Component {
         `,
       };
 
-      const response = await EnviaNotificacione(body).catch((err) => {
-        console.error(err);
-      });
+      const response = await EnviaNotificacione(body, cookies.get("authToken"))
 
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -326,12 +374,19 @@ class CalendarAlt extends React.Component {
         `,
       };
 
-      const response = await EnviaNotificacione(body).catch((err) => {
-        console.error(err);
-      });
+      const response = await EnviaNotificacione(body, cookies.get("authToken"))
 
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -346,12 +401,19 @@ class CalendarAlt extends React.Component {
         `,
       };
 
-      const response = await EnviaNotificacione(body).catch((err) => {
-        console.error(err);
-      });
+      const response = await EnviaNotificacione(body, cookies.get("authToken"))
 
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -362,9 +424,7 @@ class CalendarAlt extends React.Component {
         estado: estado,
       };
 
-      const response = await actualizaEstadoSolicitud(body).catch((err) => {
-        console.error(err);
-      });
+      const response = await actualizaEstadoSolicitud(body, cookies.get("authToken"))
 
       if (response.status === 200) {
         this.showSuccess("La solicitud ha sido respondida");
@@ -385,13 +445,22 @@ class CalendarAlt extends React.Component {
         this.showError("Ha ocurrido un error al responder la solicitud");
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
   archivarSolicitud = async (id_solicitud) => {
     try {
-      const response = await archivarSolicitud(id_solicitud);
+      const response = await archivarSolicitud(id_solicitud, cookies.get("authToken"));
 
       if (response.status === 200) {
         this.showSuccess("La solicitud ha sido archivada");
@@ -400,7 +469,16 @@ class CalendarAlt extends React.Component {
         this.showError("Ha ocurrido un error al responder la solicitud");
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        cookies.remove("id_usuario");
+        cookies.remove("email");
+        cookies.remove("authToken");
+        cookies.remove("nombre");
+        cookies.remove("act");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 

@@ -15,7 +15,7 @@ import ContextUsuario from "../context/ContextUsuario";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [cookies, setCookie] = useCookies(null);
+  const [cookies, setCookie, removeCookie] = useCookies(null);
 
   const [loading, setLoading] = useState(false)
   const [password, setPassword] = useState("");
@@ -53,7 +53,7 @@ const Login = () => {
       contextUsuario.setId_usuario(data.id_usuario)
       contextUsuario.setEmail(data.email)
       contextUsuario.setActivo(data.activo)
-      getRol(data.id_usuario)
+      getRol(data.id_usuario, data.token)
 
       if (!data.activo)
         navigate('/register')
@@ -62,15 +62,15 @@ const Login = () => {
     setLoading(false)
   };
 
-  const getRol = async (idUsuario) => {
+  const getRol = async (idUsuario, token) => {
     try {
 
-      const response = await getRolByID(idUsuario, cookies.authToken)
+      const response = await getRolByID(idUsuario, token)
 
       if (response.status === 200) contextUsuario.setRol(response.data[0].rol)
 
     } catch (error) {
-      console.error(error);
+      alert("Ha ocurrido un error inesperado");
     }
   };
 

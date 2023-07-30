@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react";
-import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
+import TablePagination from "@mui/material/TablePagination";
+import TableContainer from "@mui/material/TableContainer";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
+import SearchIcon from "@mui/icons-material/Search";
+import React, { useEffect, useState } from "react";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import ModalCarreras from "./ModalCarreras";
-import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
+import { useNavigate } from "react-router-dom";
+import TableRow from "@mui/material/TableRow";
 import { styled } from "@mui/material/styles";
+import ModalCarreras from "./ModalCarreras";
 import { useCookies } from "react-cookie";
-
+import Button from "@mui/material/Button";
+import Table from "@mui/material/Table";
+import Paper from "@mui/material/Paper";
+import Card from "@mui/material/Card";
+import Box from "@mui/material/Box";
 import { getCarreras, removeCarreraID } from "../services/CarrerasServices";
 
 const Search = styled("div")(({ theme }) => ({
@@ -75,7 +75,8 @@ const CRUDcarreras = () => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = useState("");
 
-  const [cookies] = useCookies(null);
+  const navigate = useNavigate()
+  const [cookies, removeCookie] = useCookies(null);
 
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
@@ -89,7 +90,17 @@ const CRUDcarreras = () => {
           getAllCarreras();
         }
       } catch (error) {
-        console.log(error);
+        if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+          removeCookie("id_usuario");
+          removeCookie("email");
+          removeCookie("authToken");
+          removeCookie("nombre");
+          removeCookie("act");
+          navigate("/");
+
+        } else {
+          alert("Ha ocurrido un error al eliminar la carrera.");
+        }
       }
     }
   };
@@ -103,7 +114,17 @@ const CRUDcarreras = () => {
         setDataSet(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error al obtener la lista de carreras.");
+      }
     }
   };
 

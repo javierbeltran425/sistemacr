@@ -1,15 +1,16 @@
-import React, { useState } from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
 import FormControl from "@mui/material/FormControl";
-import PropTypes from "prop-types";
+import Typography from "@mui/material/Typography";
 import { InputText } from "primereact/inputtext";
-import { useCookies } from "react-cookie";
-import Stack from "@mui/material/Stack";
+import { useNavigate } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import { useCookies } from "react-cookie";
+import React, { useState } from "react";
+import Modal from "@mui/material/Modal";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import PropTypes from "prop-types";
 
 import { createCarrera, editCarrera } from "../services/CarrerasServices";
 
@@ -34,7 +35,8 @@ const ModalCarreras = ({
   const [idEmpty, setIdEmpty] = useState(false);
   const [nameEmpty, setNameEmpty] = useState(false);
 
-  const [cookies] = useCookies(null);
+  const navigate = useNavigate()
+  const [cookies, removeCookie] = useCookies(null);
 
   const [open, setOpen] = React.useState(false);
   const handleOpenSnack = (error) => {
@@ -64,7 +66,17 @@ const ModalCarreras = ({
         handleClose();
       }
     } catch (error) {
-      handleOpenSnack(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        handleOpenSnack(error);
+      }
     }
   };
 
@@ -82,7 +94,17 @@ const ModalCarreras = ({
         handleClose();
       }
     } catch (error) {
-      handleOpenSnack(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        handleOpenSnack(error);
+      }
     }
   };
 

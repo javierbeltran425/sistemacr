@@ -22,13 +22,11 @@ function TabPanel(props) {
   const { children, value, index, ...other } = props;
   const [rol, setRol] = useState("");
 
-  const [cookies] = useCookies(null)
+  const [cookies, removeCookie] = useCookies(null)
   const navigate = useNavigate();
 
-  const contextUsuario = React.useContext(ContextUsuario);
-
   useEffect(() => {
-    cookies.id_usuario === "" && navigate('/')
+
     getRol()
   }, [])
 
@@ -52,7 +50,17 @@ function TabPanel(props) {
       if (response.status === 200) setRol(response.data[0].rol)
 
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 

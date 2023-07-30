@@ -1,27 +1,28 @@
-import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
-import "../constants/usuario";
 import { USUARIO_ROLES_ARRAY } from "../constants/usuario";
-import DeleteIcon from "@mui/icons-material/Delete";
-import IconButton from "@mui/material/IconButton";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import PropTypes from "prop-types";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import Chip from "@mui/material/Chip";
+import { USUARIO_ROLES } from "../constants/usuario";
+import FormControl from "@mui/material/FormControl";
+import DeleteIcon from "@mui/icons-material/Delete";
+import React, { useEffect, useState } from "react";
+import Typography from "@mui/material/Typography";
+import InputLabel from "@mui/material/InputLabel";
+import IconButton from "@mui/material/IconButton";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
-import { useCookies } from "react-cookie";
-import { USUARIO_ROLES } from "../constants/usuario";
-import Stack from "@mui/material/Stack";
+import { useNavigate } from "react-router-dom";
+import MenuItem from "@mui/material/MenuItem";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Select from "@mui/material/Select";
+import { useCookies } from "react-cookie";
+import Modal from "@mui/material/Modal";
+import Stack from "@mui/material/Stack";
+import Chip from "@mui/material/Chip";
+import Box from "@mui/material/Box";
+import PropTypes from "prop-types";
+import "../constants/usuario";
 
 import { createUsuario, editUsuario } from "../services/UsuariosServices";
 import { getMateriasByIdUsuario } from "../services/MateriasServices";
@@ -51,7 +52,8 @@ const ModalUsuarios = ({
   });
   const [newMaterias, setNewMaterias] = useState([]);
 
-  const [cookies] = useCookies(null);
+  const navigate = useNavigate()
+  const [cookies, removeCookie] = useCookies(null);
 
   const [emailEmpty, setEmailEmpty] = useState(false);
   const [nameEmpty, setNameEmpty] = useState(false);
@@ -93,7 +95,17 @@ const ModalUsuarios = ({
         handleClose();
       }
     } catch (error) {
-      handleOpenSnack(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        handleOpenSnack(error);
+      }
     }
   };
 
@@ -112,7 +124,17 @@ const ModalUsuarios = ({
         handleClose();
       }
     } catch (error) {
-      handleOpenSnack(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        handleOpenSnack(error);
+      }
     }
   };
 
@@ -148,7 +170,17 @@ const ModalUsuarios = ({
         setNewMaterias(response.data);
       }
     } catch (error) {
-      handleOpenSnack(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        handleOpenSnack(error);
+      }
     }
   };
 

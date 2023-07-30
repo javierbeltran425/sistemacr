@@ -1,23 +1,24 @@
-import React, { useEffect, useState } from "react";
-import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
+import TablePagination from "@mui/material/TablePagination";
+import TableContainer from "@mui/material/TableContainer";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
+import SearchIcon from "@mui/icons-material/Search";
+import React, { useEffect, useState } from "react";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import ModalUsuarios from "./ModalUsuarios";
-import "../constants/usuario";
-import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
+import { useNavigate } from "react-router-dom";
+import TableRow from "@mui/material/TableRow";
 import { styled } from "@mui/material/styles";
+import ModalUsuarios from "./ModalUsuarios";
+import Button from "@mui/material/Button";
 import { useCookies } from "react-cookie";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import Card from "@mui/material/Card";
+import Box from "@mui/material/Box";
+import "../constants/usuario";
 
 import { getUsuarios, deleteUsuario } from "../services/UsuariosServices";
 import { getMaterias } from "../services/MateriasServices";
@@ -82,7 +83,8 @@ const CRUDusuarios = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState("");
 
-  const [cookies] = useCookies(null);
+  const navigate = useNavigate()
+  const [cookies, removeCookie] = useCookies(null);
 
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
@@ -95,7 +97,17 @@ const CRUDusuarios = () => {
           getAllUsuarios();
         }
       } catch (error) {
-        console.log(error);
+        if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+          removeCookie("id_usuario");
+          removeCookie("email");
+          removeCookie("authToken");
+          removeCookie("nombre");
+          removeCookie("act");
+          navigate("/");
+
+        } else {
+          alert("Ha ocurrido un error inesperado.");
+        }
       }
     }
   };
@@ -109,7 +121,17 @@ const CRUDusuarios = () => {
         setDataSet(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -121,7 +143,17 @@ const CRUDusuarios = () => {
         setCarreras(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -133,7 +165,17 @@ const CRUDusuarios = () => {
         setMaterias(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 
@@ -165,12 +207,12 @@ const CRUDusuarios = () => {
     searchValue == ""
       ? setDataSet(usuarios)
       : setDataSet(
-          usuarios.filter(
-            (e) =>
-              e.email.toUpperCase().includes(searchValue) ||
-              e.nombre.toUpperCase().includes(searchValue)
-          )
-        );
+        usuarios.filter(
+          (e) =>
+            e.email.toUpperCase().includes(searchValue) ||
+            e.nombre.toUpperCase().includes(searchValue)
+        )
+      );
   }, [searchValue]);
 
   return (

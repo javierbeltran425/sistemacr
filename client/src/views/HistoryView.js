@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
 // componentes
@@ -22,7 +23,8 @@ const HistoryView = () => {
   const [contPendientes, setContPendientes] = useState(0);
   const [contRechazadas, setcontRechazadas] = useState(0);
 
-  const [cookies] = useCookies(null)
+  const navigate = useNavigate()
+  const [cookies, removeCookie] = useCookies(null)
 
   useEffect(() => {
     obtieneDatosReporte();
@@ -91,7 +93,17 @@ const HistoryView = () => {
 
       setHistoryData(response.data);
     } catch (error) {
-      console.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        removeCookie("id_usuario");
+        removeCookie("email");
+        removeCookie("authToken");
+        removeCookie("nombre");
+        removeCookie("act");
+        navigate("/");
+
+      } else {
+        alert("Ha ocurrido un error inesperado.");
+      }
     }
   };
 

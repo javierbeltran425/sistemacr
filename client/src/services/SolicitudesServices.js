@@ -5,8 +5,12 @@ const serverUrl = cleanEnv(process.env, {
   REACT_APP_SERVER_URL: url(),
 }).REACT_APP_SERVER_URL;
 
-export const createSolicitud = async (data) => {
+export const createSolicitud = async (data, authToken) => {
   return axios({
+    headers: {
+      'Content-Type': 'application/json ',
+      'Authorization': authToken
+    },
     method: "POST",
     url: `${serverUrl}/solicitudes/createsolicitud`,
     data,
