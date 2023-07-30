@@ -9,6 +9,7 @@ import CalendarTeacher from "../components/CalendarTeacher";
 
 //constants
 import "../constants/usuario";
+import { USUARIO_ROLES } from "../constants/usuario";
 
 import { getRolByID } from "../services/UsuariosServices";
 
@@ -37,13 +38,13 @@ const HomePage = () => {
   const switchRoute = () => {
 
     switch (rol) {
-      case "profesor":
+      case USUARIO_ROLES.PROFESOR:
         return <CalendarTeacher />;
 
-      case "estudiante":
+      case USUARIO_ROLES.ESTUDIANTE:
         return <CalendarStudent />;
 
-      case "admin":
+      case USUARIO_ROLES.ADMIN:
         navigate("/admin");
 
       default:

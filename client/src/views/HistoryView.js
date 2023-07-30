@@ -60,9 +60,7 @@ const HistoryView = () => {
 
   const obtieneDatosReporte = async () => {
     try {
-      const response = await getReporte(cookies.authToken).catch((err) => {
-        console.log(err);
-      });
+      const response = await getReporte(cookies.authToken)
 
       let history = response.data;
 

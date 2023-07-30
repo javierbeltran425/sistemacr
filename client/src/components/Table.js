@@ -20,12 +20,6 @@ export default function Table({ columns, data }) {
     useSortBy
   );
 
-  const handleFilterChange = e => {
-    const value = e.target.value || undefined;
-    setFilter("name", value);
-    setFilterInput(value);
-  };
-
   // Render the UI for your table
   return (
     <>

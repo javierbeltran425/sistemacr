@@ -104,10 +104,6 @@ class CalendarAlt extends React.Component {
       ).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: TeacherView.js:109 ~ response ~ response:",
-        response
-      );
       if (response.status === 200) {
         this.setState({ secciones: response.data });
         if (response.data)
@@ -122,20 +118,14 @@ class CalendarAlt extends React.Component {
 
   getHorariosUsuario = async () => {
     try {
-      console.log("Materia seleccionada: ", this.state.seccionSeleccionada);
       const response = await getHorariosByIdUsuario(
         cookies.get("id_usuario")
       ).catch((err) => {
         console.error(err);
       });
-      // console.log("🚀 ~ file: CalendarAlt.js:80 ~ CalendarAlt ~ response ~ response:", response)
 
       if (response.status === 200) {
         const json = response.data;
-        console.log(
-          "🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getHorariosUsuarioMateria= ~ json:",
-          json
-        );
 
         json.forEach((element) => {
           element.start = new Date(element.start);
@@ -156,7 +146,6 @@ class CalendarAlt extends React.Component {
 
   //  Allows user to click on calendar slot and handles if appointment exists
   handleSlotSelected(slotInfo) {
-    console.log("Real slotInfo", slotInfo);
     this.setState({
       title:
         this.state.seccionSeleccionada.nombre +
@@ -171,7 +160,6 @@ class CalendarAlt extends React.Component {
   }
 
   handleEventSelected(event) {
-    console.log("event ", event);
     this.setState({
       openEvent: true,
       clickedEvent: event,
@@ -181,8 +169,6 @@ class CalendarAlt extends React.Component {
       desc: event.desc,
       identificador: event.identificador,
     });
-
-    console.log("event after select: ", this.state);
   }
 
   setTitle(e) {
@@ -241,10 +227,6 @@ class CalendarAlt extends React.Component {
         const response = await registrarHorario(data).catch((err) => {
           console.error(err);
         });
-        console.log(
-          "🚀 ~ file: CalendarAlt.js:166 ~ CalendarAlt ~ response ~ response:",
-          response
-        );
 
         if (response.status === 200) {
           this.showSuccess("El evento ha sido registrado con éxito");
@@ -280,10 +262,7 @@ class CalendarAlt extends React.Component {
     ).catch((err) => {
       console.error(err);
     });
-    console.log(
-      "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
-      response
-    );
+
     if (response.status == 200) {
       this.getHorariosUsuario();
       this.showSuccess("El evento ha sido eliminado con éxito");
@@ -339,7 +318,6 @@ class CalendarAlt extends React.Component {
   }
 
   render() {
-    console.log("render()");
 
     const customEventPropGetter = (event) => {
       if (this.state.seccionSeleccionada?.id_seccion !== event?.id_seccion) {
@@ -455,7 +433,6 @@ class CalendarAlt extends React.Component {
           eventPropGetter={customEventPropGetter}
           showAllEvents={false}
           min={new Date(0, 0, 0, 6, 0, 0)}
-          // max={new Date(0, 0, 0, 23, 0, 0)}
           onSelectEvent={(event) => this.handleEventSelected(event)}
           onSelectSlot={(slotInfo) => this.handleSlotSelected(slotInfo)}
         />

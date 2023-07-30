@@ -8,7 +8,6 @@ const env = cleanEnv(process.env, {
 });
 
 const mailer = tryCatch(async function (req, res) {
-  let testAccount = await nodemailer.createTestAccount();
 
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({

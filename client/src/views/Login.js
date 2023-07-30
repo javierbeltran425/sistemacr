@@ -44,7 +44,6 @@ const Login = () => {
     if (data.error) {
       setError(data.error);
     } else if (data.token) {
-      console.log("🚀 ~ file: Login.js:44 ~ handleSubmit ~ data:", data)
       setCookie("id_usuario", data.id_usuario);
       setCookie("email", data.email);
       setCookie("authToken", data.token);

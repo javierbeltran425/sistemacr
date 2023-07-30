@@ -110,10 +110,7 @@ class CalendarAlt extends React.Component {
       ).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: TeacherView.js:109 ~ response ~ response:",
-        response
-      );
+
       if (response.status === 200) {
         this.setState({ secciones: response.data });
         if (response.data)
@@ -135,10 +132,7 @@ class CalendarAlt extends React.Component {
       const response = await getInfoUsuario(body).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:214 ~ CalendarAlt ~ response ~ getInfUs:",
-        response
-      );
+
     } catch (error) {
       console.error(error);
     }
@@ -154,10 +148,6 @@ class CalendarAlt extends React.Component {
 
       if (response.status === 200) {
         const json = response.data;
-        console.log(
-          "🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getHorariosUsuarioMateria= ~ json:",
-          json
-        );
 
         json.forEach((element) => {
           element.start = new Date(element.start);
@@ -177,10 +167,6 @@ class CalendarAlt extends React.Component {
       );
       if (response.status === 200) {
         const json = response.data;
-        console.log(
-          "🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getSolicitudesByIdUsuarioIdMateria= ~ json:",
-          json
-        );
 
         json.forEach((element) => {
           element.start = new Date(element.start);
@@ -203,7 +189,6 @@ class CalendarAlt extends React.Component {
 
   //  Allows user to click on calendar slot and handles if appointment exists
   handleSlotSelected(slotInfo) {
-    console.log("Real slotInfo", slotInfo);
     this.setState({
       title: "",
       desc: "",
@@ -215,7 +200,6 @@ class CalendarAlt extends React.Component {
   }
 
   handleEventSelected(event) {
-    console.log("event", event);
     this.setState({
       openEvent: true,
       clickedEvent: event,
@@ -270,7 +254,6 @@ class CalendarAlt extends React.Component {
     try {
       const response = await createSolicitud(data);
       if (response.status === 200) {
-        console.log("Ok!");
         const json = response.data;
         let appointment = {
           id: json[0].id_solicitud,
@@ -286,7 +269,6 @@ class CalendarAlt extends React.Component {
         };
         let events = this.state.events.slice();
         events.push(appointment);
-        // localStorage.setItem("cachedEvents", JSON.stringify(events));
         this.setState({ events });
 
         const response2 = await getInfoUsuario({
@@ -294,20 +276,12 @@ class CalendarAlt extends React.Component {
         }).catch((err) => {
           console.error(err);
         });
-        console.log(
-          "🚀 ~ file: CalendarStudent.js:288 ~ CalendarAlt ~ response ~ response:",
-          response2
-        );
 
         const response3 = await getInfoUsuario({
           id_usuario: cookies.get("id_usuario"),
         }).catch((err) => {
           console.error(err);
         });
-        console.log(
-          "🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:",
-          response3
-        );
 
         this.envioNotificacionCrea(
           response2.data[0].email,
@@ -331,18 +305,11 @@ class CalendarAlt extends React.Component {
     let updatedEvents = this.state.events.filter(
       (event) => event !== eventToDelete
     );
-    // localStorage.setItem("cachedEvents", JSON.stringify(updatedEvents));
     this.setState({ events: updatedEvents });
-
-    console.log("Evento a eliminar: ", this.state.events);
 
     const response = await deleteSolicitud(eventToDelete.id).catch((err) => {
       console.error(err);
     });
-    console.log(
-      "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
-      response
-    );
 
     if (response.status === 200) {
       const response2 = await getInfoUsuario({
@@ -356,10 +323,6 @@ class CalendarAlt extends React.Component {
       }).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarStudent.js:294 ~ CalendarAlt ~ response3 ~ response3:",
-        response3
-      );
 
       this.envioNotificacionElimina(
         response2.data[0].email,
@@ -385,10 +348,7 @@ class CalendarAlt extends React.Component {
       const response = await EnviaNotificacione(body).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
+
     } catch (error) {
       console.error(error);
     }
@@ -408,10 +368,7 @@ class CalendarAlt extends React.Component {
       const response = await EnviaNotificacione(body).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
+
     } catch (error) {
       console.error(error);
     }
@@ -431,10 +388,7 @@ class CalendarAlt extends React.Component {
       const response = await EnviaNotificacione(body).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
+
     } catch (error) {
       console.error(error);
     }
@@ -484,7 +438,6 @@ class CalendarAlt extends React.Component {
   }
 
   render() {
-    console.log("render()");
 
     const customSlotPropGetter = (date) => {
       const backgroundEvents = this.state.backgroundEvents;
@@ -612,15 +565,14 @@ class CalendarAlt extends React.Component {
           eventPropGetter={customEventPropGetter}
           showAllEvents={true}
           min={new Date(0, 0, 0, 6, 0, 0)}
-          //max={new Date(0, 0, 0, 23, 0, 0)}
           onSelectEvent={(event) => {
             event.id_usuario == cookies.get("id_usuario")
               ? this.handleEventSelected(event)
-              : console.log(event.id_usuario, cookies.get("id_usuario"));
+              : "";
           }}
           onSelectSlot={(slotInfo) => {
             !this.concurrentEventExists(slotInfo) &&
-            this.fitsOnSchedule(slotInfo)
+              this.fitsOnSchedule(slotInfo)
               ? this.handleSlotSelected(slotInfo)
               : this.showError("El horario seleccionado no está disponible.");
           }}

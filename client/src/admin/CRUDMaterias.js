@@ -50,7 +50,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     width: "100%",
@@ -88,7 +87,6 @@ const CRUDmaterias = () => {
     if (window.confirm("Estás seguro que quieres eliminar esta materia?")) {
       try {
         const response = await removeMateria(id_materia, cookies.authToken);
-        console.log(response);
 
         if (response.status === 200) {
           getAllMaterias();
@@ -162,12 +160,12 @@ const CRUDmaterias = () => {
     searchValue == ""
       ? setDataSet(materias)
       : setDataSet(
-          materias.filter(
-            (e) =>
-              e.id_materia.includes(searchValue) ||
-              e.nombre.toUpperCase().includes(searchValue.toUpperCase())
-          )
-        );
+        materias.filter(
+          (e) =>
+            e.id_materia.includes(searchValue) ||
+            e.nombre.toUpperCase().includes(searchValue.toUpperCase())
+        )
+      );
   }, [searchValue]);
 
   return (

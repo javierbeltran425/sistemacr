@@ -55,7 +55,6 @@ const Header = () => {
 
   const tituloHeader = () => {
     const location = window.location.hash;
-    console.log("🚀 ~ file: Header.js:50 ~ titulo ~ location:", location);
 
     switch (rol) {
       case "estudiante":

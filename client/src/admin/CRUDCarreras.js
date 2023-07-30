@@ -49,7 +49,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     width: "100%",
@@ -131,12 +130,12 @@ const CRUDcarreras = () => {
     searchValue == ""
       ? setDataSet(carreras)
       : setDataSet(
-          carreras.filter(
-            (e) =>
-              e.id_carrera.includes(searchValue) ||
-              e.nombre.toUpperCase().includes(searchValue.toUpperCase())
-          )
-        );
+        carreras.filter(
+          (e) =>
+            e.id_carrera.includes(searchValue) ||
+            e.nombre.toUpperCase().includes(searchValue.toUpperCase())
+        )
+      );
   }, [searchValue]);
 
   return (

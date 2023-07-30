@@ -19,7 +19,6 @@ function Upload() {
   const [cookies] = useCookies(null);
 
   let files;
-  //let jsonArray;
   let enableButton = true;
 
   useEffect(() => {
@@ -54,15 +53,15 @@ function Upload() {
   );
 
   function updateProgressBar(startingWidth, maxWidth) {
-    var element = document.getElementById("myprogressBar");   
+    var element = document.getElementById("myprogressBar");
     var width = startingWidth;
     var identity = setInterval(scene, 10);
     function scene() {
       if (width >= maxWidth) {
         clearInterval(identity);
       } else {
-        width++; 
-        element.style.width = width + '%'; 
+        width++;
+        element.style.width = width + '%';
       }
     }
   }
@@ -110,7 +109,7 @@ function Upload() {
     elementBar.classList.add("progressBar");
     elementBar.classList.remove("red");
 
-    updateProgressBar(1,75);
+    updateProgressBar(1, 75);
 
     try {
       const resp = await fetch(
@@ -134,7 +133,7 @@ function Upload() {
         element1.classList.add("progressBar");
         element1.classList.remove("red");
 
-        updateProgressBar(75,100);
+        updateProgressBar(75, 100);
       }
 
       if (resp.status === 400) {
@@ -203,9 +202,6 @@ function Upload() {
 
             workbook.SheetNames.forEach(function (y) {
               let csvFile = XLSX.utils.sheet_to_csv(workbook.Sheets[y]);
-
-              //let csvFileProcessed = '"' + csvFile.split(',').join('","') + '"';
-              //csvFileProcessed = csvFileProcessed.split('\n').join('"\n"');
 
               resolve(csvFile);
 
@@ -291,13 +287,13 @@ function Upload() {
           <br></br>
 
           <div id="Progress_Status">
-             <div id="myprogressBar" className = "progressBar"></div>
-          </div>  
+            <div id="myprogressBar" className="progressBar"></div>
+          </div>
 
-          <p className = "hide" id = "successText"> <b> Archivos importados exitosamente </b></p> 
-          <p className = "hide" id = "failText"> <b> Hubo un problema en el proceso de importado </b></p> 
+          <p className="hide" id="successText"> <b> Archivos importados exitosamente </b></p>
+          <p className="hide" id="failText"> <b> Hubo un problema en el proceso de importado </b></p>
 
-          <br></br>  
+          <br></br>
 
           <Table columns={columns} data={data} />
         </div>

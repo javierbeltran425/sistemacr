@@ -1,11 +1,9 @@
 const knex = require("../db");
 const bcrypt = require("bcrypt");
 const { httpCodes } = require("../constants/httpCodes");
-const { errorMessages } = require("../constants/errorMessages");
 const apiError = require("../common/apiError");
 const { tryCatch } = require("../utils/tryCatch");
 const isEmail = require("is-email");
-const { emit } = require("nodemon");
 
 const getAllUsuarios = tryCatch(async function (req, res) {
   const usuarios = await knex
@@ -241,28 +239,12 @@ const bulkCreateUsuario = tryCatch(async function (req, res) {
 
   //Borrando datos si se eleigio purgar la base de datos
   if (purge) {
-    await knex("usuariosxmaterias").del();
-    console.log("usuariosxmaterias deleted");
-
+    await knex("usuariosxmaterias").del()
     await knex("materiasxcarreras").del();
-
-    console.log("materiasxcarreras deleted");
-
     await knex("solicitudes").del();
-
-    console.log("solicitudes deleted");
-
     await knex("horarios").del();
-
-    console.log("horarios deleted");
-
     await knex("secciones").del();
-
-    console.log("secciones deleted");
-
     await knex("usuarios").where("rol", "estudiante").del();
-
-    console.log("usuarios deleted");
   }
 
   //Insertando datos
@@ -372,7 +354,6 @@ const getUsuarioInfo = tryCatch(async (req, res) => {
 
 const changePassword = tryCatch(async (req, res) => {
   const { email, oldPassword, newPassword } = req.body;
-  console.log(email, oldPassword, newPassword);
 
   const usuario = await knex
     .select("id_usuario", "email", "hashed_password", "nombre")

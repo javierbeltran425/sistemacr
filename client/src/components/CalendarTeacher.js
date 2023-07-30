@@ -133,10 +133,7 @@ class CalendarAlt extends React.Component {
       ).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarStudent.js:109 ~ response ~ response:",
-        response
-      );
+
       if (response.status === 200) {
         if (response.data) {
           this.setState({
@@ -161,7 +158,7 @@ class CalendarAlt extends React.Component {
 
   getHorariosByIdSeccion = async () => {
     try {
-      console.log("Materia seleccionada: ", this.state.seccionSeleccionada);
+
       let response;
       if (this.state.seccionSeleccionada.id_seccion === -1) {
         response = await getHorariosByIdUsuario(cookies.get("id_usuario"));
@@ -170,14 +167,9 @@ class CalendarAlt extends React.Component {
           this.state.seccionSeleccionada.id_seccion
         );
       }
-      // console.log("🚀 ~ file: CalendarAlt.js:80 ~ CalendarAlt ~ response ~ response:", response)
 
       if (response.status === 200) {
         const json = response.data;
-        console.log(
-          "🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getHorariosUsuarioMateria= ~ json:",
-          json
-        );
 
         json.forEach((element) => {
           element.start = new Date(element.start);
@@ -204,10 +196,6 @@ class CalendarAlt extends React.Component {
       }
       if (response.status === 200) {
         const json = response.data;
-        console.log(
-          "🚀 ~ file: CalendarAlt.js:84 ~ CalendarAlt ~ getSolicitudesByIdUsuarioIdMateria= ~ json:",
-          json
-        );
 
         json.forEach((element) => {
           element.start = new Date(element.start);
@@ -234,7 +222,7 @@ class CalendarAlt extends React.Component {
 
   //  Allows user to click on calendar slot and handles if appointment exists
   handleSlotSelected(slotInfo) {
-    console.log("Real slotInfo", slotInfo);
+
     this.setState({
       title: "",
       desc: "",
@@ -245,7 +233,6 @@ class CalendarAlt extends React.Component {
   }
 
   handleEventSelected(event) {
-    console.log("event", event);
     this.setState({
       openEvent: true,
       clickedEvent: event,
@@ -297,10 +284,6 @@ class CalendarAlt extends React.Component {
     const response = await editSolicitud(data).catch((err) => {
       console.error(err);
     });
-    console.log(
-      "🚀 ~ file: CalendarAlt.js:301 ~ CalendarAlt ~ response ~ response:",
-      response
-    );
 
     if (response.status === 200) {
       this.envioNotificacionModifica(email);
@@ -326,10 +309,7 @@ class CalendarAlt extends React.Component {
       const response = await EnviaNotificacione(body).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
+
     } catch (error) {
       console.error(error);
     }
@@ -349,10 +329,7 @@ class CalendarAlt extends React.Component {
       const response = await EnviaNotificacione(body).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
+
     } catch (error) {
       console.error(error);
     }
@@ -372,10 +349,7 @@ class CalendarAlt extends React.Component {
       const response = await EnviaNotificacione(body).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:377 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
+
     } catch (error) {
       console.error(error);
     }
@@ -391,20 +365,12 @@ class CalendarAlt extends React.Component {
       const response = await actualizaEstadoSolicitud(body).catch((err) => {
         console.error(err);
       });
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:420 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
 
       if (response.status === 200) {
         this.showSuccess("La solicitud ha sido respondida");
         this.getSolicitudes();
 
         const { email } = this.state;
-        console.log(
-          "🚀 ~ file: CalendarTeacher.js:451 ~ CalendarAlt ~ actualizarSolicitudEstado= ~ email:",
-          email
-        );
 
         switch (estado) {
           case "RECHAZADO":
@@ -426,10 +392,6 @@ class CalendarAlt extends React.Component {
   archivarSolicitud = async (id_solicitud) => {
     try {
       const response = await archivarSolicitud(id_solicitud);
-      console.log(
-        "🚀 ~ file: CalendarTeacher.js:420 ~ CalendarAlt ~ response ~ response:",
-        response
-      );
 
       if (response.status === 200) {
         this.showSuccess("La solicitud ha sido archivada");
@@ -489,16 +451,7 @@ class CalendarAlt extends React.Component {
     });
   }
 
-  /*
-  minuteConverter(time) {
-    const [h, m] = time.split(':');
-    const value = +h + m / 60;
-    return value.toFixed(2);
- }
- */
-
   render() {
-    console.log("render()");
 
     const customSlotPropGetter = (date) => {
       const backgroundEvents = this.state.backgroundEvents;
@@ -662,7 +615,6 @@ class CalendarAlt extends React.Component {
           defaultView="week"
           style={{ height: "80vh" }}
           defaultDate={new Date()}
-          //selectable
           timeslots={2}
           localizer={localizer}
           culture="es"
@@ -670,16 +622,9 @@ class CalendarAlt extends React.Component {
           eventPropGetter={customEventPropGetter}
           showAllEvents={false}
           min={new Date(0, 0, 0, 6, 0, 0)}
-          //max={new Date(0, 0, 0, 23, 0, 0)}
           onSelectEvent={(event) => {
             this.handleEventSelected(event);
           }}
-          /*onSelectSlot={(slotInfo) => {
-        !this.concurrentEventExists(slotInfo) &&
-        this.fitsOnSchedule(slotInfo)
-          ? this.handleSlotSelected(slotInfo)
-          : null;
-      }}*/
         />
 
         {/* Material-ui Modal for booking existing appointment */}
@@ -855,7 +800,6 @@ class CalendarAlt extends React.Component {
                     label="Confirm Edit"
                     secondary={"true"}
                     onClick={() => {
-                      // this.updateEvent(), this.handleClose();
                       this.actualizarSolicitudEstado(
                         SOLICITUDES_ESTADOS.ACEPTADO
                       );

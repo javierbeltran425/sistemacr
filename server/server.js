@@ -13,7 +13,6 @@ const path = require("path");
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
-//app.use(basePath, express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use(express.json());
 
