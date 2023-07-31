@@ -47,7 +47,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 class CalendarAlt extends React.Component {
-  static contextType = ContextUsuario;
   messages = {
     allDay: "Todo el día",
     previous: "Anterior",
