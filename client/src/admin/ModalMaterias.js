@@ -6,13 +6,11 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Typography from "@mui/material/Typography";
 import { InputText } from "primereact/inputtext";
-import { useNavigate } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import MenuItem from "@mui/material/MenuItem";
 import MuiAlert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
-import { useCookies } from "react-cookie";
 import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
@@ -21,6 +19,8 @@ import PropTypes from "prop-types";
 
 import { createMateria, editMateria } from "../services/MateriasServices";
 import { getCarrerasByIdMateria } from "../services/CarrerasServices";
+
+import useAuth from "../hooks/useAuth";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -43,8 +43,6 @@ const ModalMaterias = ({
     carreras: [],
   });
 
-  const navigate = useNavigate()
-  const [cookies, removeCookie] = useCookies(null);
   const [idEmpty, setIdEmpty] = useState(false);
   const [nameEmpty, setNameEmpty] = useState(false);
 
@@ -62,6 +60,8 @@ const ModalMaterias = ({
     setOpen(false);
   };
 
+  const { auth } = useAuth();
+
   const CreateMateria = async (e) => {
     e.preventDefault();
     newMateria.id_materia == "" ? setIdEmpty(true) : setIdEmpty(false);
@@ -69,25 +69,14 @@ const ModalMaterias = ({
     if (newMateria.id_materia == "" || newMateria.nombre == "") return;
 
     try {
-      const response = await createMateria(newMateria, cookies.authToken);
+      const response = await createMateria(newMateria, auth.accessToken);
 
       if (response.status === 200) {
         getAllMaterias();
         handleClose();
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        handleOpenSnack(error);
-      }
+      handleOpenSnack(error);
     }
   };
 
@@ -97,25 +86,14 @@ const ModalMaterias = ({
     if (newMateria.nombre == "") return;
 
     try {
-      const response = await editMateria(newMateria, cookies.authToken);
+      const response = await editMateria(newMateria, auth.accessToken);
 
       if (response.status === 200) {
         getAllMaterias();
         handleClose();
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        handleOpenSnack(error);
-      }
+      handleOpenSnack(error);
     }
   };
 
@@ -144,7 +122,7 @@ const ModalMaterias = ({
     try {
       const response = await getCarrerasByIdMateria(
         newMateria.id_materia,
-        cookies.authToken
+        auth.accessToken
       );
 
       if (response.status === 200) {
@@ -159,18 +137,7 @@ const ModalMaterias = ({
         });
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        handleOpenSnack(error);
-      }
+      handleOpenSnack(error);
     }
   };
 

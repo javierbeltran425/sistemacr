@@ -1,6 +1,6 @@
 const { httpCodes } = require("../constants/httpCodes");
 const { errorMessages } = require("../constants/errorMessages");
-const knex = require("../db");
+const knex = require("../config/db");
 const apiError = require("../common/apiError");
 const { tryCatch } = require("../utils/tryCatch");
 

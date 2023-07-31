@@ -8,12 +8,10 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import InputBase from "@mui/material/InputBase";
-import { useNavigate } from "react-router-dom";
 import TableRow from "@mui/material/TableRow";
 import { styled } from "@mui/material/styles";
 import ModalUsuarios from "./ModalUsuarios";
 import Button from "@mui/material/Button";
-import { useCookies } from "react-cookie";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import Card from "@mui/material/Card";
@@ -23,6 +21,8 @@ import "../constants/usuario";
 import { getUsuarios, deleteUsuario } from "../services/UsuariosServices";
 import { getMaterias } from "../services/MateriasServices";
 import { getCarreras } from "../services/CarrerasServices";
+
+import useAuth from "../hooks/useAuth";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -83,8 +83,7 @@ const CRUDusuarios = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState("");
 
-  const navigate = useNavigate()
-  const [cookies, removeCookie] = useCookies(null);
+  const { auth } = useAuth();
 
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
@@ -92,93 +91,50 @@ const CRUDusuarios = () => {
   const removeUsuarioById = async (id_usuario) => {
     if (window.confirm("Estás seguro que quieres eliminar este usuario?")) {
       try {
-        const response = await deleteUsuario(id_usuario, cookies.authToken);
+        const response = await deleteUsuario(id_usuario, auth.accessToken);
         if (response.status === 200) {
           getAllUsuarios();
         }
       } catch (error) {
-        if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-          removeCookie("id_usuario");
-          removeCookie("email");
-          removeCookie("authToken");
-          removeCookie("nombre");
-          removeCookie("act");
-          navigate("/");
-
-        } else {
-          alert("Ha ocurrido un error inesperado.");
-        }
+        console.log(error);
       }
     }
   };
 
   const getAllUsuarios = async () => {
     try {
-      const response = await getUsuarios(cookies.authToken);
+      const response = await getUsuarios(auth.accessToken);
 
       if (response.status === 200) {
         setUsuarios(response.data);
         setDataSet(response.data);
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
   const getAllCarreras = async () => {
     try {
-      const response = await getCarreras(cookies.authToken);
+      const response = await getCarreras(auth.accessToken);
 
       if (response.status === 200) {
         setCarreras(response.data);
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
   const getAllMaterias = async () => {
     try {
-      const response = await getMaterias(cookies.authToken);
+      const response = await getMaterias(auth.accessToken);
 
       if (response.status === 200) {
         setMaterias(response.data);
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
@@ -210,12 +166,12 @@ const CRUDusuarios = () => {
     searchValue == ""
       ? setDataSet(usuarios)
       : setDataSet(
-        usuarios.filter(
-          (e) =>
-            e.email.toUpperCase().includes(searchValue) ||
-            e.nombre.toUpperCase().includes(searchValue)
-        )
-      );
+          usuarios.filter(
+            (e) =>
+              e.email.toUpperCase().includes(searchValue) ||
+              e.nombre.toUpperCase().includes(searchValue)
+          )
+        );
   }, [searchValue]);
 
   return (

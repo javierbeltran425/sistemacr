@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useCookies } from "react-cookie";
 
 // custom components imports
 import Layout from "../components/layout/Layout";
@@ -12,7 +11,6 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 
 const TeacherView = () => {
-
   const dias = [
     { label: "Lunes", value: "LN" },
     { label: "Martes", value: "MAR" },
@@ -30,10 +28,7 @@ const TeacherView = () => {
   // States para Dialog para administración de fechas
   const [visible, setVisible] = useState(false);
 
-  useEffect(() => {
-
-  }, [])
-
+  useEffect(() => {}, []);
 
   // función para agregar horarios nuevos a la lista
   const agregarFechas = () => {
@@ -66,7 +61,6 @@ const TeacherView = () => {
         <h4>Horarios programados por el catedrático</h4>
 
         <CalendarSchedule />
-
       </div>
 
       {/* Zona de modales */}

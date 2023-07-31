@@ -1,4 +1,4 @@
-const knex = require("../db");
+const knex = require("../config/db");
 const nodemailer = require("nodemailer");
 const { tryCatch } = require("../utils/tryCatch");
 const { cleanEnv, str } = require("envalid");
@@ -8,7 +8,6 @@ const env = cleanEnv(process.env, {
 });
 
 const mailer = tryCatch(async function (req, res) {
-
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   nombre TEXT,
   activo BOOLEAN DEFAULT(false),
   rol TEXT,
+	refresh_token TEXT,
   CONSTRAINT fk_carrera FOREIGN KEY(id_carrera) REFERENCES carreras(id_carrera) ON DELETE SET NULL
 );
 

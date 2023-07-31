@@ -8,17 +8,16 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import InputBase from "@mui/material/InputBase";
-import { useNavigate } from "react-router-dom";
 import TableRow from "@mui/material/TableRow";
 import { styled } from "@mui/material/styles";
 import ModalCarreras from "./ModalCarreras";
-import { useCookies } from "react-cookie";
 import Button from "@mui/material/Button";
 import Table from "@mui/material/Table";
 import Paper from "@mui/material/Paper";
 import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
 import { getCarreras, removeCarreraID } from "../services/CarrerasServices";
+import useAuth from "../hooks/useAuth";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -75,8 +74,7 @@ const CRUDcarreras = () => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = useState("");
 
-  const navigate = useNavigate()
-  const [cookies, removeCookie] = useCookies(null);
+  const { auth } = useAuth();
 
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
@@ -84,48 +82,27 @@ const CRUDcarreras = () => {
   const removeCarreraById = async (id_carrera) => {
     if (window.confirm("Estás seguro que quieres eliminar esta carrera?")) {
       try {
-        const response = await removeCarreraID(id_carrera, cookies.authToken);
+        const response = await removeCarreraID(id_carrera, auth.accessToken);
 
         if (response.status === 200) {
           getAllCarreras();
         }
       } catch (error) {
-        if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-          removeCookie("id_usuario");
-          removeCookie("email");
-          removeCookie("authToken");
-          removeCookie("nombre");
-          removeCookie("act");
-          navigate("/");
-
-        } else {
-          alert("Ha ocurrido un error al eliminar la carrera.");
-        }
+        console.log(error);
       }
     }
   };
 
   const getAllCarreras = async () => {
     try {
-      const response = await getCarreras(cookies.authToken);
+      const response = await getCarreras(auth.accessToken);
 
       if (response.status === 200) {
         setCarreras(response.data);
         setDataSet(response.data);
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error al obtener la lista de carreras.");
-      }
+      console.log(error);
     }
   };
 
@@ -152,12 +129,12 @@ const CRUDcarreras = () => {
     searchValue == ""
       ? setDataSet(carreras)
       : setDataSet(
-        carreras.filter(
-          (e) =>
-            e.id_carrera.includes(searchValue) ||
-            e.nombre.toUpperCase().includes(searchValue.toUpperCase())
-        )
-      );
+          carreras.filter(
+            (e) =>
+              e.id_carrera.includes(searchValue) ||
+              e.nombre.toUpperCase().includes(searchValue.toUpperCase())
+          )
+        );
   }, [searchValue]);
 
   return (

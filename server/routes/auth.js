@@ -3,8 +3,10 @@ const router = express.Router();
 
 const auth = require("../controllers/auth");
 
-router.post("/auth/signup", auth.signup);
-
 router.post("/auth/login", auth.login);
+
+router.get("/auth/refresh", auth.handleRefreshToken);
+
+router.get("/auth/logout", auth.handleLogout);
 
 module.exports = router;

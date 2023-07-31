@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
 
 //custom components
 import Layout from "../components/layout/Layout";
@@ -11,44 +10,15 @@ import CalendarTeacher from "../components/CalendarTeacher";
 import "../constants/usuario";
 import { USUARIO_ROLES } from "../constants/usuario";
 
-import { getRolByID } from "../services/UsuariosServices";
+import useAuth from "../hooks/useAuth";
 
 const HomePage = () => {
-  const [rol, setRol] = useState("")
-
+  const { auth } = useAuth();
   const navigate = useNavigate();
-  const [cookies, removeCookie] = useCookies(null);
-
-  useEffect(() => {
-
-    getRol()
-  }, [])
-
-  const getRol = async () => {
-    try {
-      const response = await getRolByID(cookies.id_usuario, cookies.authToken)
-
-      if (response.status === 200) setRol(response.data[0].rol)
-
-    } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
-    }
-  };
 
   const switchRoute = () => {
-
-    switch (rol) {
+    if (!auth.activo) return navigate("/register");
+    switch (auth.rol) {
       case USUARIO_ROLES.PROFESOR:
         return <CalendarTeacher />;
 
@@ -57,19 +27,22 @@ const HomePage = () => {
 
       case USUARIO_ROLES.ADMIN:
         navigate("/admin");
+        break;
 
       default:
-        <></>
+        <></>;
         break;
     }
   };
 
+  React.useEffect(() => {
+    switchRoute();
+  }, [auth.activo]);
+
   return (
     <Layout>
       <div className="w-full lg:px-6 py-3">
-        <div className="mt-4">
-          {switchRoute()}
-        </div>
+        <div className="mt-4">{switchRoute()}</div>
       </div>
     </Layout>
   );

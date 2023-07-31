@@ -8,12 +8,10 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import InputBase from "@mui/material/InputBase";
-import { useNavigate } from "react-router-dom";
 import TableRow from "@mui/material/TableRow";
 import { styled } from "@mui/material/styles";
 import ModalMaterias from "./ModalMaterias";
 import Button from "@mui/material/Button";
-import { useCookies } from "react-cookie";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import Card from "@mui/material/Card";
@@ -21,6 +19,8 @@ import Box from "@mui/material/Box";
 
 import { getMaterias, removeMateria } from "../services/MateriasServices";
 import { getCarreras } from "../services/CarrerasServices";
+
+import useAuth from "../hooks/useAuth";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -82,60 +82,38 @@ const CRUDmaterias = () => {
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
-  const navigate = useNavigate()
-  const [cookies, removeCookie] = useCookies(null);
+  const { auth } = useAuth();
 
   const removeMateriaById = async (id_materia) => {
     if (window.confirm("Estás seguro que quieres eliminar esta materia?")) {
       try {
-        const response = await removeMateria(id_materia, cookies.authToken);
+        const response = await removeMateria(id_materia, auth.accessToken);
 
         if (response.status === 200) {
           getAllMaterias();
         }
       } catch (error) {
-        if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-          removeCookie("id_usuario");
-          removeCookie("email");
-          removeCookie("authToken");
-          removeCookie("nombre");
-          removeCookie("act");
-          navigate("/");
-
-        } else {
-          alert("Ha ocurrido un error inesperado.");
-        }
+        console.log(error);
       }
     }
   };
 
   const getAllMaterias = async () => {
     try {
-      const response = await getMaterias(cookies.authToken);
+      const response = await getMaterias(auth.accessToken);
 
       if (response.status === 200) {
         setMaterias(response.data);
         setDataSet(response.data);
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
   const getAllCarreras = async () => {
     try {
-      const response = await getCarreras(cookies.authToken);
+      const response = await getCarreras(auth.accessToken);
 
       if (response.status === 200) {
         const data = response.data;
@@ -148,18 +126,7 @@ const CRUDmaterias = () => {
         }
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
@@ -194,12 +161,12 @@ const CRUDmaterias = () => {
     searchValue == ""
       ? setDataSet(materias)
       : setDataSet(
-        materias.filter(
-          (e) =>
-            e.id_materia.includes(searchValue) ||
-            e.nombre.toUpperCase().includes(searchValue.toUpperCase())
-        )
-      );
+          materias.filter(
+            (e) =>
+              e.id_materia.includes(searchValue) ||
+              e.nombre.toUpperCase().includes(searchValue.toUpperCase())
+          )
+        );
   }, [searchValue]);
 
   return (

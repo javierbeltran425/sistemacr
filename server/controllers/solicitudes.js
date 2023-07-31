@@ -1,4 +1,4 @@
-const knex = require("../db");
+const knex = require("../config/db");
 const { tryCatch } = require("../utils/tryCatch");
 
 const createSolicitud = tryCatch(async function (req, res) {

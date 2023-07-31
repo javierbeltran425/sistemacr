@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
 
 // componentes
 import DataHistoryTable from "../components/DataHistoryTable";
@@ -14,6 +12,8 @@ import { getSeccionById } from "../services/SeccionesServices";
 
 import { ESTADOS } from "../constants/estados";
 
+import useAuth from "../hooks/useAuth";
+
 const HistoryView = () => {
   const [historyData, setHistoryData] = useState([]);
 
@@ -23,8 +23,7 @@ const HistoryView = () => {
   const [contPendientes, setContPendientes] = useState(0);
   const [contRechazadas, setcontRechazadas] = useState(0);
 
-  const navigate = useNavigate()
-  const [cookies, removeCookie] = useCookies(null)
+  const { auth } = useAuth();
 
   useEffect(() => {
     obtieneDatosReporte();
@@ -62,7 +61,7 @@ const HistoryView = () => {
 
   const obtieneDatosReporte = async () => {
     try {
-      const response = await getReporte(cookies.authToken)
+      const response = await getReporte(auth.accessToken);
 
       let history = response.data;
 
@@ -70,48 +69,44 @@ const HistoryView = () => {
         const bodyUsuario = {
           id_usuario: history[i].id_usuario,
         };
-        const response2 = await getInfoUsuario(bodyUsuario, cookies.authToken);
+        const response2 = await getInfoUsuario(bodyUsuario, auth.accessToken);
 
         if (response2.status === 200) {
           history[i].nombreAlumno = response2.data[0].nombre;
           history[i].correoAlumno = response2.data[0].email;
         }
 
-        const response3 = await getMateriaById(history[i].id_materia, cookies.authToken);
+        const response3 = await getMateriaById(
+          history[i].id_materia,
+          auth.accessToken
+        );
 
         if (response3.status === 200) {
           history[i].nombreMateria = response3.data[0].nombre;
         }
 
-        const response4 = await getSeccionById(history[i].id_seccion, cookies.authToken);
+        const response4 = await getSeccionById(
+          history[i].id_seccion,
+          auth.accessToken
+        );
 
         if (response.status === 200) {
-          history[i].seccion = response4.data[0].numero
+          history[i].seccion = response4.data[0].numero;
         }
-
       }
 
       setHistoryData(response.data);
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
   return (
     <div>
       <div className="px-1 md:px-6">
-        <p className="text-xl font-bold md:text-3sxl">Reportes de solicitudes</p>
+        <p className="text-xl font-bold md:text-3sxl">
+          Reportes de solicitudes
+        </p>
 
         <Divider />
 

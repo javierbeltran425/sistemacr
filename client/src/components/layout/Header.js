@@ -1,66 +1,34 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
-import ContextUsuario from "../../context/ContextUsuario";
-import { cleanEnv, url } from "envalid";
-
-const serverUrl = cleanEnv(process.env, {
-  REACT_APP_SERVER_URL: url(),
-}).REACT_APP_SERVER_URL;
 
 //components
 import { Avatar } from "primereact/avatar";
 import { Sidebar } from "primereact/sidebar";
 import { Divider } from "primereact/divider";
-import { Tooltip } from 'primereact/tooltip';
 
-// servicios
-import { getRolByID } from "../../services/UsuariosServices";
+//auth
+import useAuth from "../../hooks/useAuth";
+import useLogout from "../../hooks/useLogout";
 
 const Header = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(null);
   const [visible, setVisible] = useState(false);
-  const [rol, setRol] = useState("");
   const navigate = useNavigate();
   const [titulo, setTitulo] = useState("");
-  const contextUSuario = useContext(ContextUsuario);
 
-  useEffect(() => {
-    getRol();
-  }, []);
+  const logout = useLogout();
+  const { auth } = useAuth();
 
   useEffect(() => {
     tituloHeader();
-  }, [rol]);
+  }, [auth.rol]);
 
-  const signOut = () => {
-    removeCookie("id_usuario");
-    removeCookie("email");
-    removeCookie("authToken");
-    removeCookie("nombre");
-    removeCookie("act");
-    navigate("/");
-
-  };
-
-  const getRol = async () => {
-    try {
-
-      const response = await getRolByID(cookies.id_usuario, cookies.authToken)
-
-      if (response.status === 200) setRol(response.data[0].rol)
-    } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        signOut()
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
-    }
+  const signOut = async () => {
+    await logout();
+    navigate("/login");
   };
 
   const tituloHeader = () => {
-
-    switch (rol) {
+    switch (auth.rol) {
       case "estudiante":
         setTitulo("Panel de estudiantes");
         break;
@@ -75,7 +43,7 @@ const Header = () => {
   };
 
   const headerTemplate = () => {
-    switch (rol) {
+    switch (auth.rol) {
       case "estudiante":
         return <></>;
 
@@ -85,18 +53,18 @@ const Header = () => {
             <p
               className="cursor-pointer hover:text-blue-500"
               onClick={() => {
-                navigate("/teacher");
-              }}
-            >
-              Definición de horarios
-            </p>
-            <p
-              className="cursor-pointer hover:text-blue-500"
-              onClick={() => {
                 navigate("/");
               }}
             >
               Solicitudes
+            </p>
+            <p
+              className="cursor-pointer hover:text-blue-500"
+              onClick={() => {
+                navigate("/teacher");
+              }}
+            >
+              Definición de horarios
             </p>
           </div>
         );
@@ -107,7 +75,7 @@ const Header = () => {
             <p
               className="cursor-pointer hover:text-blue-500"
               onClick={() => {
-                navigate("/admin");
+                navigate("/");
               }}
             >
               Inicio
@@ -129,12 +97,12 @@ const Header = () => {
     }
   };
 
-  useEffect(() => { }, []);
+  useEffect(() => {}, []);
 
   return (
     <>
       <div className="flex md:flex-row w-full h-2 px-1 md:px-6 justify-content-between align-items-center bg-gray-100 shadow-1">
-        {cookies.act ? (
+        {auth.activo ? (
           <div className="hidden md:inline">{headerTemplate()}</div>
         ) : (
           <div />
@@ -142,7 +110,7 @@ const Header = () => {
 
         <div className="hidden md:flex gap-2 p-2 align-items-center">
           <div>
-            <h5 className="p-0 m-0 text-right">{cookies.nombre}</h5>
+            <h5 className="p-0 m-0 text-right">{auth.nombre}</h5>
             <p
               onClick={signOut}
               className="p-0 m-0 text-right text-blue-500 cursor-pointer"
@@ -160,7 +128,7 @@ const Header = () => {
         </div>
 
         <div className="py-2 px-1 flex w-full md:hidden">
-          {rol !== "estudiante" ? (
+          {auth.rol !== "estudiante" ? (
             <i
               className="pi pi-bars font-bold text-lg"
               onClick={() => setVisible(true)}
@@ -193,7 +161,7 @@ const Header = () => {
                 onClick={() => navigate("/register")}
               />
               <div className="text-start">
-                <h5 className="p-0 m-0">{cookies.nombre}</h5>
+                <h5 className="p-0 m-0">{auth.nombre}</h5>
                 <p
                   onClick={signOut}
                   className="p-0 m-0 text-left text-blue-500 cursor-pointer"

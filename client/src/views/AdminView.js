@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
 
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
@@ -10,60 +9,10 @@ import CRUDusuarios from "../admin/CRUDusuarios";
 import CRUDCarreras from "../admin/CRUDCarreras";
 import CRUDMaterias from "../admin/CRUDMaterias";
 import Layout from "../components/layout/Layout";
-import ContextUsuario from "../context/ContextUsuario";
-
-import { getRolByID } from "../services/UsuariosServices";
 
 import HistoryView from "./HistoryView";
-import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
-
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
-  const [rol, setRol] = useState("");
-
-  const [cookies, removeCookie] = useCookies(null)
-  const navigate = useNavigate();
-
-  useEffect(() => {
-
-    getRol()
-  }, [])
-
-  useEffect(() => {
-    if (rol !== "") {
-      const checkLogin = () => {
-        if (rol !== "admin") {
-          navigate('/')
-        }
-      }
-
-      checkLogin()
-    }
-
-  }, [rol])
-
-  const getRol = async () => {
-    try {
-      const response = await getRolByID(cookies.id_usuario, cookies.authToken)
-
-      if (response.status === 200) setRol(response.data[0].rol)
-
-    } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
-    }
-  };
 
   return (
     <div

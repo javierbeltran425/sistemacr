@@ -1,6 +1,5 @@
-import { React, useState, useEffect } from "react";
+import { React } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import { useCookies } from "react-cookie";
 
 //context: id_usuario email rol
 import ContextState from "./context/ContextState";
@@ -24,27 +23,62 @@ import TeacherView from "./views/TeacherView";
 import AdminView from "./views/AdminView";
 import UploadView from "./views/UploadView";
 import RegisterView from "./views/RegisterView";
+import RequireAuth from "./components/auth/RequireAuth";
+import Unauthorized from "./components/auth/Unauthorized";
+import Missing from "./components/auth/Missing";
+import PersistLogin from "./components/auth/PersistLogin";
+
+import { USUARIO_ROLES } from "./constants/usuario";
+
+import useAuth from "./hooks/useAuth";
 
 //constants
 
 function App() {
-  const [cookies] = useCookies(null);
-  const authToken = cookies.authToken;
+  const { auth } = useAuth();
 
   return (
     <ContextState>
       <Router>
-        {authToken ? (
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/teacher" element={<TeacherView />} />
-            <Route path="/admin" element={<AdminView />} />
-            <Route path="/upload" element={<UploadView />} />
-            <Route path="/register" element={<RegisterView />} />
-          </Routes>
-        ) : (
-          <Login />
-        )}
+        <Routes>
+          {/* public */}
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/404" element={<Missing />} />
+          <Route path="/login" element={<Login />} />
+
+          {/* protected */}
+          {
+            <Route element={<PersistLogin />}>
+              {/* admin */}
+              <Route
+                element={<RequireAuth allowedRoles={[USUARIO_ROLES.ADMIN]} />}
+              >
+                <Route path="/admin" element={<AdminView />}></Route>
+                <Route path="/upload" element={<UploadView />} />
+              </Route>
+              {/* profesor */}
+              <Route
+                element={
+                  <RequireAuth allowedRoles={[USUARIO_ROLES.PROFESOR]} />
+                }
+              >
+                <Route path="/teacher" element={<TeacherView />} />
+              </Route>
+              {/* todos los usuarios */}
+              <Route
+                element={
+                  <RequireAuth allowedRoles={Object.values(USUARIO_ROLES)} />
+                }
+              >
+                <Route path="/" element={<HomePage />} />
+                <Route path="/register" element={<RegisterView />} />
+              </Route>
+            </Route>
+          }
+
+          {/* No existe */}
+          <Route path="*" element={<Missing />} />
+        </Routes>
       </Router>
     </ContextState>
   );

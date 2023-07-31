@@ -1,4 +1,4 @@
-const knex = require("../db");
+const knex = require("../config/db");
 const { tryCatch } = require("../utils/tryCatch");
 
 const createHorario = tryCatch(async function (req, res) {

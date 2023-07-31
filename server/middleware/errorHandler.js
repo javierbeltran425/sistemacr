@@ -5,6 +5,8 @@ module.exports = ErrorHandler = (error, req, res, next) => {
   let errStatus;
   let errMsg;
 
+  console.log(error);
+
   if (error instanceof apiError) {
     errStatus = error.status;
     errMsg = error.message;

@@ -1,9 +1,8 @@
-const knex = require("../db");
+const knex = require("../config/db");
 const bcrypt = require("bcrypt");
 const { httpCodes } = require("../constants/httpCodes");
-const apiError = require("../common/apiError");
 const { tryCatch } = require("../utils/tryCatch");
-const isEmail = require("is-email");
+const apiError = require("../common/apiError");
 
 const getAllUsuarios = tryCatch(async function (req, res) {
   const usuarios = await knex
@@ -75,12 +74,6 @@ const getRolById = tryCatch(async function (req, res) {
 const createUsuario = tryCatch(async function (req, res) {
   const { id_usuario, id_carrera, email, nombre, rol, password, materias } =
     req.body;
-
-  if (!isEmail(email))
-    throw new apiError(
-      httpCodes.BAD_REQUEST,
-      "El email ingresado no es valido."
-    );
 
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
@@ -239,7 +232,7 @@ const bulkCreateUsuario = tryCatch(async function (req, res) {
 
   //Borrando datos si se eleigio purgar la base de datos
   if (purge) {
-    await knex("usuariosxmaterias").del()
+    await knex("usuariosxmaterias").del();
     await knex("materiasxcarreras").del();
     await knex("solicitudes").del();
     await knex("horarios").del();
@@ -374,7 +367,10 @@ const changePassword = tryCatch(async (req, res) => {
       .update({ hashed_password: hashedPassword });
     res.json(editedUsuario);
   } else {
-    res.status(400).json({ error: "La contraseña actual es incorrecta!" });
+    throw new apiError(
+      httpCodes.BAD_REQUEST,
+      "La contraseña actual es incorrecta."
+    );
   }
 });
 

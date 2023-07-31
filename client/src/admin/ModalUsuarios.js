@@ -10,13 +10,11 @@ import InputLabel from "@mui/material/InputLabel";
 import IconButton from "@mui/material/IconButton";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
-import { useNavigate } from "react-router-dom";
 import MenuItem from "@mui/material/MenuItem";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
-import { useCookies } from "react-cookie";
 import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
@@ -26,6 +24,8 @@ import "../constants/usuario";
 
 import { createUsuario, editUsuario } from "../services/UsuariosServices";
 import { getMateriasByIdUsuario } from "../services/MateriasServices";
+
+import useAuth from "../hooks/useAuth";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -52,8 +52,7 @@ const ModalUsuarios = ({
   });
   const [newMaterias, setNewMaterias] = useState([]);
 
-  const navigate = useNavigate()
-  const [cookies, removeCookie] = useCookies(null);
+  const { auth } = useAuth();
 
   const [emailEmpty, setEmailEmpty] = useState(false);
   const [nameEmpty, setNameEmpty] = useState(false);
@@ -88,25 +87,14 @@ const ModalUsuarios = ({
     try {
       let data = newUsuario;
       data.materias = newMaterias;
-      const response = await createUsuario(data, cookies.authToken);
+      const response = await createUsuario(data, auth.accessToken);
 
       if (response.status === 200) {
         getAllUsuarios();
         handleClose();
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        handleOpenSnack(error);
-      }
+      handleOpenSnack(error);
     }
   };
 
@@ -118,25 +106,14 @@ const ModalUsuarios = ({
     try {
       let data = newUsuario;
       data.materias = newMaterias;
-      const response = await editUsuario(data, cookies.authToken);
+      const response = await editUsuario(data, auth.accessToken);
 
       if (response.status === 200) {
         getAllUsuarios();
         handleClose();
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        handleOpenSnack(error);
-      }
+      handleOpenSnack(error);
     }
   };
 
@@ -165,25 +142,14 @@ const ModalUsuarios = ({
     try {
       const response = await getMateriasByIdUsuario(
         newUsuario.id_usuario,
-        cookies.authToken
+        auth.accessToken
       );
 
       if (response.status === 200) {
         setNewMaterias(response.data);
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        handleOpenSnack(error);
-      }
+      handleOpenSnack(error);
     }
   };
 
@@ -239,6 +205,7 @@ const ModalUsuarios = ({
                   id="filled-basic"
                   placeholder="Email"
                   name="email"
+                  type="email"
                   value={newUsuario.email}
                   onChange={handleChange}
                   keyfilter={/^[a-zA-Z0-9@._+-]*$/}

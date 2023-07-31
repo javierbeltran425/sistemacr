@@ -10,7 +10,6 @@ import Button from "@mui/material/Button";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import DialogActions from "@mui/material/DialogActions";
-import ContextUsuario from "../context/ContextUsuario";
 import "../constants/usuario";
 import "../styles/Calendar.css";
 import "moment/locale/es";
@@ -38,7 +37,7 @@ import Collapse from "@mui/material/Collapse";
 import CloseIcon from "@mui/icons-material/Close";
 import Zoom from "@mui/material/Zoom";
 import Modal from "@mui/material/Modal";
-import Cookies from "universal-cookie";
+import { AuthHookHoc } from "./auth/AuthHookHoc";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -68,11 +67,8 @@ import { EnviaNotificacione } from "../services/NotificacionesServices";
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
-const cookies = new Cookies();
 
 class CalendarAlt extends React.Component {
-  static contextType = ContextUsuario;
-
   messages = {
     allDay: "Todo el día",
     previous: "Anterior",
@@ -88,8 +84,8 @@ class CalendarAlt extends React.Component {
     noEventsInRange: "Na hay eventos este día.",
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       events: [],
       backgroundEvents: [],
@@ -129,9 +125,9 @@ class CalendarAlt extends React.Component {
   getSeccionesByIdUsuario = async () => {
     try {
       const response = await getSeccionesByIdUsuario(
-        cookies.get("id_usuario"),
-        cookies.get("authToken")
-      )
+        this.props.auth.id_usuario,
+        this.props.auth.accessToken
+      );
 
       if (response.status === 200) {
         if (response.data) {
@@ -151,29 +147,22 @@ class CalendarAlt extends React.Component {
         }
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
   getHorariosByIdSeccion = async () => {
     try {
-
       let response;
       if (this.state.seccionSeleccionada.id_seccion === -1) {
-        response = await getHorariosByIdUsuario(cookies.get("id_usuario"), cookies.get("authToken"));
+        response = await getHorariosByIdUsuario(
+          this.props.auth.id_usuario,
+          this.props.auth.accessToken
+        );
       } else {
         response = await getHorariosByIdSeccion(
           this.state.seccionSeleccionada.id_seccion,
-          cookies.get("authToken")
+          this.props.auth.accessToken
         );
       }
 
@@ -187,16 +176,7 @@ class CalendarAlt extends React.Component {
         this.setState({ backgroundEvents: json });
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
@@ -204,13 +184,19 @@ class CalendarAlt extends React.Component {
     try {
       let response;
       if (this.state.seccionSeleccionada.id_seccion === -1) {
-        response = await getSolicitudesUsuariosByIdSeccion({
-          id_seccion: this.state.secciones.map((e) => e.id_seccion),
-        }, cookies.get("authToken"));
+        response = await getSolicitudesUsuariosByIdSeccion(
+          {
+            id_seccion: this.state.secciones.map((e) => e.id_seccion),
+          },
+          this.props.auth.accessToken
+        );
       } else {
-        response = await getSolicitudesUsuariosByIdSeccion({
-          id_seccion: [this.state.seccionSeleccionada.id_seccion],
-        }, cookies.get("authToken"));
+        response = await getSolicitudesUsuariosByIdSeccion(
+          {
+            id_seccion: [this.state.seccionSeleccionada.id_seccion],
+          },
+          this.props.auth.accessToken
+        );
       }
       if (response.status === 200) {
         const json = response.data;
@@ -225,16 +211,7 @@ class CalendarAlt extends React.Component {
         });
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
@@ -249,7 +226,6 @@ class CalendarAlt extends React.Component {
 
   //  Allows user to click on calendar slot and handles if appointment exists
   handleSlotSelected(slotInfo) {
-
     this.setState({
       title: "",
       desc: "",
@@ -310,7 +286,7 @@ class CalendarAlt extends React.Component {
     };
 
     try {
-      const response = await editSolicitud(data, cookies.get("authToken"))
+      const response = await editSolicitud(data, this.props.auth.accessToken);
 
       if (response.status === 200) {
         this.envioNotificacionModifica(email);
@@ -319,20 +295,9 @@ class CalendarAlt extends React.Component {
       } else {
         this.showError("Ha ocurrido un error al actualizar el evento");
       }
-
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
-
   }
 
   envioNotificacionRechazo = async (email) => {
@@ -347,19 +312,12 @@ class CalendarAlt extends React.Component {
         `,
       };
 
-      const response = await EnviaNotificacione(body, cookies.get("authToken"))
-
+      const response = await EnviaNotificacione(
+        body,
+        this.props.auth.accessToken
+      );
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
@@ -374,19 +332,12 @@ class CalendarAlt extends React.Component {
         `,
       };
 
-      const response = await EnviaNotificacione(body, cookies.get("authToken"))
-
+      const response = await EnviaNotificacione(
+        body,
+        this.props.auth.accessToken
+      );
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
@@ -401,19 +352,12 @@ class CalendarAlt extends React.Component {
         `,
       };
 
-      const response = await EnviaNotificacione(body, cookies.get("authToken"))
-
+      const response = await EnviaNotificacione(
+        body,
+        this.props.auth.accessToken
+      );
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
@@ -424,7 +368,10 @@ class CalendarAlt extends React.Component {
         estado: estado,
       };
 
-      const response = await actualizaEstadoSolicitud(body, cookies.get("authToken"))
+      const response = await actualizaEstadoSolicitud(
+        body,
+        this.props.auth.accessToken
+      );
 
       if (response.status === 200) {
         this.showSuccess("La solicitud ha sido respondida");
@@ -445,22 +392,16 @@ class CalendarAlt extends React.Component {
         this.showError("Ha ocurrido un error al responder la solicitud");
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
   archivarSolicitud = async (id_solicitud) => {
     try {
-      const response = await archivarSolicitud(id_solicitud, cookies.get("authToken"));
+      const response = await archivarSolicitud(
+        id_solicitud,
+        this.props.auth.accessToken
+      );
 
       if (response.status === 200) {
         this.showSuccess("La solicitud ha sido archivada");
@@ -469,16 +410,7 @@ class CalendarAlt extends React.Component {
         this.showError("Ha ocurrido un error al responder la solicitud");
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
@@ -530,7 +462,6 @@ class CalendarAlt extends React.Component {
   }
 
   render() {
-
     const customSlotPropGetter = (date) => {
       const backgroundEvents = this.state.backgroundEvents;
       for (let i = 0; i < backgroundEvents.length; i++) {
@@ -951,4 +882,4 @@ class CalendarAlt extends React.Component {
   }
 }
 
-export default CalendarAlt;
+export default AuthHookHoc(CalendarAlt);

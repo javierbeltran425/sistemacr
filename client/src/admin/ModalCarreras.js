@@ -1,11 +1,9 @@
 import FormControl from "@mui/material/FormControl";
 import Typography from "@mui/material/Typography";
 import { InputText } from "primereact/inputtext";
-import { useNavigate } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
-import { useCookies } from "react-cookie";
 import React, { useState } from "react";
 import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
@@ -13,6 +11,8 @@ import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
 
 import { createCarrera, editCarrera } from "../services/CarrerasServices";
+
+import useAuth from "../hooks/useAuth";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -35,8 +35,7 @@ const ModalCarreras = ({
   const [idEmpty, setIdEmpty] = useState(false);
   const [nameEmpty, setNameEmpty] = useState(false);
 
-  const navigate = useNavigate()
-  const [cookies, removeCookie] = useCookies(null);
+  const { auth } = useAuth();
 
   const [open, setOpen] = React.useState(false);
   const handleOpenSnack = (error) => {
@@ -59,25 +58,14 @@ const ModalCarreras = ({
     if (newCarrera.id_carrera == "" || newCarrera.nombre == "") return;
 
     try {
-      const response = await createCarrera(newCarrera, cookies.authToken);
+      const response = await createCarrera(newCarrera, auth.accessToken);
 
       if (response.status === 200) {
         getAllCarreras();
         handleClose();
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        handleOpenSnack(error);
-      }
+      handleOpenSnack(error);
     }
   };
 
@@ -88,25 +76,14 @@ const ModalCarreras = ({
 
     e.preventDefault();
     try {
-      const response = await editCarrera(newCarrera, cookies.authToken);
+      const response = await editCarrera(newCarrera, auth.accessToken);
 
       if (response.status === 200) {
         getAllCarreras();
         handleClose();
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        handleOpenSnack(error);
-      }
+      handleOpenSnack(error);
     }
   };
 

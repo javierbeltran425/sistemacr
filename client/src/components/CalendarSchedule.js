@@ -20,7 +20,6 @@ import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
 import { Toast } from "primereact/toast";
 import Stack from "@mui/material/Stack";
-import Cookies from "universal-cookie";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -30,6 +29,7 @@ import moment from "moment";
 import React from "react";
 import "moment/locale/es";
 import "moment-timezone";
+import { AuthHookHoc } from "./auth/AuthHookHoc";
 
 // servicios
 import {
@@ -42,7 +42,6 @@ import { getHorariosByIdUsuario } from "../services/HorariosServices";
 moment.locale("es");
 moment.tz.setDefault("America/El _Salvador");
 const localizer = momentLocalizer(moment);
-const cookies = new Cookies();
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -64,8 +63,8 @@ class CalendarAlt extends React.Component {
     event: "Evento",
     noEventsInRange: "Na hay eventos este día.",
   };
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       events: [],
       title: "",
@@ -100,9 +99,9 @@ class CalendarAlt extends React.Component {
   getSeccionesByIdUsuario = async () => {
     try {
       const response = await getSeccionesByIdUsuario(
-        cookies.get("id_usuario"),
-        cookies.get("authToken")
-      )
+        this.props.auth.id_usuario,
+        this.props.auth.accessToken
+      );
       if (response.status === 200) {
         this.setState({ secciones: response.data });
         if (response.data)
@@ -111,25 +110,16 @@ class CalendarAlt extends React.Component {
           });
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
   getHorariosUsuario = async () => {
     try {
       const response = await getHorariosByIdUsuario(
-        cookies.get("id_usuario"),
-        cookies.get("authToken")
-      )
+        this.props.auth.id_usuario,
+        this.props.auth.accessToken
+      );
 
       if (response.status === 200) {
         const json = response.data;
@@ -142,16 +132,7 @@ class CalendarAlt extends React.Component {
         this.setState({ events: json });
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        cookies.remove("id_usuario");
-        cookies.remove("email");
-        cookies.remove("authToken");
-        cookies.remove("nombre");
-        cookies.remove("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
   };
 
@@ -210,7 +191,7 @@ class CalendarAlt extends React.Component {
   // Onclick callback function that pushes new appointment into events array.
   async setNewHorario() {
     const { start, end, title, desc } = this.state;
-    const id_usuario = cookies.get("id_usuario");
+    const id_usuario = this.props.auth.id_usuario;
 
     let cadena = "";
     const caracteresPermitidos = "0123456789";
@@ -240,7 +221,10 @@ class CalendarAlt extends React.Component {
           end: endDate,
         };
 
-        const response = await registrarHorario(data, cookies.get("authToken"))
+        const response = await registrarHorario(
+          data,
+          this.props.auth.accessToken
+        );
 
         if (response.status === 200) {
           this.showSuccess("El evento ha sido registrado con éxito");
@@ -249,16 +233,7 @@ class CalendarAlt extends React.Component {
         }
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      console.log(error);
     }
     this.getHorariosUsuario();
   }
@@ -282,18 +257,9 @@ class CalendarAlt extends React.Component {
   async deleteEvent() {
     const response = await deleteHorariosUsuarioMateria(
       this.state.identificador,
-      cookies.get("authToken")
-    ).catch((err) => {
-      if (err.response && (error.response.status === 400 || err.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-
-      } else {
-        alert("Ha ocurrido un error inesperado.");
-      }
+      this.props.auth.accessToken
+    ).catch((error) => {
+      console.log(error);
     });
 
     if (response.status == 200) {
@@ -351,7 +317,6 @@ class CalendarAlt extends React.Component {
   }
 
   render() {
-
     const customEventPropGetter = (event) => {
       if (this.state.seccionSeleccionada?.id_seccion !== event?.id_seccion) {
         return {
@@ -535,23 +500,38 @@ class CalendarAlt extends React.Component {
               </DemoItem>
             </DemoContainer>
           </DialogContent>
-          <DialogActions>
-            <Button
-              label="Cancel"
-              secondary={"true"}
-              onClick={this.handleClose}
-            >
-              CANCELAR
-            </Button>
-            <Button
-              label="Submit"
-              primary={"true"}
-              onClick={() => {
-                this.setNewHorario(), this.handleClose();
-              }}
-            >
-              GUARDAR
-            </Button>
+          <DialogActions
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 2,
+            }}
+          >
+            <Stack direction={"row"}>
+              <Button
+                variant="outlined"
+                label="Cancel"
+                secondary={"true"}
+                onClick={this.handleClose}
+                sx={{ marginLeft: 2 }}
+              >
+                SALIR
+              </Button>
+            </Stack>
+            <Stack direction={"row"}>
+              <Button
+                color="success"
+                variant="outlined"
+                label="Submit"
+                primary={"true"}
+                onClick={() => {
+                  this.setNewHorario(), this.handleClose();
+                }}
+                sx={{ marginRight: 2 }}
+              >
+                GUARDAR
+              </Button>
+            </Stack>
           </DialogActions>
         </Dialog>
 
@@ -562,15 +542,6 @@ class CalendarAlt extends React.Component {
             ${this.state.title}`}</p>
           </DialogTitle>
           <DialogContent>
-            {/*<TextField
-              label="Título"
-              margin="dense"
-              value={this.state.title}
-              fullWidth
-              onChange={(e) => {
-                this.setTitle(e.target.value);
-              }}
-            />*/}
             <br />
             <InputTextarea
               className="w-full"
@@ -606,28 +577,38 @@ class CalendarAlt extends React.Component {
               </DemoItem>
             </DemoContainer>
           </DialogContent>
-          <DialogActions>
-            <Button label="Cancel" primary={"false"} onClick={this.handleClose}>
-              SALIR
-            </Button>
-            <Button
-              label="Delete"
-              secondary={"true"}
-              onClick={() => {
-                this.deleteEvent(), this.handleClose();
-              }}
-            >
-              BORRAR
-            </Button>
-            {/* <Button
-              label="Confirm Edit"
-              secondary={"true"}
-              onClick={() => {
-                this.updateEvent(), this.handleClose();
-              }}
-            >
-              CONFIRM EDIT
-            </Button> */}
+          <DialogActions
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 2,
+            }}
+          >
+            <Stack direction="row">
+              <Button
+                variant="outlined"
+                label="Cancel"
+                primary={"false"}
+                onClick={this.handleClose}
+                sx={{ marginLeft: 2 }}
+              >
+                SALIR
+              </Button>
+            </Stack>
+            <Stack direction="row">
+              <Button
+                sx={{ marginRight: 2 }}
+                color="error"
+                variant="outlined"
+                label="Delete"
+                secondary={"true"}
+                onClick={() => {
+                  this.deleteEvent(), this.handleClose();
+                }}
+              >
+                BORRAR
+              </Button>
+            </Stack>
           </DialogActions>
         </Dialog>
       </div>
@@ -635,4 +616,4 @@ class CalendarAlt extends React.Component {
   }
 }
 
-export default CalendarAlt;
+export default AuthHookHoc(CalendarAlt);

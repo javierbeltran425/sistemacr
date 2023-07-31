@@ -17,14 +17,15 @@ import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
-import { useCookies } from "react-cookie";
-import React, { useEffect } from "react";
+import React from "react";
 import { ListItem } from "@mui/material";
 import { Toast } from "primereact/toast";
 import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import useAuth from "../hooks/useAuth";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -53,7 +54,8 @@ export default function RegisterView() {
   const [error, setError] = React.useState(null);
   const toast = React.useRef(null);
   const navigate = useNavigate();
-  const [cookies, setCookie, removeCookie] = useCookies(null);
+
+  const { auth, setAuth } = useAuth();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -69,24 +71,14 @@ export default function RegisterView() {
 
   const getUsuario = async (id_usuario) => {
     try {
-      const response = await getUsuarioById(id_usuario, cookies.authToken);
+      const response = await getUsuarioById(id_usuario, auth.accessToken);
 
       if (response.status == 200 || response.status == 204) {
         setUsuario(response.data[0]);
         contextUsuario.setActivo(response.data[0].activo);
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-      } else {
-        alert("Ha ocurrido un error inesperado");
-      }
+      console.log(error);
     }
   };
 
@@ -105,73 +97,39 @@ export default function RegisterView() {
         oldPassword: oldPass,
         newPassword: newPass,
       };
-      const response = await changePassword(data, cookies.authToken);
+      const response = await changePassword(data, auth.accessToken);
       if (response.status == 200) {
         showSuccess();
         handleClose();
-      } else {
-        setError(response.data.error);
       }
     } catch (error) {
-      console.log("🚀 ~ file: RegisterView.js:116 ~ ChangePassword ~ error:", error)
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        setError(error.response.data.error);
-      }
+      setError(error.response.data.message);
     }
   };
 
   const getSecciones = async (id_usuario) => {
     try {
-      const response = await getSeccionesByIdUsuario(id_usuario, cookies.authToken);
+      const response = await getSeccionesByIdUsuario(
+        id_usuario,
+        auth.accessToken
+      );
       if (response.status == 200) {
         setSecciones(response.data);
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado", error.response.status);
-      }
+      console.log(error);
     }
   };
 
   const ActivateUser = async (id_usuario) => {
     try {
-      const response = await activateUser(id_usuario, cookies.authToken);
+      const response = await activateUser(id_usuario, auth.accessToken);
       if (response.status == 200) {
-        contextUsuario.setActivo(true);
-        setCookie("act", true);
+        setAuth({ ...auth, activo: true });
         navigate("/");
       }
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
-        removeCookie("id_usuario");
-        removeCookie("email");
-        removeCookie("authToken");
-        removeCookie("nombre");
-        removeCookie("act");
-        navigate("/");
-        window.location.reload()
-
-      } else {
-        alert("Ha ocurrido un error inesperado");
-      }
+      console.log(error);
     }
   };
 
@@ -185,14 +143,14 @@ export default function RegisterView() {
   };
 
   React.useEffect(() => {
-    getUsuario(cookies.id_usuario);
-    getSecciones(cookies.id_usuario);
+    getUsuario(auth.id_usuario);
+    getSecciones(auth.id_usuario);
   }, []);
 
   return (
     <Layout>
       <Toast ref={toast} />
-      {cookies.act ? (
+      {auth.activo ? (
         <div className="w-full flex flex-row justify-content-start">
           <div
             className="flex flex-row justify-content-center align-items-center m-2 cursor-pointer"
@@ -212,7 +170,7 @@ export default function RegisterView() {
         <DialogTitle>Cambiar contraseña</DialogTitle>
         <DialogContent>
           <div className="card flex justify-content-center flex-column">
-            <span className="p-float-label my-3">
+            <span className="p-float-label my-4">
               <Password
                 value={oldPass}
                 onChange={(e) => setOldPass(e.target.value)}
@@ -221,7 +179,7 @@ export default function RegisterView() {
               <label htmlFor="password">Contraseña Actual</label>
             </span>
             <hr style={{ width: "100%" }}></hr>
-            <span className="p-float-label my-3">
+            <span className="p-float-label my-4">
               <Password
                 value={newPass}
                 onChange={(e) => setNewPass(e.target.value)}
@@ -278,6 +236,15 @@ export default function RegisterView() {
                 <EmailIcon />
               </ListItemAvatar>
               <ListItemText primary={usuario.email} secondary={"Email"} />
+            </ListItem>
+            <ListItem>
+              <ListItemAvatar>
+                <ManageAccountsIcon />
+              </ListItemAvatar>
+              <ListItemText
+                primary={usuario.rol}
+                secondary={"Tipo de usuario"}
+              />
             </ListItem>
             <ListItem>
               <ListItemAvatar>

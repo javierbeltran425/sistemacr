@@ -1,87 +1,83 @@
-import React, { useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
+import React from "react";
+import { useRef, useState, useEffect } from "react";
+import useAuth from "../hooks/useAuth";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
-//components
+import axios, { axiosPrivate } from "../api/axios.js";
+
+//Prime components
 import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 
-import { getRolByID } from "../services/UsuariosServices";
-import { login } from "../services/AuthServices";
-
-import ContextUsuario from "../context/ContextUsuario";
+const titleTemplate = (
+  <div>
+    <p className="text-center md:text-left text-2xl font-bold">
+      Bienvenido al sistema de consultas y revisiones
+    </p>
+  </div>
+);
 
 const Login = () => {
+  const { setAuth, persist, setPersist } = useAuth();
+
   const navigate = useNavigate();
-  const [cookies, setCookie, removeCookie] = useCookies(null);
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
-  const [loading, setLoading] = useState(false)
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const emailRef = useRef();
+  const errRef = useRef();
+
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errMsg, setErrMsg] = useState("");
 
-  const contextUsuario = useContext(ContextUsuario)
+  useEffect(() => {
+    emailRef.current.focus();
+  }, []);
+
+  useEffect(() => {
+    setErrMsg("");
+  }, [email, password]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true)
 
-    const body = {
-      email: email,
-      password: password
-    }
-    const response = await login(body)
-
-    let data = null
-
-    if (response.status === 200) {
-      data = response.data
-    }
-
-
-    if (data.error) {
-      setError(data.error);
-    } else if (data.token) {
-      setCookie("id_usuario", data.id_usuario);
-      setCookie("email", data.email);
-      setCookie("authToken", data.token);
-      setCookie("nombre", data.nombre);
-      setCookie("act", data.activo)
-
-      contextUsuario.setId_usuario(data.id_usuario)
-      contextUsuario.setEmail(data.email)
-      contextUsuario.setActivo(data.activo)
-      getRol(data.id_usuario, data.token)
-
-      if (!data.activo)
-        navigate('/register')
-    }
-
-    setLoading(false)
-  };
-
-  const getRol = async (idUsuario, token) => {
     try {
-
-      const response = await getRolByID(idUsuario, token)
-
-      if (response.status === 200) contextUsuario.setRol(response.data[0].rol)
-
-    } catch (error) {
-      alert("Ha ocurrido un error inesperado");
+      const response = await axiosPrivate.post(
+        "/auth/login",
+        JSON.stringify({ email, password })
+      );
+      const data = response?.data;
+      setAuth({
+        id_usuario: data.id_usuario,
+        email: data.email,
+        nombre: data.nombre,
+        rol: data.rol,
+        activo: data.activo,
+        accessToken: data.accessToken,
+      });
+      setEmail("");
+      setPassword("");
+      navigate(from, { replace: true });
+    } catch (err) {
+      if (!err?.response) {
+        setErrMsg("No Server Response");
+      } else {
+        setErrMsg(err.response.data.message);
+      }
+      errRef.current.focus();
     }
   };
 
-  const titleTemplate = (
-    <div>
-      <p className="text-center md:text-left text-2xl font-bold">
-        Bienvenido al sistema de consultas y revisiones
-      </p>
-    </div>
-  );
+  const togglePersist = () => {
+    setPersist((prev) => !prev);
+  };
 
+  useEffect(() => {
+    localStorage.setItem("persist", persist);
+  }, [persist]);
   return (
     <div className="flex w-full h-screen justify-content-center align-items-center surface-ground px-3">
       <Card title={titleTemplate}>
@@ -92,32 +88,49 @@ const Login = () => {
               className="w-8 mb-3 md:mb-0"
             />
           </div>
-          <div className="flex flex-column justify-content-center align-items-center gap-4">
+          <form
+            className="flex flex-column justify-content-center align-items-center gap-4"
+            onSubmit={handleSubmit}
+          >
             <InputText
+              type="email"
+              id="email"
+              ref={emailRef}
+              autoComplete="off"
               placeholder="Correo"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               keyfilter={/^[a-zA-Z0-9@._+-]*$/}
+              required
             />
             <Password
+              type="password"
+              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               feedback={false}
               placeholder="Contraseña"
+              required
               keyfilter={/^[\w!@#$%^&*()\-+=<>?/\|{}\[\]~]*$/}
             />
-            <Button
-              loading={loading}
-              label={"Iniciar sesión"}
-              onClick={(e) => {
-                e.preventDefault();
-                handleSubmit(e);
-              }}
-            />
-
-            {error && <p>{error}</p>}
-
-          </div>
+            <Button label={"Iniciar sesión"} />
+            <div className="persistCheck">
+              <input
+                type="checkbox"
+                id="persist"
+                onChange={togglePersist}
+                checked={persist}
+              />
+              <label htmlFor="persist">Mantener mi sesión activa</label>
+            </div>
+            <p
+              ref={errRef}
+              className={errMsg ? "errmsg" : "offscreen"}
+              aria-live="assertive"
+            >
+              {errMsg}
+            </p>
+          </form>
         </div>
       </Card>
     </div>
