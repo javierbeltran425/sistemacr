@@ -6,7 +6,6 @@ import { getUsuarioById } from "../services/UsuariosServices";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import ContextUsuario from "../context/ContextUsuario";
 import ListItemText from "@mui/material/ListItemText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Typography from "@mui/material/Typography";
@@ -46,7 +45,6 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function RegisterView() {
   const [usuario, setUsuario] = React.useState({});
   const [secciones, setSecciones] = React.useState([]);
-  const contextUsuario = React.useContext(ContextUsuario);
   const [open, setOpen] = React.useState(false);
   const [oldPass, setOldPass] = React.useState("");
   const [newPass, setNewPass] = React.useState("");
@@ -75,7 +73,6 @@ export default function RegisterView() {
 
       if (response.status == 200 || response.status == 204) {
         setUsuario(response.data[0]);
-        contextUsuario.setActivo(response.data[0].activo);
       }
     } catch (error) {
       console.log(error);

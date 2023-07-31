@@ -1,9 +1,6 @@
 import { React } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
-//context: id_usuario email rol
-import ContextState from "./context/ContextState";
-
 //theme
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 
@@ -30,13 +27,9 @@ import PersistLogin from "./components/auth/PersistLogin";
 
 import { USUARIO_ROLES } from "./constants/usuario";
 
-import useAuth from "./hooks/useAuth";
-
 //constants
 
 function App() {
-  const { auth } = useAuth();
-
   return (
     <ContextState>
       <Router>
