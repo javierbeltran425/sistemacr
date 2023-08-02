@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   activo BOOLEAN DEFAULT(false),
   rol TEXT,
 	refresh_token TEXT,
+	recovery_token TEXT,
   CONSTRAINT fk_carrera FOREIGN KEY(id_carrera) REFERENCES carreras(id_carrera) ON DELETE SET NULL
 );
 
@@ -99,5 +100,5 @@ ADD CONSTRAINT UxM_unique UNIQUE (id_seccion, id_usuario);
 
 */
 INSERT INTO USUARIOS (id_usuario, email, hashed_password, rol, activo, nombre)
-VALUES('admin', 'admin@uca.edu.sv', '$2b$10$8GMI1pz7/k6tYYmnzmbnO./4kxXrsoe4LR9fmMYnKu6xvVCqHny/2', 'admin', true, 'admin')
+VALUES('admin', 'admin@uca.edu.sv', '$2b$10$dhsJYfaaSloQyU2a.K1T3OkYzVPVCTLtJpNntBrVPXtI8iZWPDEL2', 'admin', true, 'admin')
 ON CONFLICT (id_usuario) DO NOTHING;

@@ -24,6 +24,7 @@ import RequireAuth from "./components/auth/RequireAuth";
 import Unauthorized from "./components/auth/Unauthorized";
 import Missing from "./components/auth/Missing";
 import PersistLogin from "./components/auth/PersistLogin";
+import RecoveryPassword from "./views/RecoveryPassword";
 
 import { USUARIO_ROLES } from "./constants/usuario";
 
@@ -37,6 +38,7 @@ function App() {
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/404" element={<Missing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/recovery" element={<RecoveryPassword />} />
 
         {/* protected */}
         {

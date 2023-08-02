@@ -44,6 +44,15 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const expRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()\\-+=<>?/\\|{}\\[\\]~]{8,}$"
+
+    const regex = new RegExp(expRegex);
+
+    // if (!regex.test(password)) {
+    //   setErrMsg("El texto no es una constraseña válida.");
+    //   return;
+    // }
+
     try {
       const response = await axiosPrivate.post(
         "/auth/login",
@@ -130,6 +139,11 @@ const Login = () => {
             >
               {errMsg}
             </p>
+
+            <div className="m-0 p-0">
+              <p className="text-blue-500 cursor-pointer hover:underline m-0 p-0" onClick={() => navigate('/recovery')}>Olvidé mi contraseña</p>
+            </div>
+
           </form>
         </div>
       </Card>

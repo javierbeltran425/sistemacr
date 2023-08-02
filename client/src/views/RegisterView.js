@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
-import React from "react";
+import React, { useEffect } from "react";
 import { ListItem } from "@mui/material";
 import { Toast } from "primereact/toast";
 import Stack from "@mui/material/Stack";
@@ -50,6 +50,7 @@ export default function RegisterView() {
   const [newPass, setNewPass] = React.useState("");
   const [confirmPass, setConfirmPass] = React.useState("");
   const [error, setError] = React.useState(null);
+  const [errorOld, setErrorOld] = React.useState(null);
   const toast = React.useRef(null);
   const navigate = useNavigate();
 
@@ -62,6 +63,12 @@ export default function RegisterView() {
     setError(null);
     setConfirmPass("");
   };
+
+  useEffect(() => {
+    setError("")
+    setErrorOld("")
+  }, [newPass, confirmPass, oldPass])
+
 
   const handleClose = () => {
     setOpen(false);
@@ -80,12 +87,26 @@ export default function RegisterView() {
   };
 
   const ChangePassword = async () => {
+    const expRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()\\-+=<>?/\\|{}\\[\\]~]{8,}$"
+
+    const regex = new RegExp(expRegex);
+
     if (newPass == "" || confirmPass == "") {
       setError("Ningún campo puede estar vacío.");
       return;
     }
     if (newPass != confirmPass) {
       setError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    if (!regex.test(newPass)) {
+      setError("El texto no es una constraseña válida.");
+      return;
+    }
+
+    if (!regex.test(oldPass)) {
+      setErrorOld("El texto no es una constraseña válida.");
       return;
     }
     try {
@@ -166,7 +187,12 @@ export default function RegisterView() {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Cambiar contraseña</DialogTitle>
         <DialogContent>
-          <div className="card flex justify-content-center flex-column">
+          <div className="card flex justify-content-center align-items-center flex-column">
+            <ul className='w-full'>
+              <li>La contraseña debe tener al menos 8 caracteres.</li>
+              <li>Debe contener al menos una letra (mayúscula o minúscula) y al menos un número.</li>
+              <li>Puedes utilizar letras (A-Z, a-z), números (0-9) y los siguientes caracteres especiales: ! @ # $ % ^ & * ( ) - + = &lt; &gt; ? / \ | { } [ ] ~.</li>
+            </ul>
             <span className="p-float-label my-4">
               <Password
                 value={oldPass}
@@ -174,6 +200,7 @@ export default function RegisterView() {
                 toggleMask
               />
               <label htmlFor="password">Contraseña Actual</label>
+              <p>{errorOld}</p>
             </span>
             <hr style={{ width: "100%" }}></hr>
             <span className="p-float-label my-4">

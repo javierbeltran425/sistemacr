@@ -58,6 +58,7 @@ const ModalUsuarios = ({
   const [nameEmpty, setNameEmpty] = useState(false);
   const [passEmpty, setPassEmpty] = useState(false);
 
+  const [errMsg, setErrMsg] = useState("")
   const [open, setOpen] = React.useState(false);
   const handleOpenSnack = (error) => {
     setSnackError("ERROR: " + error.response.data.message);
@@ -72,6 +73,11 @@ const ModalUsuarios = ({
     setOpen(false);
   };
 
+  useEffect(() => {
+    setErrMsg("")
+  }, [newUsuario.password])
+
+
   const CreateUsuario = async (e) => {
     e.preventDefault();
     newUsuario.email == "" ? setEmailEmpty(true) : setEmailEmpty(false);
@@ -83,6 +89,15 @@ const ModalUsuarios = ({
       newUsuario.password == ""
     )
       return;
+
+    const expRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()\\-+=<>?/\\|{}\\[\\]~]{8,}$"
+
+    const regex = new RegExp(expRegex);
+
+    if (!regex.test(newUsuario.password)) {
+      setErrMsg("La contraseña no es una constraseña válida.");
+      return;
+    }
 
     try {
       let data = newUsuario;
@@ -432,6 +447,8 @@ const ModalUsuarios = ({
                 Guardar
               </Button>
             </FormControl>
+
+            <p className="text-center">{errMsg}</p>
           </form>
         </Box>
       </Modal>
