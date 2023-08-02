@@ -152,7 +152,7 @@ const bulkCreateUsuario = tryCatch(async function (req, res) {
   for (let i = 0; i < usuariosData.length; i++) {
     const salt = bcrypt.genSaltSync(10);
     usuariosData[i].hashed_password = bcrypt.hashSync(
-      usuariosData[i].hashed_password,
+      usuariosData[i].hashed_password + "Uca#2023",
       salt
     );
   }

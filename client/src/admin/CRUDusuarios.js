@@ -168,8 +168,8 @@ const CRUDusuarios = () => {
       : setDataSet(
           usuarios.filter(
             (e) =>
-              e.email.toUpperCase().includes(searchValue) ||
-              e.nombre.toUpperCase().includes(searchValue)
+              e.email.toUpperCase().includes(searchValue.toUpperCase()) ||
+              e.nombre.toUpperCase().includes(searchValue.toUpperCase())
           )
         );
   }, [searchValue]);

@@ -23,6 +23,8 @@ services:
     depends_on:
       - db
     build:
+      args:
+        - REACT_APP_SERVER_URL=http://localhost:8000
       context: ./
       dockerfile: Dockerfile
     restart: unless-stopped
@@ -30,6 +32,8 @@ services:
       - $PORT:$PORT
     env_file: ./.env
     environment:
+      - PORT:$PORT
+
       - DB_HOST=db
       - DB_USER=$POSTGRES_USER
       - DB_PASS=$POSTGRES_PASSWORD
