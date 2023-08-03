@@ -3,6 +3,8 @@ const router = express.Router();
 
 const auth = require("../controllers/auth");
 
+router.post("/auth/recovery", auth.generateRecoveryToken);
+
 router.post("/auth/login", auth.login);
 
 router.get("/auth/refresh", auth.handleRefreshToken);
