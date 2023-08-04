@@ -3,7 +3,6 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 
 const NetworkErrorHandler = ({ error }) => {
-    console.log("🚀 ~ file: NetworkErrorHandler.js:6 ~ NetworkErrorHandler ~ status:", error)
     const toastBC = useRef(null);
 
     useEffect(() => {

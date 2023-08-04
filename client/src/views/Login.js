@@ -15,8 +15,8 @@ import { Dialog } from "primereact/dialog";
 import { solicitaRecuperacion } from "../services/AuthServices";
 
 const titleTemplate = (
-  <div>
-    <p className="text-center md:text-left text-2xl font-bold">
+  <div className="w-full">
+    <p className="text-center text-2xl font-bold">
       Bienvenido al sistema de consultas y revisiones
     </p>
   </div>
@@ -105,8 +105,11 @@ const Login = () => {
     try {
       setLoadingRecovery(true);
 
+      const hostUrl = window.location.protocol + "//" + window.location.host + "/";
+
       const body = {
-        email: recoveryEmail
+        email: recoveryEmail,
+        pathUrl: hostUrl
       }
       const response = await solicitaRecuperacion(body)
 
@@ -166,6 +169,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 keyfilter={/^[a-zA-Z0-9@._+-]*$/}
                 required
+                className="w-full"
               />
               <Password
                 type="password"
@@ -175,6 +179,7 @@ const Login = () => {
                 feedback={false}
                 placeholder="Contraseña"
                 required
+                toggleMask
                 keyfilter={/^[\w!@#$%^&*()\-+=<>?/\|{}\[\]~]*$/}
               />
               <Button label={"Iniciar sesión"} />

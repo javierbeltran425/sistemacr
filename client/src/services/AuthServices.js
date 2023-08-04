@@ -37,3 +37,14 @@ export const solicitaRecuperacion = async (data) => {
         data
     });
 };
+
+export const cambiaContrasenia = async (data) => {
+    return axios({
+        headers: {
+            "Content-Type": "application/json ",
+        },
+        method: "POST",
+        url: `${serverUrl}/auth/changePassword`,
+        data
+    });
+};
