@@ -10,6 +10,9 @@ import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog";
+
+import { solicitaRecuperacion } from "../services/AuthServices";
 
 const titleTemplate = (
   <div>
@@ -21,6 +24,7 @@ const titleTemplate = (
 
 const Login = () => {
   const { setAuth, persist, setPersist } = useAuth();
+  const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,6 +36,11 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
+
+  const [recoveryEmail, setRecoveryEmail] = useState("");
+  const [recoveryErrorText, setRecoveryErrorText] = useState(false);
+  const [loadingRecovery, setLoadingRecovery] = useState(false);
+  const [recoverySuccessText, setRecoverySuccessText] = useState(false);
 
   useEffect(() => {
     emailRef.current.focus();
@@ -48,10 +57,10 @@ const Login = () => {
 
     const regex = new RegExp(expRegex);
 
-    // if (!regex.test(password)) {
-    //   setErrMsg("El texto no es una constraseña válida.");
-    //   return;
-    // }
+    if (!regex.test(password)) {
+      setErrMsg("El texto no es una constraseña válida.");
+      return;
+    }
 
     try {
       const response = await axiosPrivate.post(
@@ -80,6 +89,37 @@ const Login = () => {
     }
   };
 
+  const handleEmailChange = () => {
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+    if (emailRegex.test(recoveryEmail)) {
+      setRecoveryErrorText(false)
+      recuperacionContrasenia()
+    } else {
+      setRecoveryErrorText(true)
+      setRecoverySuccessText(false)
+    }
+  };
+
+  const recuperacionContrasenia = async () => {
+    try {
+      setLoadingRecovery(true);
+
+      const body = {
+        email: recoveryEmail
+      }
+      const response = await solicitaRecuperacion(body)
+
+      if (response.status === 200) {
+        setRecoverySuccessText(true)
+      }
+
+      setLoadingRecovery(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const togglePersist = () => {
     setPersist((prev) => !prev);
   };
@@ -87,67 +127,83 @@ const Login = () => {
   useEffect(() => {
     localStorage.setItem("persist", persist);
   }, [persist]);
+
   return (
-    <div className="flex w-full h-screen justify-content-center align-items-center surface-ground px-3">
-      <Card title={titleTemplate}>
-        <div className="flex flex-column justify-content-center align-items-center md:flex-row w-full">
-          <div className="flex w-8 justify-content-center align-items-center">
-            <img
-              src="https://www.uca.edu.sv/realidad.empresarial/wp-content/uploads/2018/09/logo-uca2.png"
-              className="w-8 mb-3 md:mb-0"
-            />
-          </div>
-          <form
-            className="flex flex-column justify-content-center align-items-center gap-4"
-            onSubmit={handleSubmit}
-          >
-            <InputText
-              type="email"
-              id="email"
-              ref={emailRef}
-              autoComplete="off"
-              placeholder="Correo"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              keyfilter={/^[a-zA-Z0-9@._+-]*$/}
-              required
-            />
-            <Password
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              feedback={false}
-              placeholder="Contraseña"
-              required
-              keyfilter={/^[\w!@#$%^&*()\-+=<>?/\|{}\[\]~]*$/}
-            />
-            <Button label={"Iniciar sesión"} />
-            <div className="persistCheck">
-              <input
-                type="checkbox"
-                id="persist"
-                onChange={togglePersist}
-                checked={persist}
-              />
-              <label htmlFor="persist">Mantener mi sesión activa</label>
-            </div>
-            <p
-              ref={errRef}
-              className={errMsg ? "errmsg" : "offscreen"}
-              aria-live="assertive"
-            >
-              {errMsg}
-            </p>
-
-            <div className="m-0 p-0">
-              <p className="text-blue-500 cursor-pointer hover:underline m-0 p-0" onClick={() => navigate('/recovery')}>Olvidé mi contraseña</p>
-            </div>
-
-          </form>
+    <>
+      <Dialog header="Recuperación de contraseña" visible={showRecoveryDialog} onHide={() => setShowRecoveryDialog(false)} className="w-11 md:w-3" >
+        <div className="flex flex-column justify-content-center align-items-center gap-4">
+          <InputText value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)} placeholder="Ingrese su correo electrónico..." className="w-full" />
+          {recoveryErrorText ?
+            <p className="text-center text-red-500 m-0 p-0 text-sm">El texto ingresado no es un correo válido</p> : ""
+          }
+          {
+            recoverySuccessText ?
+              <p className="text-center text-green-500 m-0 p-0 text-sm">Se ha enviado un correo electrónico con las instrucciones a seguir para continuar con el proceso. Si no recibió el correo haga clic de nuevo en el botón "Solicitar recuperación"</p> : ""
+          }
+          <Button label="Solicitar recuperación" loading={loadingRecovery} className="w-full" onClick={handleEmailChange} outlined />
         </div>
-      </Card>
-    </div>
+      </Dialog>
+      <div className="flex w-full h-screen justify-content-center align-items-center surface-ground px-3">
+        <Card title={titleTemplate}>
+          <div className="flex flex-column justify-content-center align-items-center md:flex-row w-full">
+            <div className="flex w-8 justify-content-center align-items-center">
+              <img
+                src="https://www.uca.edu.sv/realidad.empresarial/wp-content/uploads/2018/09/logo-uca2.png"
+                className="w-8 mb-3 md:mb-0"
+              />
+            </div>
+            <form
+              className="flex flex-column justify-content-center align-items-center gap-4"
+              onSubmit={handleSubmit}
+            >
+              <InputText
+                type="email"
+                id="email"
+                ref={emailRef}
+                autoComplete="off"
+                placeholder="Correo"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                keyfilter={/^[a-zA-Z0-9@._+-]*$/}
+                required
+              />
+              <Password
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                feedback={false}
+                placeholder="Contraseña"
+                required
+                keyfilter={/^[\w!@#$%^&*()\-+=<>?/\|{}\[\]~]*$/}
+              />
+              <Button label={"Iniciar sesión"} />
+              <div className="persistCheck">
+                <input
+                  type="checkbox"
+                  id="persist"
+                  onChange={togglePersist}
+                  checked={persist}
+                />
+                <label htmlFor="persist">Mantener mi sesión activa</label>
+              </div>
+              <p
+                ref={errRef}
+                className={errMsg ? "errmsg" : "offscreen"}
+                aria-live="assertive"
+              >
+                {errMsg}
+              </p>
+
+              <div className="m-0 p-0">
+                <p className="text-blue-500 cursor-pointer hover:underline m-0 p-0" onClick={() => setShowRecoveryDialog(true)}>Olvidé mi contraseña</p>
+              </div>
+
+            </form>
+          </div>
+        </Card>
+      </div>
+    </>
   );
 };
 

@@ -15,3 +15,25 @@ export const login = async (data) => {
         data
     });
 };
+
+export const validateRecoveryToken = async (data) => {
+    return axios({
+        headers: {
+            "Content-Type": "application/json ",
+        },
+        method: "POST",
+        url: `${serverUrl}/auth/validateRecoveryToken`,
+        data
+    });
+};
+
+export const solicitaRecuperacion = async (data) => {
+    return axios({
+        headers: {
+            "Content-Type": "application/json ",
+        },
+        method: "POST",
+        url: `${serverUrl}/auth/recovery`,
+        data
+    });
+};

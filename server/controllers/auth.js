@@ -19,37 +19,36 @@ const refreshSecret = env.REFRESH_TOKEN_SECRET;
 const generateRecoveryToken = tryCatch(async function (req, res) {
   const { email } = req.body;
 
-  try {
-    const accessToken = jwt.sign(
-      {
-        Usuario: {
-          email: email,
-        },
+  const accessToken = jwt.sign(
+    {
+      Usuario: {
+        email: email,
       },
-      accessSecret,
-      { expiresIn: "5m" }
-    );
+    },
+    accessSecret,
+    { expiresIn: "5m" }
+  );
 
-    await knex("usuarios")
-      .where({ email: email })
-      .update({ recovery_token: accessToken });
+  await knex("usuarios")
+    .where({ email: email })
+    .update({ recovery_token: accessToken });
 
-    let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: `${env.NODEM_USER}`, // generated ethereal user
-        pass: `${env.NODEM_PASSWORD}`, // generated ethereal password
-      },
-    });
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: `${env.NODEM_USER}`, // generated ethereal user
+      pass: `${env.NODEM_PASSWORD}`, // generated ethereal password
+    },
+  });
 
-    // send mail with defined transport object
-    let info = await transporter.sendMail({
-      from: `${env.NODEM_USER}`,
-      to: `${email}`,
-      subject: "RECUPERACIÓN DE CONTRASEÑA",
-      html: `
+  // send mail with defined transport object
+  let info = await transporter.sendMail({
+    from: `${env.NODEM_USER}`,
+    to: `${email}`,
+    subject: "RECUPERACIÓN DE CONTRASEÑA",
+    html: `
           <div>
             <h3>Se ha realizado una solicitud para cambiar tu contraseña.</h3>
 
@@ -60,15 +59,32 @@ const generateRecoveryToken = tryCatch(async function (req, res) {
             <h5>Si usted no ha solicitado cambio de contraseña haga caso omiso a este correo.</h5>
           </div>
         `, // html body
-    });
+  });
 
-    res.status(200).json({ error: false, message: info })
-  } catch (error) {
-    res.status(400).json({ error: true, message: error.message })
-  }
-
+  res.status(200).json({ error: false, message: info })
 
 })
+
+const validateRecoveryToken = tryCatch(async function (req, res) {
+  const { token } = req.body;
+
+  try {
+    const userToken = await knex
+      .select("recovery_token")
+      .from("usuarios")
+      .where({ recovery_token: token });
+
+    if (userToken.length === 0 || userToken[0].recovery_token !== token) {
+      return res.status(401).json({ error: true, message: "Token no autorizado" });
+    }
+
+    jwt.verify(token, accessSecret);
+
+    return res.status(200).json({ error: false, message: "Token verificado." });
+  } catch (error) {
+    return res.status(500).json({ error: true, message: "Token inválido o vencido." });
+  }
+});
 
 const login = tryCatch(async function (req, res) {
   const { email, password } = req.body;
@@ -204,4 +220,4 @@ const handleLogout = tryCatch(async (req, res) => {
     .sendStatus(204);
 });
 
-module.exports = { generateRecoveryToken, login, handleRefreshToken, handleLogout };
+module.exports = { generateRecoveryToken, validateRecoveryToken, login, handleRefreshToken, handleLogout };
