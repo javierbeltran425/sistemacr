@@ -129,9 +129,6 @@ const login = tryCatch(async function (req, res) {
     .select("id_usuario", "email", "rol", "hashed_password", "nombre", "activo")
     .from("usuarios")
     .where({ email: email })
-    .catch(() => {
-      console.log(error);
-    });
 
   if (Object.keys(usuario).length === 0)
     throw new apiError(httpCodes.NOT_FOUND, "El usuario ingresado no existe.");

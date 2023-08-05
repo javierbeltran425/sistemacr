@@ -5,6 +5,7 @@ import { csv } from "csvtojson";
 import "../styles/Table.css";
 const XLSX = require("xlsx");
 import useAuth from "../hooks/useAuth";
+import NetworkErrorHandler from "../components/NetworkErrorHandler";
 
 function Upload() {
   const [currentFile, setCurrentFile] = useState(undefined);
@@ -12,6 +13,7 @@ function Upload() {
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
   const [data, setData] = useState([]);
+  const [networkErrorMessage, setNetworkErrorMessage] = useState("");
 
   const { auth } = useAuth();
 
@@ -151,7 +153,11 @@ function Upload() {
         element1.classList.add("red");
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   }
 
@@ -220,6 +226,7 @@ function Upload() {
 
   return (
     <Layout>
+      <NetworkErrorHandler error={networkErrorMessage} setNetworkErrorMessage={setNetworkErrorMessage} />
       <div className="w-full lg:px-6 pt-5">
         <center>
           <h4>Importar Estudiantes</h4>

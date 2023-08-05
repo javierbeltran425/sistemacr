@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 // componentes
 import DataHistoryTable from "../components/DataHistoryTable";
 import { Divider } from "primereact/divider";
+import NetworkErrorHandler from "../components/NetworkErrorHandler";
 
 // servicios
 import { getReporte } from "../services/SolicitudesServices";
@@ -16,6 +17,7 @@ import useAuth from "../hooks/useAuth";
 
 const HistoryView = () => {
   const [historyData, setHistoryData] = useState([]);
+  const [networkErrorMessage, setNetworkErrorMessage] = useState("");
 
   const [contAusentes, setContAusentes] = useState(0);
   const [contAceptadas, setContAceptadas] = useState(0);
@@ -97,67 +99,74 @@ const HistoryView = () => {
 
       setHistoryData(response.data);
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   };
 
   return (
-    <div>
-      <div className="px-1 md:px-6">
-        <p className="text-xl font-bold md:text-3sxl">
-          Reportes de solicitudes
-        </p>
+    <>
+      <NetworkErrorHandler error={networkErrorMessage} setNetworkErrorMessage={setNetworkErrorMessage} />
+      <div>
+        <div className="px-1 md:px-6">
+          <p className="text-xl font-bold md:text-3sxl">
+            Reportes de solicitudes
+          </p>
 
-        <Divider />
+          <Divider />
 
-        <div className="grid w-full flex justify-content-center md:justify-content-between gap-1">
-          <div className="col-5 md:col-2 bg-green-500 text-center md:p-4 border-round-xl shadow-3">
-            <p className="m-0 text-white font-bold md:text-lg pb-2">
-              SOLICITUDES ACEPTADAS
-            </p>
-            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
-              {contAceptadas}
-            </p>
+          <div className="grid w-full flex justify-content-center md:justify-content-between gap-1">
+            <div className="col-5 md:col-2 bg-green-500 text-center md:p-4 border-round-xl shadow-3">
+              <p className="m-0 text-white font-bold md:text-lg pb-2">
+                SOLICITUDES ACEPTADAS
+              </p>
+              <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
+                {contAceptadas}
+              </p>
+            </div>
+            <div className="col-5 md:col-2 bg-green-800 text-center md:p-4 border-round-xl shadow-3">
+              <p className="m-0 text-white font-bold md:text-lg pb-2">
+                SOLICITUDES ATENDIDAS
+              </p>
+              <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
+                {contAtendidas}
+              </p>
+            </div>
+            <div className="col-5 md:col-2 bg-blue-500 text-center md:p-4 border-round-xl shadow-3">
+              <p className="m-0 text-white font-bold md:text-lg pb-2">
+                SOLICITUDES PENDIENTES
+              </p>
+              <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
+                {contPendientes}
+              </p>
+            </div>
+            <div className="col-5 md:col-2 bg-orange-500 text-center md:p-4 border-round-xl shadow-3">
+              <p className="m-0 text-white font-bold md:text-lg pb-2">
+                SOLICITUDES AUSENTES
+              </p>
+              <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
+                {contAusentes}
+              </p>
+            </div>
+            <div className="col-5 md:col-2 bg-red-500 text-center p-1 md:p-4 border-round-xl shadow-3">
+              <p className="m-0 text-white font-bold md:text-lg pb-2">
+                SOLICITUDES RECHAZADAS
+              </p>
+              <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
+                {contRechazadas}
+              </p>
+            </div>
           </div>
-          <div className="col-5 md:col-2 bg-green-800 text-center md:p-4 border-round-xl shadow-3">
-            <p className="m-0 text-white font-bold md:text-lg pb-2">
-              SOLICITUDES ATENDIDAS
-            </p>
-            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
-              {contAtendidas}
-            </p>
-          </div>
-          <div className="col-5 md:col-2 bg-blue-500 text-center md:p-4 border-round-xl shadow-3">
-            <p className="m-0 text-white font-bold md:text-lg pb-2">
-              SOLICITUDES PENDIENTES
-            </p>
-            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
-              {contPendientes}
-            </p>
-          </div>
-          <div className="col-5 md:col-2 bg-orange-500 text-center md:p-4 border-round-xl shadow-3">
-            <p className="m-0 text-white font-bold md:text-lg pb-2">
-              SOLICITUDES AUSENTES
-            </p>
-            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
-              {contAusentes}
-            </p>
-          </div>
-          <div className="col-5 md:col-2 bg-red-500 text-center p-1 md:p-4 border-round-xl shadow-3">
-            <p className="m-0 text-white font-bold md:text-lg pb-2">
-              SOLICITUDES RECHAZADAS
-            </p>
-            <p className="m-0 text-center text-white font-bold text-2xl md:text-6xl">
-              {contRechazadas}
-            </p>
-          </div>
-        </div>
 
-        <div className="my-6">
-          <DataHistoryTable historyData={historyData} />
+          <div className="my-6">
+            <DataHistoryTable historyData={historyData} />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

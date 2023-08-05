@@ -25,6 +25,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import useAuth from "../hooks/useAuth";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import NetworkErrorHandler from "../components/NetworkErrorHandler";
 
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -51,6 +52,7 @@ export default function RegisterView() {
   const [confirmPass, setConfirmPass] = React.useState("");
   const [error, setError] = React.useState(null);
   const [errorOld, setErrorOld] = React.useState(null);
+  const [networkErrorMessage, setNetworkErrorMessage] = useState("");
   const toast = React.useRef(null);
   const navigate = useNavigate();
 
@@ -82,7 +84,11 @@ export default function RegisterView() {
         setUsuario(response.data[0]);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   };
 
@@ -135,7 +141,11 @@ export default function RegisterView() {
         setSecciones(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   };
 
@@ -147,7 +157,11 @@ export default function RegisterView() {
         navigate("/");
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   };
 
@@ -168,6 +182,7 @@ export default function RegisterView() {
   return (
     <Layout>
       <Toast ref={toast} />
+      <NetworkErrorHandler error={networkErrorMessage} setNetworkErrorMessage={setNetworkErrorMessage} />
       {auth.activo ? (
         <div className="w-full flex flex-row justify-content-start">
           <div

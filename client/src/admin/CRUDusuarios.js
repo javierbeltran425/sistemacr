@@ -17,6 +17,7 @@ import Table from "@mui/material/Table";
 import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
 import "../constants/usuario";
+import NetworkErrorHandler from "../components/NetworkErrorHandler";
 
 import { getUsuarios, deleteUsuario } from "../services/UsuariosServices";
 import { getMaterias } from "../services/MateriasServices";
@@ -82,6 +83,7 @@ const CRUDusuarios = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState("");
+  const [networkErrorMessage, setNetworkErrorMessage] = useState("");
 
   const { auth } = useAuth();
 
@@ -96,7 +98,11 @@ const CRUDusuarios = () => {
           getAllUsuarios();
         }
       } catch (error) {
-        console.log(error);
+        if (error.response && error.response.status) {
+          setNetworkErrorMessage(error.response.status);
+        } else {
+          setNetworkErrorMessage('Error desconocido');
+        }
       }
     }
   };
@@ -110,7 +116,11 @@ const CRUDusuarios = () => {
         setDataSet(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   };
 
@@ -122,7 +132,11 @@ const CRUDusuarios = () => {
         setCarreras(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   };
 
@@ -134,7 +148,11 @@ const CRUDusuarios = () => {
         setMaterias(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   };
 
@@ -166,151 +184,154 @@ const CRUDusuarios = () => {
     searchValue == ""
       ? setDataSet(usuarios)
       : setDataSet(
-          usuarios.filter(
-            (e) =>
-              e.email.toUpperCase().includes(searchValue.toUpperCase()) ||
-              e.nombre.toUpperCase().includes(searchValue.toUpperCase())
-          )
-        );
+        usuarios.filter(
+          (e) =>
+            e.email.toUpperCase().includes(searchValue.toUpperCase()) ||
+            e.nombre.toUpperCase().includes(searchValue.toUpperCase())
+        )
+      );
   }, [searchValue]);
 
   return (
-    <Box>
-      {showModal && (
-        <ModalUsuarios
-          mode={mode}
-          showModal={showModal}
-          handleOpen={handleOpen}
-          handleClose={handleClose}
-          getAllUsuarios={getAllUsuarios}
-          usuarioToEdit={usuarioToEdit}
-          carreras={carreras}
-          materias={materias}
-        />
-      )}
-      <Card sx={{ minWidth: 275 }}>
-        <CardActions sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Button
-            onClick={() => {
-              setMode("create");
-              setShowModal(true);
-            }}
-            variant="outlined"
-          >
-            Agregar usuario
-          </Button>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Buscar..."
-              inputProps={{ "aria-label": "search" }}
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-            />
-          </Search>
-        </CardActions>
-        <CardContent>
-          <Paper sx={{ width: "100%", overflow: "hidden" }}>
-            <TableContainer sx={{ maxHeight: 650 }}>
-              <Table stickyHeader aria-label="sticky table">
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        style={{ minWidth: column.minWidth }}
-                      >
-                        {column.label}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {dataSet.length > 0 ? (
-                    dataSet
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((row) => {
-                        return (
-                          <TableRow
-                            hover
-                            role="checkbox"
-                            tabIndex={-1}
-                            key={row.email}
-                          >
-                            {columns.map((column) => {
-                              const value = row[column.id];
-                              return (
-                                <TableCell
-                                  key={column.id}
-                                  align={column.align}
-                                  style={{ whiteSpace: "pre-line" }}
-                                >
-                                  {column.format && typeof value === "number"
-                                    ? column.format(value)
-                                    : value}
-                                </TableCell>
-                              );
-                            })}
-                            <TableCell align="right">
-                              <Button
-                                variant="contained"
-                                onClick={() => {
-                                  setUsuarioToEdit({
-                                    ...usuarioToEdit,
-                                    id_usuario: row.id_usuario,
-                                    id_carrera: row.id_carrera,
-                                    email: row.email,
-                                    nombre: row.nombre,
-                                    rol: row.rol,
-                                  });
-                                  setMode("edit");
-                                  setShowModal(true);
-                                }}
-                                sx={{ mr: 2 }}
-                              >
-                                Editar
-                              </Button>
-                              <Button
-                                variant="contained"
-                                onClick={() => {
-                                  removeUsuarioById(row.id_usuario);
-                                }}
-                              >
-                                Eliminar
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                  ) : (
+    <>
+      <NetworkErrorHandler error={networkErrorMessage} setNetworkErrorMessage={setNetworkErrorMessage} />
+      <Box>
+        {showModal && (
+          <ModalUsuarios
+            mode={mode}
+            showModal={showModal}
+            handleOpen={handleOpen}
+            handleClose={handleClose}
+            getAllUsuarios={getAllUsuarios}
+            usuarioToEdit={usuarioToEdit}
+            carreras={carreras}
+            materias={materias}
+          />
+        )}
+        <Card sx={{ minWidth: 275 }}>
+          <CardActions sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Button
+              onClick={() => {
+                setMode("create");
+                setShowModal(true);
+              }}
+              variant="outlined"
+            >
+              Agregar usuario
+            </Button>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Buscar..."
+                inputProps={{ "aria-label": "search" }}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+            </Search>
+          </CardActions>
+          <CardContent>
+            <Paper sx={{ width: "100%", overflow: "hidden" }}>
+              <TableContainer sx={{ maxHeight: 650 }}>
+                <Table stickyHeader aria-label="sticky table">
+                  <TableHead>
                     <TableRow>
-                      <TableCell colSpan={6} className="ml-5">
-                        No hay elementos para mostrar.
-                      </TableCell>
+                      {columns.map((column) => (
+                        <TableCell
+                          key={column.id}
+                          align={column.align}
+                          style={{ minWidth: column.minWidth }}
+                        >
+                          {column.label}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[10, 25, 100]}
-              component="div"
-              count={dataSet.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </Paper>
-        </CardContent>
-      </Card>
-    </Box>
+                  </TableHead>
+                  <TableBody>
+                    {dataSet.length > 0 ? (
+                      dataSet
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map((row) => {
+                          return (
+                            <TableRow
+                              hover
+                              role="checkbox"
+                              tabIndex={-1}
+                              key={row.email}
+                            >
+                              {columns.map((column) => {
+                                const value = row[column.id];
+                                return (
+                                  <TableCell
+                                    key={column.id}
+                                    align={column.align}
+                                    style={{ whiteSpace: "pre-line" }}
+                                  >
+                                    {column.format && typeof value === "number"
+                                      ? column.format(value)
+                                      : value}
+                                  </TableCell>
+                                );
+                              })}
+                              <TableCell align="right">
+                                <Button
+                                  variant="contained"
+                                  onClick={() => {
+                                    setUsuarioToEdit({
+                                      ...usuarioToEdit,
+                                      id_usuario: row.id_usuario,
+                                      id_carrera: row.id_carrera,
+                                      email: row.email,
+                                      nombre: row.nombre,
+                                      rol: row.rol,
+                                    });
+                                    setMode("edit");
+                                    setShowModal(true);
+                                  }}
+                                  sx={{ mr: 2 }}
+                                >
+                                  Editar
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  onClick={() => {
+                                    removeUsuarioById(row.id_usuario);
+                                  }}
+                                >
+                                  Eliminar
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="ml-5">
+                          No hay elementos para mostrar.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[10, 25, 100]}
+                component="div"
+                count={dataSet.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Paper>
+          </CardContent>
+        </Card>
+      </Box>
+    </>
   );
 };
 

@@ -11,6 +11,7 @@ import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
+import NetworkErrorHandler from "../components/NetworkErrorHandler";
 
 import { solicitaRecuperacion } from "../services/AuthServices";
 
@@ -36,6 +37,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
+  const [networkErrorMessage, setNetworkErrorMessage] = useState("");
 
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [recoveryErrorText, setRecoveryErrorText] = useState(false);
@@ -119,7 +121,13 @@ const Login = () => {
 
       setLoadingRecovery(false);
     } catch (error) {
-      console.error(error);
+      setLoadingRecovery(false);
+
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   }
 
@@ -133,6 +141,7 @@ const Login = () => {
 
   return (
     <>
+      <NetworkErrorHandler error={networkErrorMessage} setNetworkErrorMessage={setNetworkErrorMessage} />
       <Dialog header="Recuperación de contraseña" visible={showRecoveryDialog} onHide={() => setShowRecoveryDialog(false)} className="w-11 md:w-3" >
         <div className="flex flex-column justify-content-center align-items-center gap-4">
           <InputText value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)} placeholder="Ingrese su correo electrónico..." className="w-full" />

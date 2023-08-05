@@ -18,6 +18,7 @@ import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
 import { getCarreras, removeCarreraID } from "../services/CarrerasServices";
 import useAuth from "../hooks/useAuth";
+import NetworkErrorHandler from "../components/NetworkErrorHandler";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -73,6 +74,7 @@ const CRUDcarreras = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = useState("");
+  const [networkErrorMessage, setNetworkErrorMessage] = useState("");
 
   const { auth } = useAuth();
 
@@ -88,7 +90,11 @@ const CRUDcarreras = () => {
           getAllCarreras();
         }
       } catch (error) {
-        console.log(error);
+        if (error.response && error.response.status) {
+          setNetworkErrorMessage(error.response.status);
+        } else {
+          setNetworkErrorMessage('Error desconocido');
+        }
       }
     }
   };
@@ -102,7 +108,11 @@ const CRUDcarreras = () => {
         setDataSet(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status) {
+        setNetworkErrorMessage(error.response.status);
+      } else {
+        setNetworkErrorMessage('Error desconocido');
+      }
     }
   };
 
@@ -129,143 +139,146 @@ const CRUDcarreras = () => {
     searchValue == ""
       ? setDataSet(carreras)
       : setDataSet(
-          carreras.filter(
-            (e) =>
-              e.id_carrera.includes(searchValue) ||
-              e.nombre.toUpperCase().includes(searchValue.toUpperCase())
-          )
-        );
+        carreras.filter(
+          (e) =>
+            e.id_carrera.includes(searchValue) ||
+            e.nombre.toUpperCase().includes(searchValue.toUpperCase())
+        )
+      );
   }, [searchValue]);
 
   return (
-    <Box>
-      {showModal && (
-        <ModalCarreras
-          mode={mode}
-          showModal={showModal}
-          handleOpen={handleOpen}
-          handleClose={handleClose}
-          getAllCarreras={getAllCarreras}
-          carreraToEdit={carreraToEdit}
-        />
-      )}
-      <Card sx={{ minWidth: 275 }}>
-        <CardActions sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Button
-            onClick={() => {
-              setMode("create");
-              setShowModal(true);
-            }}
-            variant="outlined"
-          >
-            Agregar carrera
-          </Button>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Buscar..."
-              inputProps={{ "aria-label": "search" }}
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-            />
-          </Search>
-        </CardActions>
-        <CardContent>
-          <Paper sx={{ width: "100%", overflow: "hidden" }}>
-            <TableContainer sx={{ maxHeight: 650 }}>
-              <Table stickyHeader aria-label="sticky table">
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        style={{ minWidth: column.minWidth }}
-                      >
-                        {column.label}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {dataSet.length > 0 ? (
-                    dataSet
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((row) => {
-                        return (
-                          <TableRow
-                            hover
-                            role="checkbox"
-                            tabIndex={-1}
-                            key={row.id_carrera}
-                          >
-                            {columns.map((column) => {
-                              const value = row[column.id];
-                              return (
-                                <TableCell key={column.id} align={column.align}>
-                                  {column.format && typeof value === "number"
-                                    ? column.format(value)
-                                    : value}
-                                </TableCell>
-                              );
-                            })}
-                            <TableCell align="right">
-                              <Button
-                                variant="contained"
-                                onClick={() => {
-                                  setCarreraToEdit({
-                                    ...carreraToEdit,
-                                    id_carrera: row.id_carrera,
-                                    nombre: row.nombre,
-                                    facultad: row.facultad,
-                                  });
-                                  setMode("edit");
-                                  setShowModal(true);
-                                }}
-                                sx={{ mr: 2 }}
-                              >
-                                EDITAR
-                              </Button>
-                              <Button
-                                variant="contained"
-                                onClick={() => {
-                                  removeCarreraById(row.id_carrera);
-                                }}
-                              >
-                                ELIMINAR
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                  ) : (
+    <>
+      <NetworkErrorHandler error={networkErrorMessage} setNetworkErrorMessage={setNetworkErrorMessage} />
+      <Box>
+        {showModal && (
+          <ModalCarreras
+            mode={mode}
+            showModal={showModal}
+            handleOpen={handleOpen}
+            handleClose={handleClose}
+            getAllCarreras={getAllCarreras}
+            carreraToEdit={carreraToEdit}
+          />
+        )}
+        <Card sx={{ minWidth: 275 }}>
+          <CardActions sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Button
+              onClick={() => {
+                setMode("create");
+                setShowModal(true);
+              }}
+              variant="outlined"
+            >
+              Agregar carrera
+            </Button>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Buscar..."
+                inputProps={{ "aria-label": "search" }}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+            </Search>
+          </CardActions>
+          <CardContent>
+            <Paper sx={{ width: "100%", overflow: "hidden" }}>
+              <TableContainer sx={{ maxHeight: 650 }}>
+                <Table stickyHeader aria-label="sticky table">
+                  <TableHead>
                     <TableRow>
-                      <TableCell colSpan={3} className="ml-5">
-                        No hay elementos para mostrar.
-                      </TableCell>
+                      {columns.map((column) => (
+                        <TableCell
+                          key={column.id}
+                          align={column.align}
+                          style={{ minWidth: column.minWidth }}
+                        >
+                          {column.label}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[10, 25, 100]}
-              component="div"
-              count={dataSet.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </Paper>
-        </CardContent>
-      </Card>
-    </Box>
+                  </TableHead>
+                  <TableBody>
+                    {dataSet.length > 0 ? (
+                      dataSet
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map((row) => {
+                          return (
+                            <TableRow
+                              hover
+                              role="checkbox"
+                              tabIndex={-1}
+                              key={row.id_carrera}
+                            >
+                              {columns.map((column) => {
+                                const value = row[column.id];
+                                return (
+                                  <TableCell key={column.id} align={column.align}>
+                                    {column.format && typeof value === "number"
+                                      ? column.format(value)
+                                      : value}
+                                  </TableCell>
+                                );
+                              })}
+                              <TableCell align="right">
+                                <Button
+                                  variant="contained"
+                                  onClick={() => {
+                                    setCarreraToEdit({
+                                      ...carreraToEdit,
+                                      id_carrera: row.id_carrera,
+                                      nombre: row.nombre,
+                                      facultad: row.facultad,
+                                    });
+                                    setMode("edit");
+                                    setShowModal(true);
+                                  }}
+                                  sx={{ mr: 2 }}
+                                >
+                                  EDITAR
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  onClick={() => {
+                                    removeCarreraById(row.id_carrera);
+                                  }}
+                                >
+                                  ELIMINAR
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={3} className="ml-5">
+                          No hay elementos para mostrar.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[10, 25, 100]}
+                component="div"
+                count={dataSet.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Paper>
+          </CardContent>
+        </Card>
+      </Box>
+    </>
   );
 };
 
