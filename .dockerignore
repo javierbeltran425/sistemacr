@@ -1,26 +1,23 @@
-client/node_modules
 client/.vscode
+client/node_modules
 client/.eslint.json
 client/.env
 client/.gcloudignore
 client/.gitignore
-client/.git
 client/clientAppEngine.yaml
 client/README.md
 
-server/node_modules
 server/.vscode
-server/.wwebjs_auth
-server/.wwebjs_cache
+server/node_modules
 server/.env
 server/.eslintrc.json
 server/.gcloudignore
 server/.gitignore
-server/.git
 server/serverAppEngine.yaml
 
+.git
+.gitignore
 .dockerignore
 docker-compose.yaml
 Dockerfile
 init.sql
-trash.txt

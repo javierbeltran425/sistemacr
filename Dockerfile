@@ -15,7 +15,7 @@ RUN npm run build
 
 
 # CLIENT STATIC FILES
-FROM node:18-alpine
+FROM node:18-alpine as integration-stage
 WORKDIR /app
 
 COPY server/package*.json ./

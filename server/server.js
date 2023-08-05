@@ -23,7 +23,7 @@ app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
-//app.use(basePath, express.static(path.join(__dirname, '/public')));
+app.use(basePath, express.static(path.join(__dirname, "/public")));
 
 // ROUTES
 

@@ -52,7 +52,7 @@ export default function RegisterView() {
   const [confirmPass, setConfirmPass] = React.useState("");
   const [error, setError] = React.useState(null);
   const [errorOld, setErrorOld] = React.useState(null);
-  const [networkErrorMessage, setNetworkErrorMessage] = useState("");
+  const [networkErrorMessage, setNetworkErrorMessage] = React.useState("");
   const toast = React.useRef(null);
   const navigate = useNavigate();
 
@@ -67,10 +67,9 @@ export default function RegisterView() {
   };
 
   useEffect(() => {
-    setError("")
-    setErrorOld("")
-  }, [newPass, confirmPass, oldPass])
-
+    setError("");
+    setErrorOld("");
+  }, [newPass, confirmPass, oldPass]);
 
   const handleClose = () => {
     setOpen(false);
@@ -87,13 +86,14 @@ export default function RegisterView() {
       if (error.response && error.response.status) {
         setNetworkErrorMessage(error.response.status);
       } else {
-        setNetworkErrorMessage('Error desconocido');
+        setNetworkErrorMessage("Error desconocido");
       }
     }
   };
 
   const ChangePassword = async () => {
-    const expRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()\\-+=<>?/\\|{}\\[\\]~]{8,}$"
+    const expRegex =
+      "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()\\-+=<>?/\\|{}\\[\\]~]{8,}$";
 
     const regex = new RegExp(expRegex);
 
@@ -144,7 +144,7 @@ export default function RegisterView() {
       if (error.response && error.response.status) {
         setNetworkErrorMessage(error.response.status);
       } else {
-        setNetworkErrorMessage('Error desconocido');
+        setNetworkErrorMessage("Error desconocido");
       }
     }
   };
@@ -160,7 +160,7 @@ export default function RegisterView() {
       if (error.response && error.response.status) {
         setNetworkErrorMessage(error.response.status);
       } else {
-        setNetworkErrorMessage('Error desconocido');
+        setNetworkErrorMessage("Error desconocido");
       }
     }
   };
@@ -182,7 +182,10 @@ export default function RegisterView() {
   return (
     <Layout>
       <Toast ref={toast} />
-      <NetworkErrorHandler error={networkErrorMessage} setNetworkErrorMessage={setNetworkErrorMessage} />
+      <NetworkErrorHandler
+        error={networkErrorMessage}
+        setNetworkErrorMessage={setNetworkErrorMessage}
+      />
       {auth.activo ? (
         <div className="w-full flex flex-row justify-content-start">
           <div
@@ -203,10 +206,17 @@ export default function RegisterView() {
         <DialogTitle>Cambiar contraseña</DialogTitle>
         <DialogContent>
           <div className="card flex justify-content-center align-items-center flex-column">
-            <ul className='w-full'>
+            <ul className="w-full">
               <li>La contraseña debe tener al menos 8 caracteres.</li>
-              <li>Debe contener al menos una letra (mayúscula o minúscula) y al menos un número.</li>
-              <li>Puedes utilizar letras (A-Z, a-z), números (0-9) y los siguientes caracteres especiales: ! @ # $ % ^ & * ( ) - + = &lt; &gt; ? / \ | { } [ ] ~.</li>
+              <li>
+                Debe contener al menos una letra (mayúscula o minúscula) y al
+                menos un número.
+              </li>
+              <li>
+                Puedes utilizar letras (A-Z, a-z), números (0-9) y los
+                siguientes caracteres especiales: ! @ # $ % ^ & * ( ) - + = &lt;
+                &gt; ? / \ | {} [ ] ~.
+              </li>
             </ul>
             <span className="p-float-label my-4">
               <Password

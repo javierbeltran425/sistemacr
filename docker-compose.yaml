@@ -13,8 +13,6 @@ services:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - POSTGRES_DB=$POSTGRES_DB
-    ports:
-      - $POSTGRES_LOCAL_PORT:$POSTGRES_DOCKER_PORT
     networks:
       - web-internal
 
@@ -24,7 +22,7 @@ services:
       - db
     build:
       args:
-        - REACT_APP_SERVER_URL=http://localhost:8000
+        - REACT_APP_SERVER_URL=$REACT_APP_SERVER_URL
       context: ./
       dockerfile: Dockerfile
     restart: unless-stopped
@@ -32,7 +30,13 @@ services:
       - $PORT:$PORT
     env_file: ./.env
     environment:
+      - REACT_APP_SERVER_URL=$REACT_APP_SERVER_URL
+
       - PORT:$PORT
+      - BASE_PATH=$BASE_PATH
+
+      - ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET
+      - REFRESH_TOKEN_SECRET=$REFRESH_TOKEN_SECRET
 
       - DB_HOST=db
       - DB_USER=$POSTGRES_USER
@@ -40,16 +44,11 @@ services:
       - DB_NAME=$POSTGRES_DB
       - DB_PORT=$POSTGRES_DOCKER_PORT
 
-      - BASE_PATH=$BASE_PATH
-      - REACT_APP_SERVER_URL=$REACT_APP_SERVER_URL
-
       - NODEM_USER=$NODEM_USER
       - NODEM_PASSWORD=$NODEM_PASSWORD
     networks:
       - web-internal
       - web-external
-    volumes:
-      - public:/app/public:rw
 
 networks:
   web-internal:
@@ -57,4 +56,3 @@ networks:
 
 volumes:
   pgdata:
-  public:

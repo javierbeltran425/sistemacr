@@ -37,6 +37,7 @@ import Collapse from "@mui/material/Collapse";
 import CloseIcon from "@mui/icons-material/Close";
 import Zoom from "@mui/material/Zoom";
 import Modal from "@mui/material/Modal";
+import PropTypes from "prop-types";
 import { AuthHookHoc } from "./auth/AuthHookHoc";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -147,7 +148,7 @@ class CalendarAlt extends React.Component {
         }
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -176,7 +177,7 @@ class CalendarAlt extends React.Component {
         this.setState({ backgroundEvents: json });
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -211,7 +212,7 @@ class CalendarAlt extends React.Component {
         });
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -296,7 +297,7 @@ class CalendarAlt extends React.Component {
         this.showError("Ha ocurrido un error al actualizar el evento");
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   }
 
@@ -317,7 +318,7 @@ class CalendarAlt extends React.Component {
         this.props.auth.accessToken
       );
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -337,7 +338,7 @@ class CalendarAlt extends React.Component {
         this.props.auth.accessToken
       );
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -357,7 +358,7 @@ class CalendarAlt extends React.Component {
         this.props.auth.accessToken
       );
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -392,7 +393,7 @@ class CalendarAlt extends React.Component {
         this.showError("Ha ocurrido un error al responder la solicitud");
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -410,7 +411,7 @@ class CalendarAlt extends React.Component {
         this.showError("Ha ocurrido un error al responder la solicitud");
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -883,3 +884,7 @@ class CalendarAlt extends React.Component {
 }
 
 export default AuthHookHoc(CalendarAlt);
+
+CalendarAlt.propTypes = {
+  auth: PropTypes.object,
+};

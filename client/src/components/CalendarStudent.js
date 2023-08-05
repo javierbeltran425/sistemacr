@@ -29,6 +29,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Divider from "@mui/material/Divider";
 import LeyendaColores from "./LeyendaColores";
+import PropTypes from "prop-types";
 import { AuthHookHoc } from "./auth/AuthHookHoc";
 
 // constantes
@@ -117,7 +118,7 @@ class CalendarAlt extends React.Component {
           });
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -129,7 +130,7 @@ class CalendarAlt extends React.Component {
 
       const response = await getInfoUsuario(body, this.props.auth.accessToken);
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -150,7 +151,7 @@ class CalendarAlt extends React.Component {
         this.setState({ backgroundEvents: json });
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -173,7 +174,7 @@ class CalendarAlt extends React.Component {
         });
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -290,7 +291,7 @@ class CalendarAlt extends React.Component {
         this.showError("Ha ocurrido un error al registrar su solicitud");
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   }
 
@@ -334,7 +335,7 @@ class CalendarAlt extends React.Component {
         this.showError("Ha ocurrido un problema para eliminar su solicitud");
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   }
 
@@ -354,7 +355,7 @@ class CalendarAlt extends React.Component {
         this.props.auth.accessToken
       );
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -374,7 +375,7 @@ class CalendarAlt extends React.Component {
         this.props.auth.accessToken
       );
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -394,7 +395,7 @@ class CalendarAlt extends React.Component {
         this.props.auth.accessToken
       );
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -752,3 +753,7 @@ class CalendarAlt extends React.Component {
 }
 
 export default AuthHookHoc(CalendarAlt);
+
+CalendarAlt.propTypes = {
+  auth: PropTypes.object,
+};

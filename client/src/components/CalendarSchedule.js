@@ -28,6 +28,7 @@ import moment from "moment";
 import React from "react";
 import "moment/locale/es";
 import "moment-timezone";
+import PropTypes from "prop-types";
 import { AuthHookHoc } from "./auth/AuthHookHoc";
 
 // servicios
@@ -108,7 +109,7 @@ class CalendarAlt extends React.Component {
           });
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -130,7 +131,7 @@ class CalendarAlt extends React.Component {
         this.setState({ events: json });
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
   };
 
@@ -231,7 +232,7 @@ class CalendarAlt extends React.Component {
         }
       }
     } catch (error) {
-      console.log(error);
+      this.showError(error.response.data.message);
     }
     this.getHorariosUsuario();
   }
@@ -257,7 +258,7 @@ class CalendarAlt extends React.Component {
       this.state.identificador,
       this.props.auth.accessToken
     ).catch((error) => {
-      console.log(error);
+      this.showError(error.response.data.message);
     });
 
     if (response.status == 200) {
@@ -615,3 +616,7 @@ class CalendarAlt extends React.Component {
 }
 
 export default AuthHookHoc(CalendarAlt);
+
+CalendarAlt.propTypes = {
+  auth: PropTypes.object,
+};
