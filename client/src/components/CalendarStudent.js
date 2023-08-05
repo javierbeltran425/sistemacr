@@ -413,6 +413,10 @@ class CalendarAlt extends React.Component {
     );
   };
 
+  isValidDate = (slotInfo) => {
+    return slotInfo.start >= new Date();
+  };
+
   renderStatusSquare(estado) {
     switch (estado) {
       case SOLICITUDES_ESTADOS.RECHAZADO:
@@ -575,10 +579,19 @@ class CalendarAlt extends React.Component {
               : "";
           }}
           onSelectSlot={(slotInfo) => {
-            !this.concurrentEventExists(slotInfo) &&
-            this.fitsOnSchedule(slotInfo)
-              ? this.handleSlotSelected(slotInfo)
-              : this.showError("El horario seleccionado no está disponible.");
+            if (
+              !this.concurrentEventExists(slotInfo) &&
+              this.fitsOnSchedule(slotInfo) &&
+              this.isValidDate(slotInfo)
+            )
+              this.handleSlotSelected(slotInfo);
+            else {
+              let message = "";
+              !this.isValidDate(slotInfo)
+                ? (message = "La fecha seleccionada ya ha pasado.")
+                : (message = "La fecha seleccionada no está disponible.");
+              this.showError(message);
+            }
           }}
         />
 
