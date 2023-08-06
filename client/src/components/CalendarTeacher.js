@@ -381,7 +381,7 @@ class CalendarAlt extends React.Component {
         const { email } = this.state;
 
         switch (estado) {
-          case "RECHAZADO":
+          case SOLICITUDES_ESTADOS.RECHAZADO:
             this.envioNotificacionRechazo(email);
             break;
 
@@ -433,10 +433,10 @@ class CalendarAlt extends React.Component {
     switch (estado) {
       case SOLICITUDES_ESTADOS.RECHAZADO:
         return <SquareRoundedIcon sx={{ color: "#7E1717" }} />;
-      case SOLICITUDES_ESTADOS.ACEPTADO:
-        return <SquareRoundedIcon color="success" />;
       case SOLICITUDES_ESTADOS.AUSENTE:
         return <SquareRoundedIcon sx={{ color: "#7E1717" }} />;
+      case SOLICITUDES_ESTADOS.ACEPTADO:
+        return <SquareRoundedIcon color="success" />;
       case SOLICITUDES_ESTADOS.ATENDIDO:
         return <SquareRoundedIcon color="success" />;
       default:
@@ -486,7 +486,15 @@ class CalendarAlt extends React.Component {
           return {
             style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
           };
+        case SOLICITUDES_ESTADOS.AUSENTE:
+          return {
+            style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+          };
         case SOLICITUDES_ESTADOS.ACEPTADO:
+          return {
+            style: { backgroundColor: "#17594a", borderColor: "#17594a" },
+          };
+        case SOLICITUDES_ESTADOS.ATENDIDO:
           return {
             style: { backgroundColor: "#17594a", borderColor: "#17594a" },
           };

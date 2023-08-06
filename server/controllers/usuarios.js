@@ -91,10 +91,16 @@ const createUsuario = tryCatch(async function (req, res) {
       id_carrera: id_carrera,
     })
     .catch(() => {
-      throw new apiError(
-        httpCodes.BAD_REQUEST,
-        "Ya existe un usuario con el mismo email."
-      );
+      if (!id_carrera)
+        throw new apiError(
+          httpCodes.BAD_REQUEST,
+          "Es necesario ingresar una carrera."
+        );
+      else
+        throw new apiError(
+          httpCodes.BAD_REQUEST,
+          "Ya existe un usuario con el mismo email."
+        );
     });
 
   if (materias.length == 0) return res.json(newUsuario);

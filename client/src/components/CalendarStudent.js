@@ -421,7 +421,11 @@ class CalendarAlt extends React.Component {
     switch (estado) {
       case SOLICITUDES_ESTADOS.RECHAZADO:
         return <Square sx={{ color: "#7E1717" }} />;
+      case SOLICITUDES_ESTADOS.AUSENTE:
+        return <Square sx={{ color: "#7E1717" }} />;
       case SOLICITUDES_ESTADOS.ACEPTADO:
+        return <Square color="success" />;
+      case SOLICITUDES_ESTADOS.ATENDIDO:
         return <Square color="success" />;
       default:
         return <Square color="primary" />;
@@ -475,13 +479,13 @@ class CalendarAlt extends React.Component {
             return {
               style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
             };
-          case SOLICITUDES_ESTADOS.ACEPTADO:
-            return {
-              style: { backgroundColor: "#17594a", borderColor: "#17594a" },
-            };
           case SOLICITUDES_ESTADOS.AUSENTE:
             return {
               style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+            };
+          case SOLICITUDES_ESTADOS.ACEPTADO:
+            return {
+              style: { backgroundColor: "#17594a", borderColor: "#17594a" },
             };
           case SOLICITUDES_ESTADOS.ATENDIDO:
             return {
