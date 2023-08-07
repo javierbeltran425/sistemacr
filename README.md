@@ -1,5 +1,9 @@
 # sistemacr
 
+1. [Preparar entorno de desarrollo](#preparar-entorno-de-desarrollo)
+2. [Preparar para producción](#preparar-para-producción)
+3. [Bibliografía](#bibliografía)
+
 ## Preparar entorno de desarrollo
 
 ### Pre-requisitos
