@@ -49,7 +49,10 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 // constantes
-import { SOLICITUDES_ESTADOS } from "../constants/solicitudes";
+import {
+  SOLICITUDES_COLORES,
+  SOLICITUDES_ESTADOS,
+} from "../constants/solicitudes";
 
 // servicios
 import { getSeccionesByIdUsuario } from "../services/SeccionesServices";
@@ -432,9 +435,9 @@ class CalendarAlt extends React.Component {
   renderStatusSquare(estado) {
     switch (estado) {
       case SOLICITUDES_ESTADOS.RECHAZADO:
-        return <SquareRoundedIcon sx={{ color: "#7E1717" }} />;
+        return <SquareRoundedIcon sx={{ color: SOLICITUDES_COLORES.ROJO }} />;
       case SOLICITUDES_ESTADOS.AUSENTE:
-        return <SquareRoundedIcon sx={{ color: "#7E1717" }} />;
+        return <SquareRoundedIcon sx={{ color: SOLICITUDES_COLORES.ROJO }} />;
       case SOLICITUDES_ESTADOS.ACEPTADO:
         return <SquareRoundedIcon color="success" />;
       case SOLICITUDES_ESTADOS.ATENDIDO:
@@ -484,19 +487,31 @@ class CalendarAlt extends React.Component {
       switch (event.estado) {
         case SOLICITUDES_ESTADOS.RECHAZADO:
           return {
-            style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+            style: {
+              backgroundColor: SOLICITUDES_COLORES.ROJO,
+              borderColor: SOLICITUDES_COLORES.ROJO,
+            },
           };
         case SOLICITUDES_ESTADOS.AUSENTE:
           return {
-            style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+            style: {
+              backgroundColor: SOLICITUDES_COLORES.ROJO,
+              borderColor: SOLICITUDES_COLORES.ROJO,
+            },
           };
         case SOLICITUDES_ESTADOS.ACEPTADO:
           return {
-            style: { backgroundColor: "#17594a", borderColor: "#17594a" },
+            style: {
+              backgroundColor: SOLICITUDES_COLORES.VERDE,
+              borderColor: SOLICITUDES_COLORES.VERDE,
+            },
           };
         case SOLICITUDES_ESTADOS.ATENDIDO:
           return {
-            style: { backgroundColor: "#17594a", borderColor: "#17594a" },
+            style: {
+              backgroundColor: SOLICITUDES_COLORES.VERDE,
+              borderColor: SOLICITUDES_COLORES.VERDE,
+            },
           };
         default:
           return;

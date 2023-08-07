@@ -15,6 +15,8 @@ import NetworkErrorHandler from "../components/NetworkErrorHandler";
 
 import { solicitaRecuperacion } from "../services/AuthServices";
 
+import logo from "../res/img/logoUca.png"; // with import
+
 const titleTemplate = (
   <div className="w-full">
     <p className="text-center text-2xl font-bold">
@@ -55,7 +57,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const expRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()\\-+=<>?/\\|{}\\[\\]~]{8,}$"
+    const expRegex =
+      "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()\\-+=<>?/\\|{}\\[\\]~]{8,}$";
 
     const regex = new RegExp(expRegex);
 
@@ -95,11 +98,11 @@ const Login = () => {
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
     if (emailRegex.test(recoveryEmail)) {
-      setRecoveryErrorText(false)
-      recuperacionContrasenia()
+      setRecoveryErrorText(false);
+      recuperacionContrasenia();
     } else {
-      setRecoveryErrorText(true)
-      setRecoverySuccessText(false)
+      setRecoveryErrorText(true);
+      setRecoverySuccessText(false);
     }
   };
 
@@ -107,16 +110,17 @@ const Login = () => {
     try {
       setLoadingRecovery(true);
 
-      const hostUrl = window.location.protocol + "//" + window.location.host + "/";
+      const hostUrl =
+        window.location.protocol + "//" + window.location.host + "/";
 
       const body = {
         email: recoveryEmail,
-        pathUrl: hostUrl
-      }
-      const response = await solicitaRecuperacion(body)
+        pathUrl: hostUrl,
+      };
+      const response = await solicitaRecuperacion(body);
 
       if (response.status === 200) {
-        setRecoverySuccessText(true)
+        setRecoverySuccessText(true);
       }
 
       setLoadingRecovery(false);
@@ -126,10 +130,10 @@ const Login = () => {
       if (error.response && error.response.status) {
         setNetworkErrorMessage(error.response.status);
       } else {
-        setNetworkErrorMessage('Error desconocido');
+        setNetworkErrorMessage("Error desconocido");
       }
     }
-  }
+  };
 
   const togglePersist = () => {
     setPersist((prev) => !prev);
@@ -141,28 +145,53 @@ const Login = () => {
 
   return (
     <>
-      <NetworkErrorHandler error={networkErrorMessage} setNetworkErrorMessage={setNetworkErrorMessage} />
-      <Dialog header="Recuperación de contraseña" visible={showRecoveryDialog} onHide={() => setShowRecoveryDialog(false)} className="w-11 md:w-3" >
+      <NetworkErrorHandler
+        error={networkErrorMessage}
+        setNetworkErrorMessage={setNetworkErrorMessage}
+      />
+      <Dialog
+        header="Recuperación de contraseña"
+        visible={showRecoveryDialog}
+        onHide={() => setShowRecoveryDialog(false)}
+        className="w-11 md:w-3"
+      >
         <div className="flex flex-column justify-content-center align-items-center gap-4">
-          <InputText value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)} placeholder="Ingrese su correo electrónico..." className="w-full" />
-          {recoveryErrorText ?
-            <p className="text-center text-red-500 m-0 p-0 text-sm">El texto ingresado no es un correo válido</p> : ""
-          }
-          {
-            recoverySuccessText ?
-              <p className="text-center text-green-500 m-0 p-0 text-sm">Se ha enviado un correo electrónico con las instrucciones a seguir para continuar con el proceso. Si no recibió el correo haga clic de nuevo en el botón "Solicitar recuperación"</p> : ""
-          }
-          <Button label="Solicitar recuperación" loading={loadingRecovery} className="w-full" onClick={handleEmailChange} outlined />
+          <InputText
+            value={recoveryEmail}
+            onChange={(e) => setRecoveryEmail(e.target.value)}
+            placeholder="Ingrese su correo electrónico..."
+            className="w-full"
+          />
+          {recoveryErrorText ? (
+            <p className="text-center text-red-500 m-0 p-0 text-sm">
+              El texto ingresado no es un correo válido
+            </p>
+          ) : (
+            ""
+          )}
+          {recoverySuccessText ? (
+            <p className="text-center text-green-500 m-0 p-0 text-sm">
+              Se ha enviado un correo electrónico con las instrucciones a seguir
+              para continuar con el proceso. Si no recibió el correo haga clic
+              de nuevo en el botón "Solicitar recuperación"
+            </p>
+          ) : (
+            ""
+          )}
+          <Button
+            label="Solicitar recuperación"
+            loading={loadingRecovery}
+            className="w-full"
+            onClick={handleEmailChange}
+            outlined
+          />
         </div>
       </Dialog>
       <div className="flex w-full h-screen justify-content-center align-items-center surface-ground px-3">
         <Card title={titleTemplate}>
           <div className="flex flex-column justify-content-center align-items-center md:flex-row w-full">
             <div className="flex w-8 justify-content-center align-items-center">
-              <img
-                src="https://www.uca.edu.sv/realidad.empresarial/wp-content/uploads/2018/09/logo-uca2.png"
-                className="w-8 mb-3 md:mb-0"
-              />
+              <img src={logo} className="w-8 mb-3 md:mb-0" />
             </div>
             <form
               className="flex flex-column justify-content-center align-items-center gap-4"
@@ -210,9 +239,13 @@ const Login = () => {
               </p>
 
               <div className="m-0 p-0">
-                <p className="text-blue-500 cursor-pointer hover:underline m-0 p-0" onClick={() => setShowRecoveryDialog(true)}>Olvidé mi contraseña</p>
+                <p
+                  className="text-blue-500 cursor-pointer hover:underline m-0 p-0"
+                  onClick={() => setShowRecoveryDialog(true)}
+                >
+                  Olvidé mi contraseña
+                </p>
               </div>
-
             </form>
           </div>
         </Card>

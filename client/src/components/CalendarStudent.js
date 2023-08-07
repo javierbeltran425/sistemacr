@@ -36,6 +36,7 @@ import { AuthHookHoc } from "./auth/AuthHookHoc";
 import {
   SOLICITUDES_ESTADOS,
   SOLICITUDES_TIPOS_ARRAY,
+  SOLICITUDES_COLORES,
 } from "../constants/solicitudes";
 
 // servicios
@@ -420,9 +421,9 @@ class CalendarAlt extends React.Component {
   renderStatusSquare(estado) {
     switch (estado) {
       case SOLICITUDES_ESTADOS.RECHAZADO:
-        return <Square sx={{ color: "#7E1717" }} />;
+        return <Square sx={{ color: SOLICITUDES_COLORES.ROJO }} />;
       case SOLICITUDES_ESTADOS.AUSENTE:
-        return <Square sx={{ color: "#7E1717" }} />;
+        return <Square sx={{ color: SOLICITUDES_COLORES.ROJO }} />;
       case SOLICITUDES_ESTADOS.ACEPTADO:
         return <Square color="success" />;
       case SOLICITUDES_ESTADOS.ATENDIDO:
@@ -477,19 +478,31 @@ class CalendarAlt extends React.Component {
         switch (event.estado) {
           case SOLICITUDES_ESTADOS.RECHAZADO:
             return {
-              style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+              style: {
+                backgroundColor: SOLICITUDES_COLORES.ROJO,
+                borderColor: SOLICITUDES_COLORES.ROJO,
+              },
             };
           case SOLICITUDES_ESTADOS.AUSENTE:
             return {
-              style: { backgroundColor: "#7E1717", borderColor: "#7E1717" },
+              style: {
+                backgroundColor: SOLICITUDES_COLORES.ROJO,
+                borderColor: SOLICITUDES_COLORES.ROJO,
+              },
             };
           case SOLICITUDES_ESTADOS.ACEPTADO:
             return {
-              style: { backgroundColor: "#17594a", borderColor: "#17594a" },
+              style: {
+                backgroundColor: SOLICITUDES_COLORES.VERDE,
+                borderColor: SOLICITUDES_COLORES.VERDE,
+              },
             };
           case SOLICITUDES_ESTADOS.ATENDIDO:
             return {
-              style: { backgroundColor: "#17594a", borderColor: "#17594a" },
+              style: {
+                backgroundColor: SOLICITUDES_COLORES.VERDE,
+                borderColor: SOLICITUDES_COLORES.VERDE,
+              },
             };
           default:
             return;
