@@ -92,13 +92,6 @@ DROP CONSTRAINT IF EXISTS UxM_unique;
 ALTER TABLE usuariosxmaterias
 ADD CONSTRAINT UxM_unique UNIQUE (id_seccion, id_usuario);
 
-/*
-
-### Query para crear usuario administrador en caso de perdida de acceso ###
-  - email: admin@uca.edu.sv
-  - contraseña: admin
-
-*/
 INSERT INTO USUARIOS (id_usuario, email, hashed_password, rol, activo, nombre)
 VALUES('admin', 'admin@uca.edu.sv', '$2b$10$dhsJYfaaSloQyU2a.K1T3OkYzVPVCTLtJpNntBrVPXtI8iZWPDEL2', 'admin', true, 'admin')
 ON CONFLICT (id_usuario) DO NOTHING;
