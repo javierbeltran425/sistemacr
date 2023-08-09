@@ -23,6 +23,7 @@ services:
     build:
       args:
         - REACT_APP_SERVER_URL=$REACT_APP_SERVER_URL
+        - PUBLIC_URL=$REACT_APP_SERVER_URL
         - ESLINT_NO_DEV_ERRORS=$ESLINT_NO_DEV_ERRORS
         - DISABLE_ESLINT_PLUGIN=$DISABLE_ESLINT_PLUGIN
       context: ./
